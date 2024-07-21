@@ -1,11 +1,3 @@
-create table facilities(facid integer auto_increment primary key, name character varying(100), membercost numeric, guestcost numeric, initialoutlay numeric, monthlymaintenance numeric);
-
-insert into facilities (name, membercost, guestcost, initialoutlay, monthlymaintenance) values("Tennis Court 1", 5, 25, 10000, 200);
-insert into facilities (name, membercost, guestcost, initialoutlay, monthlymaintenance) values("Tennis Court 2", 5, 25, 8000, 200);
-insert into facilities (name, membercost, guestcost, initialoutlay, monthlymaintenance) values("Badminton Court", 0, 15.5, 4000, 50);
-insert into facilities (name, membercost, guestcost, initialoutlay, monthlymaintenance) values("Table Tennis", 0, 5, 320, 10);
-insert into facilities (name, membercost, guestcost, initialoutlay, monthlymaintenance) values("Massage Room 1", 35, 1, 10000, 3000);
-
 create table members(memid integer auto_increment primary key, surname character varying(200), firstname character varying(200), address character varying(300), zipcode integer, telephone character varying(20), recommendedby integer, joindate timestamp, foreign key(recommendedby) references members(memid));
 
 insert into members (surname, firstname, address, zipcode, telephone, joindate) values ("Smith", "Darren", "8 Bloomsbury Close, Boston", 4321, "555-555-5555", "2012-07-02 10:25:05");
@@ -13,10 +5,13 @@ insert into members (surname, firstname, address, zipcode, telephone, recommende
 insert into members (surname, firstname, address, zipcode, telephone, recommendedby, joindate) values ("Wick", "John", "Paris", 777, "8-800-555-35-35", 1, "2014-09-19 00:00:01");
 insert into members (surname, firstname, address, zipcode, telephone, recommendedby, joindate) values ("Jones", "Douglas", "3 Bloomsbury Close, Boston", 4321, "555-555-5555", 3, "2012-07-02 12:25:05");
 
-select * from facilities;
 select * from members;
 
-select surname from members union select name as surname from facilities;
+select distinct mems_1.firstname, mems_1.surname 
+	from 
+		members mems_1
+		inner join members mems_2
+			on mems_2.recommendedby=mems_1.memid 
+	order by surname, firstname;
 
 drop table members;
-drop table facilities;
