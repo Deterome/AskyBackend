@@ -1,10 +1,59 @@
-create table facilities(facid integer auto_increment primary key, name character varying(100), membercost numeric, guestcost numeric, initialoutlay numeric, monthlymaintenance numeric);
+CREATE TABLE FACILITIES (
+	FACID SERIAL PRIMARY KEY,
+	NAME CHARACTER VARYING(100),
+	MEMBERCOST NUMERIC,
+	GUESTCOST NUMERIC,
+	INITIALOUTLAY NUMERIC,
+	MONTHLYMAINTENANCE NUMERIC
+);
 
-insert into facilities (name, membercost, guestcost, initialoutlay, monthlymaintenance) values("Tennis Court 1", 5, 25, 10000, 200);
-insert into facilities (name, membercost, guestcost, initialoutlay, monthlymaintenance) values("Tennis Court 2", 5, 25, 8000, 200);
-insert into facilities (name, membercost, guestcost, initialoutlay, monthlymaintenance) values("Badminton Court", 0, 15.5, 4000, 50);
-insert into facilities (name, membercost, guestcost, initialoutlay, monthlymaintenance) values("Table Tennis", 0, 5, 320, 10);
+INSERT INTO
+	FACILITIES (
+		NAME,
+		MEMBERCOST,
+		GUESTCOST,
+		INITIALOUTLAY,
+		MONTHLYMAINTENANCE
+	)
+VALUES
+	('Tennis Court 1', 5, 25, 10000, 200);
 
-select * from facilities;
+INSERT INTO
+	FACILITIES (
+		NAME,
+		MEMBERCOST,
+		GUESTCOST,
+		INITIALOUTLAY,
+		MONTHLYMAINTENANCE
+	)
+VALUES
+	('Tennis Court ', 5, 25, 8000, 200);
 
-drop table facilities;
+INSERT INTO
+	FACILITIES (
+		NAME,
+		MEMBERCOST,
+		GUESTCOST,
+		INITIALOUTLAY,
+		MONTHLYMAINTENANCE
+	)
+VALUES
+	('Badminton Court', 0, 15.5, 4000, 50);
+
+INSERT INTO
+	FACILITIES (
+		NAME,
+		MEMBERCOST,
+		GUESTCOST,
+		INITIALOUTLAY,
+		MONTHLYMAINTENANCE
+	)
+VALUES
+	('Table Tennis', 0, 5, 320, 10);
+
+SELECT
+	*
+FROM
+	FACILITIES;
+
+DROP TABLE FACILITIES;
