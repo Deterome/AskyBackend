@@ -1,8 +1,8 @@
 CREATE TABLE questions (
-     question_id SERIAL PRIMARY KEY,
+     question_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
      header VARCHAR(255),
-     body VARCHAR(5000),
-     author INTEGER,
+     body VARCHAR,
+     author UUID,
      interesting BIGINT,
      create_time TIMESTAMP,
      FOREIGN KEY (author) REFERENCES profiles (user_id)
