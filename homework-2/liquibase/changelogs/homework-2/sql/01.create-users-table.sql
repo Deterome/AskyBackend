@@ -1,4 +1,5 @@
 CREATE TABLE users (
-     id bigint primary key,
-     name varchar(255) unique
-)
+     user_id SERIAL PRIMARY KEY,
+     username VARCHAR(255),
+     hashed_password VARCHAR(255)
+);
