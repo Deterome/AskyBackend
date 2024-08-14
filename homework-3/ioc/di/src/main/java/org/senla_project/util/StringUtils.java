@@ -1,4 +1,4 @@
-package org.senla_project.utils;
+package org.senla_project.util;
 
 final public class StringUtils {
 

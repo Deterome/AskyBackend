@@ -1,4 +1,4 @@
-package org.senla_project.annotations;
+package org.senla_project.ioc.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
