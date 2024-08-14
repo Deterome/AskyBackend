@@ -1,6 +1,6 @@
 package testPackage;
 
-import org.senla_project.annotations.IocContext;
+import org.senla_project.ioc.context.IocContext;
 
 public class IocContextTest {
 

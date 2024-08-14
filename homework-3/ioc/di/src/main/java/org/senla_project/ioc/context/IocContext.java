@@ -1,39 +1,49 @@
-package org.senla_project.annotations;
+package org.senla_project.ioc.context;
 
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
-import org.senla_project.utils.StringUtils;
+import org.senla_project.ioc.annotations.Autowire;
+import org.senla_project.ioc.annotations.Component;
+import org.senla_project.ioc.annotations.Value;
+import org.senla_project.util.StringUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class IocContext {
 
-    public IocContext(String packageToScan) {
-        initComponentContainer(packageToScan);
+    public IocContext(String contextPackage) {
+        this.contextPackage = contextPackage;
+        initComponentContainer();
     }
 
-    private void initComponentContainer(String packageToScan) {
+    private void initComponentContainer() {
         try {
-            fillContainerWithComponentsFromPackage(packageToScan);
+            fillContainerWithComponentsFromPackage();
             initComponentFields();
         } catch (InstantiationException |
                  IllegalAccessException |
                  NoSuchMethodException |
-                 InvocationTargetException e) {
+                 InvocationTargetException |
+                 IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void fillContainerWithComponentsFromPackage(String packageToScan) throws
+    private void fillContainerWithComponentsFromPackage() throws
             NoSuchMethodException,
             InvocationTargetException,
             InstantiationException,
             IllegalAccessException {
-        Reflections reflections = new Reflections(packageToScan);
+        Reflections reflections = new Reflections(contextPackage);
         Queue<Class<?>> uncreatedComponentClasses = new LinkedList<>(reflections.getTypesAnnotatedWith(Component.class));
         //   Создаём компоненты в цикле. Цикл завершается в том случае, если мы создали все компоненты или возникла ситуация,
         //  когда мы не можем создать компоненты из-за их зависимости друг от друга.
@@ -115,14 +125,14 @@ public class IocContext {
         return true;
     }
 
-    private void initComponentFields() throws IllegalAccessException, InvocationTargetException {
+    private void initComponentFields() throws IllegalAccessException, InvocationTargetException, IOException {
         for (var component: container.values()) {
             processComponentFields(component);
             processComponentSetters(component);
         }
     }
 
-    private void processComponentFields(@NotNull Object component) throws IllegalAccessException {
+    private void processComponentFields(@NotNull Object component) throws IllegalAccessException, IOException {
         for (var field: component.getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(Value.class))
                 initFieldWithValue(component, field, field.getAnnotation(Value.class).value());
@@ -155,9 +165,23 @@ public class IocContext {
         }
     }
 
-    private void initFieldWithValue(@NotNull Object component,@NotNull Field field, String value) throws IllegalAccessException {
+    private void initFieldWithValue(@NotNull Object component, @NotNull Field field, String value) throws IllegalAccessException, IOException {
+        Pattern variableRegexPattern = Pattern.compile("\\$\\{([A-Za-z0-9.]+)}");
+        Matcher variableMatcher = variableRegexPattern.matcher(value);
+        if (variableMatcher.find()) {
+            value = findVariableInPropertyFile(variableMatcher.group(1));
+        }
         field.setAccessible(true);
         field.set(component, value);
+    }
+
+    private String findVariableInPropertyFile(String variableName) throws IOException {
+        InputStream propertiesFileStream = getClass().getClassLoader().getResourceAsStream(propertiesFileName);
+
+        Properties properties = new Properties();
+        properties.load(propertiesFileStream);
+
+        return properties.getProperty(variableName);
     }
 
     public <T> T findComponent(String componentName, @NotNull Class<T> componentClass) {
@@ -173,5 +197,8 @@ public class IocContext {
         }
         return null;
     }
+
+    private final String propertiesFileName = "application.properties";
+    private final String contextPackage;
     private final Map<String, Object> container = new HashMap<>();
 }
