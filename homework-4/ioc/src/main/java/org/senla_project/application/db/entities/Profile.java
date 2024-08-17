@@ -1,16 +1,15 @@
 package org.senla_project.application.db.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
+import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
-public class Profile {
+public class Profile extends Entity {
 
-    private int profileId;
+    private UUID profileId;
     private User user;
     private String bio;
     private String firstname;

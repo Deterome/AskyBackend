@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
-public class CollaborationUserDto {
+public class CollaborationsJoiningDto {
 
     private Date joinDate;
 
