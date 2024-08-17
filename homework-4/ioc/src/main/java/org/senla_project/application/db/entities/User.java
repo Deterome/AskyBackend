@@ -1,14 +1,14 @@
 package org.senla_project.application.db.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.UUID;
+
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
-public class User {
+public class User extends Entity {
 
-    private int userId;
+    private UUID userId;
     private Role role;
     private String nickname;
     private String password;

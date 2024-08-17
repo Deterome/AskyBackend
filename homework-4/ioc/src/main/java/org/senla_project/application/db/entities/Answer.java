@@ -1,16 +1,15 @@
 package org.senla_project.application.db.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
+import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
-public class Answer {
+public class Answer extends Entity {
 
-    private int answerId;
+    private UUID answerId;
     private String body;
     private User author;
     private Question question;
