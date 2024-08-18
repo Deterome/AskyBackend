@@ -8,7 +8,13 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class Role extends Entity {
 
-    private UUID roleId;
     private String roleName;
+
+    @Override
+    public Role clone() {
+        Role clone = (Role) super.clone();
+        clone.roleName = roleName;
+        return clone;
+    }
 
 }

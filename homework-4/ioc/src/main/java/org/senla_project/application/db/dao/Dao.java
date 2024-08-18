@@ -2,33 +2,44 @@ package org.senla_project.application.db.dao;
 
 import lombok.NonNull;
 import org.senla_project.application.db.entities.Entity;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.UUID;
 
-public abstract class Dao<E extends Entity> {
+public abstract class Dao<T extends Entity & Cloneable> {
 
-    protected List<E> entities;
+    protected List<T> entities;
+    Class<T> entityClass;
 
-    public List<E> findAll() {
-        return entities;
+    public Dao(@NonNull Class<T> entityClass) {
+        this.entityClass = entityClass;
     }
 
-    public E findById(@NonNull UUID id) {
-        for (var entity: entities) {
+    @NonNull
+    public List<T> findAll() {
+        return entities.stream().map(entity -> entityClass.cast(entity.clone())).toList();
+    }
+
+    @Nullable
+    public T findById(@NonNull UUID id) {
+        for (T entity: entities) {
             if (entity.getId().equals(id)) {
-                return entity;
+                return entityClass.cast(entity.clone());
             }
         }
         return null;
     }
 
-    public void save(E entity) {
+    public void create(@NonNull T entity) {
         entities.add(entity);
     }
 
-    public void delete(E entity) {
-        entities.remove(entity);
+    public void update(@NonNull UUID id, @NonNull T updatedEntity) {
+        entities.replaceAll(entity -> entity.getId().equals(id) ? updatedEntity : entity);
     }
 
+    public void deleteById(@NonNull UUID id) {
+        entities.removeIf(entity -> entity.getId().equals(id));
+    }
 }
