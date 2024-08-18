@@ -9,9 +9,17 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class CollaborationsJoining extends Entity {
 
-    private UUID joinId;
     private Collaboration collab;
     private User user;
     private Date joinDate;
+
+    @Override
+    public CollaborationsJoining clone() {
+        CollaborationsJoining clone = (CollaborationsJoining) super.clone();
+        clone.collab = collab;
+        clone.user = user;
+        clone.joinDate = joinDate;
+        return clone;
+    }
 
 }

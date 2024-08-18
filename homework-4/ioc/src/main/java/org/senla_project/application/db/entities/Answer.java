@@ -9,12 +9,22 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class Answer extends Entity {
 
-    private UUID answerId;
     private String body;
     private User author;
     private Question question;
     private int usefulness;
     private Date createTime;
+
+    @Override
+    public Answer clone() {
+        Answer clone = (Answer) super.clone();
+        clone.body = body;
+        clone.author = author;
+        clone.question = question;
+        clone.usefulness = usefulness;
+        clone.createTime = createTime;
+        return clone;
+    }
 
 }
 
