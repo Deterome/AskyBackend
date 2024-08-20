@@ -1,15 +1,18 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
-import org.senla_project.application.db.dao.CollaborationDao;
-import org.senla_project.application.db.dao.CollaborationsJoiningDao;
-import org.senla_project.application.db.dao.UserDao;
-import org.senla_project.application.db.dto.CollaborationsJoiningDto;
-import org.senla_project.application.db.entities.CollaborationsJoining;
+import org.senla_project.application.dao.CollaborationDao;
+import org.senla_project.application.dao.CollaborationsJoiningDao;
+import org.senla_project.application.dao.UserDao;
+import org.senla_project.application.dto.CollaborationsJoiningDto;
+import org.senla_project.application.entity.CollaborationsJoining;
+import org.senla_project.application.mapper.CollaborationsJoiningListMapper;
+import org.senla_project.application.mapper.CollaborationsJoiningMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +25,10 @@ public class CollaborationsJoiningService implements ServiceInterface<Collaborat
     private CollaborationDao collaborationDao;
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private CollaborationsJoiningMapper collaborationsJoiningMapper;
+    @Autowired
+    private CollaborationsJoiningListMapper collaborationsJoiningListMapper;
 
     @Override
     public void execute() {}
@@ -29,36 +36,25 @@ public class CollaborationsJoiningService implements ServiceInterface<Collaborat
     @Override
     @NonNull
     public List<CollaborationsJoiningDto> getAllElements() {
-        return collaborationsJoiningDao.findAll().stream().map(CollaborationsJoiningDto::new).toList();
+        return collaborationsJoiningListMapper.toDtoList(collaborationsJoiningDao.findAll());
     }
 
     @Override
     @Nullable
     public CollaborationsJoiningDto getElementById(@NonNull UUID id) {
-        var collabJoin = collaborationsJoiningDao.findById(id);
+        CollaborationsJoining collabJoin = collaborationsJoiningDao.findById(id);
         if (collabJoin == null) return null;
-        return new CollaborationsJoiningDto(collabJoin);
+        return collaborationsJoiningMapper.toDto(collabJoin);
     }
 
     @Override
     public void addElement(@NonNull CollaborationsJoiningDto element) {
-        CollaborationsJoining newElement = CollaborationsJoining.builder()
-                .collab(collaborationDao.findCollabByName(element.getCollabName()))
-                .user(userDao.findUserByNickname(element.getUserName()))
-                .joinDate(element.getJoinDate())
-            .build();
-        collaborationsJoiningDao.create(newElement);
+        collaborationsJoiningDao.create(collaborationsJoiningMapper.toEntity(element));
     }
 
     @Override
     public void updateElement(@NonNull UUID id, @NonNull CollaborationsJoiningDto updatedElement) {
-        CollaborationsJoining updatedCollabJoin = CollaborationsJoining.builder()
-                .collab(collaborationDao.findCollabByName(updatedElement.getCollabName()))
-                .user(userDao.findUserByNickname(updatedElement.getUserName()))
-                .joinDate(updatedElement.getJoinDate())
-                .build();
-        updatedCollabJoin.setId(updatedElement.getJoinId());
-        collaborationsJoiningDao.update(id, updatedCollabJoin);
+        collaborationsJoiningDao.update(id, collaborationsJoiningMapper.toEntity(updatedElement));
     }
 
     @Override

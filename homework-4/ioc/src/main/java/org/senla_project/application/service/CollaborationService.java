@@ -1,13 +1,18 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
-import org.senla_project.application.db.dao.CollaborationDao;
-import org.senla_project.application.db.dto.CollaborationDto;
-import org.senla_project.application.db.entities.Collaboration;
+import org.senla_project.application.dao.CollaborationDao;
+import org.senla_project.application.dao.QuestionDao;
+import org.senla_project.application.dao.UserDao;
+import org.senla_project.application.dto.CollaborationDto;
+import org.senla_project.application.entity.Collaboration;
+import org.senla_project.application.mapper.CollaborationListMapper;
+import org.senla_project.application.mapper.CollaborationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +21,10 @@ public class CollaborationService implements ServiceInterface<CollaborationDto> 
 
     @Autowired
     private CollaborationDao collaborationDao;
+    @Autowired
+    private CollaborationMapper collaborationMapper;
+    @Autowired
+    private CollaborationListMapper collaborationListMapper;
 
     @Override
     public void execute() {}
@@ -23,34 +32,25 @@ public class CollaborationService implements ServiceInterface<CollaborationDto> 
     @Override
     @NonNull
     public List<CollaborationDto> getAllElements() {
-        return collaborationDao.findAll().stream().map(CollaborationDto::new).toList();
+        return collaborationListMapper.toDtoList(collaborationDao.findAll());
     }
 
     @Override
     @Nullable
     public CollaborationDto getElementById(@NonNull UUID id) {
-        var collab = collaborationDao.findById(id);
-        if (collab == null) return null;
-        return new CollaborationDto(collab);
+        Collaboration collaboration = collaborationDao.findById(id);
+        if (collaboration == null) return null;
+        return collaborationMapper.toDto(collaboration);
     }
 
     @Override
     public void addElement(@NonNull CollaborationDto element) {
-        Collaboration collaboration = Collaboration.builder()
-                .collabName(element.getCollabName())
-                .createTime(element.getCreateTime())
-            .build();
-        collaborationDao.create(collaboration);
+        collaborationDao.create(collaborationMapper.toEntity(element));
     }
 
     @Override
     public void updateElement(@NonNull UUID id, @NonNull CollaborationDto updatedElement) {
-        Collaboration updatedCollaboration = Collaboration.builder()
-                .collabName(updatedElement.getCollabName())
-                .createTime(updatedElement.getCreateTime())
-            .build();
-        updatedCollaboration.setId(updatedElement.getCollabId());
-        collaborationDao.update(id, updatedCollaboration);
+        collaborationDao.update(id, collaborationMapper.toEntity(updatedElement));
     }
 
     @Override

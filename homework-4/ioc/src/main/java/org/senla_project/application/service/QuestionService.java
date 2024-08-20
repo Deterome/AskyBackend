@@ -1,14 +1,19 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
-import org.senla_project.application.db.dao.QuestionDao;
-import org.senla_project.application.db.dao.UserDao;
-import org.senla_project.application.db.dto.QuestionDto;
-import org.senla_project.application.db.entities.Question;
+import org.senla_project.application.dao.QuestionDao;
+import org.senla_project.application.dao.UserDao;
+import org.senla_project.application.dto.QuestionDto;
+import org.senla_project.application.entity.Question;
+import org.senla_project.application.mapper.ProfileListMapper;
+import org.senla_project.application.mapper.ProfileMapper;
+import org.senla_project.application.mapper.QuestionListMapper;
+import org.senla_project.application.mapper.QuestionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +24,10 @@ public class QuestionService implements ServiceInterface<QuestionDto> {
     private QuestionDao questionDao;
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private QuestionMapper questionMapper;
+    @Autowired
+    private QuestionListMapper questionListMapper;
 
     @Override
     public void execute() {}
@@ -26,40 +35,25 @@ public class QuestionService implements ServiceInterface<QuestionDto> {
     @Override
     @NonNull
     public List<QuestionDto> getAllElements() {
-        return questionDao.findAll().stream().map(QuestionDto::new).toList();
+        return questionListMapper.toDtoList(questionDao.findAll());
     }
 
     @Override
     @Nullable
     public QuestionDto getElementById(@NonNull UUID id) {
-        var question = questionDao.findById(id);
+        Question question = questionDao.findById(id);
         if (question == null) return null;
-        return new QuestionDto(question);
+        return questionMapper.toDto(question);
     }
 
     @Override
     public void addElement(@NonNull QuestionDto element) {
-        Question newElement = Question.builder()
-                .header(element.getHeader())
-                .body(element.getBody())
-                .author(userDao.findUserByNickname(element.getAuthorName()))
-                .interesting(element.getInteresting())
-                .createTime(element.getCreateTime())
-            .build();
-        questionDao.create(newElement);
+        questionDao.create(questionMapper.toEntity(element));
     }
 
     @Override
     public void updateElement(@NonNull UUID id, @NonNull QuestionDto updatedElement) {
-        Question updatedQuestion = Question.builder()
-                .header(updatedElement.getHeader())
-                .body(updatedElement.getBody())
-                .author(userDao.findUserByNickname(updatedElement.getAuthorName()))
-                .interesting(updatedElement.getInteresting())
-                .createTime(updatedElement.getCreateTime())
-            .build();
-        updatedQuestion.setId(updatedElement.getQuestionId());
-        questionDao.update(id, updatedQuestion);
+        questionDao.update(id, questionMapper.toEntity(updatedElement));
     }
 
     @Override

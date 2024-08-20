@@ -1,13 +1,13 @@
 package org.senla_project.application;
 
+import org.senla_project.application.config.ApplicationConfig;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class Application {
+    public static void main(String[] args) {
 
-    public Application() {
-        this.applicationContext = new AnnotationConfigApplicationContext(Application.class);
+        ApplicationContext application = new AnnotationConfigApplicationContext(ApplicationConfig.class);
+
     }
-
-    ApplicationContext applicationContext;
 }
