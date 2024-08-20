@@ -54,8 +54,12 @@ public class CollaborationService implements ServiceInterface<CollaborationDto> 
     }
 
     @Override
-    public void deleteElement(@NonNull CollaborationDto element) {
-        collaborationDao.deleteById(element.getCollabId());
+    public void deleteElement(@NonNull UUID id) {
+        collaborationDao.deleteById(id);
+    }
+
+    public UUID findCollabId(String collabName) {
+        return collaborationDao.findCollabId(collabName);
     }
 
 }

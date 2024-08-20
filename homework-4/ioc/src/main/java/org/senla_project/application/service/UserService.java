@@ -56,8 +56,12 @@ public class UserService implements ServiceInterface<UserDto> {
     }
 
     @Override
-    public void deleteElement(@NonNull UserDto element) {
-        userDao.deleteById(element.getUserId());
+    public void deleteElement(@NonNull UUID id) {
+        userDao.deleteById(id);
+    }
+
+    public UUID findUserId(String nickname) {
+        return userDao.findUserId(nickname);
     }
 
 }

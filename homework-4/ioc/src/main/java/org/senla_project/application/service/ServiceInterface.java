@@ -15,6 +15,6 @@ public interface ServiceInterface<T> {
     T getElementById(UUID id);
     void addElement(@NonNull T element);
     void updateElement(@NonNull UUID id, @NonNull T newElement);
-    void deleteElement(@NonNull T element);
+    void deleteElement(@NonNull UUID id);
 
 }

@@ -13,9 +13,6 @@ public interface CollaborationMapper {
     Collaboration toEntity(CollaborationDto dto);
 
     @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd")
-    @Mapping(source = "id", target = "collabId")
     CollaborationDto toDto(Collaboration entity);
 
-    @Mapping(source = "collabId", target = "id")
-    void setId(@MappingTarget Collaboration entity, CollaborationDto dto);
 }

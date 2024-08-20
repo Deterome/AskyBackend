@@ -25,13 +25,11 @@ public class CollaborationsJoiningMapperImpl implements CollaborationsJoiningMap
 
     @Override
     public CollaborationsJoining toEntity(@NonNull CollaborationsJoiningDto dto) {
-        CollaborationsJoining collaborationsJoining = CollaborationsJoining.builder()
+        return CollaborationsJoining.builder()
                 .joinDate(LocalDate.parse(dto.getJoinDate(), dateTimeFormatter_yyyy_MM_dd))
                 .collab(collaborationDao.findCollabByName(dto.getCollabName()))
                 .user(userDao.findUserByNickname(dto.getUserName()))
             .build();
-        collaborationsJoining.setId(dto.getJoinId());
-        return collaborationsJoining;
     }
 
     @Override
@@ -40,7 +38,6 @@ public class CollaborationsJoiningMapperImpl implements CollaborationsJoiningMap
                 .joinDate(entity.getJoinDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                 .collabName(entity.getCollab().getCollabName())
                 .userName(entity.getUser().getNickname())
-                .joinId(entity.getId())
             .build();
     }
 }

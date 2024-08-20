@@ -58,8 +58,12 @@ public class AnswerService implements ServiceInterface<AnswerDto> {
     }
 
     @Override
-    public void deleteElement(@NonNull AnswerDto element) {
-        answerDao.deleteById(element.getAnswerId());
+    public void deleteElement(@NonNull UUID id) {
+        answerDao.deleteById(id);
+    }
+
+    public UUID findAnswerId(String authorName, UUID questionId, String body) {
+        return answerDao.findAnswerId(authorName, questionId, body);
     }
 
 }

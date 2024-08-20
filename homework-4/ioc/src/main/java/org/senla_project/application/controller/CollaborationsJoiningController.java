@@ -2,8 +2,8 @@ package org.senla_project.application.controller;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import org.senla_project.application.dto.ProfileDto;
-import org.senla_project.application.service.ProfileService;
+import org.senla_project.application.dto.CollaborationsJoiningDto;
+import org.senla_project.application.service.CollaborationsJoiningService;
 import org.senla_project.application.util.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-public class ProfileController implements ControllerInterface<ProfileDto> {
+public class CollaborationsJoiningController implements ControllerInterface<CollaborationsJoiningDto> {
 
     @Autowired
-    private ProfileService service;
+    private CollaborationsJoiningService service;
     @Autowired
     private JsonParser jsonParser;
 
@@ -36,12 +36,12 @@ public class ProfileController implements ControllerInterface<ProfileDto> {
     }
 
     @Override
-    public void addElement(@NonNull ProfileDto element) {
+    public void addElement(@NonNull CollaborationsJoiningDto element) {
         service.addElement(element);
     }
 
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull ProfileDto updatedElement) {
+    public void updateElement(@NonNull UUID id, @NonNull CollaborationsJoiningDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 
@@ -50,7 +50,7 @@ public class ProfileController implements ControllerInterface<ProfileDto> {
         service.deleteElement(id);
     }
 
-    public UUID findProfileId(String nickname) {
-        return service.getProfileId(nickname);
+    public UUID findCollaborationJoinId(String username, String collaboration) {
+        return service.findCollaborationJoinId(username, collaboration);
     }
 }

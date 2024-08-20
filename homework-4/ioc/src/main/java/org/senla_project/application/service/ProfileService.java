@@ -57,8 +57,12 @@ public class ProfileService implements ServiceInterface<ProfileDto> {
     }
 
     @Override
-    public void deleteElement(@NonNull ProfileDto element) {
-        profileDao.deleteById(element.getProfileId());
+    public void deleteElement(@NonNull UUID id) {
+        profileDao.deleteById(id);
+    }
+
+    public UUID getProfileId(String nickname) {
+        return profileDao.findProfileId(nickname);
     }
 
 }

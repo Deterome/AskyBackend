@@ -18,19 +18,16 @@ public class UserMapperImpl implements UserMapper {
 
     @Override
     public User toEntity(@NonNull UserDto dto) {
-        User question = User.builder()
+        return User.builder()
                 .nickname(dto.getNickname())
                 .password(dto.getPassword())
                 .role(roleDao.findRoleByName(dto.getRoleName()))
             .build();
-        question.setId(dto.getUserId());
-        return question;
     }
 
     @Override
     public UserDto toDto(@NonNull User entity) {
         return UserDto.builder()
-                .userId(entity.getId())
                 .nickname(entity.getNickname())
                 .password(entity.getPassword())
                 .roleName(entity.getRole().getRoleName())

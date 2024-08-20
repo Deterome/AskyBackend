@@ -5,8 +5,6 @@ import org.senla_project.application.dao.QuestionDao;
 import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.dto.QuestionDto;
 import org.senla_project.application.entity.Question;
-import org.senla_project.application.mapper.ProfileListMapper;
-import org.senla_project.application.mapper.ProfileMapper;
 import org.senla_project.application.mapper.QuestionListMapper;
 import org.senla_project.application.mapper.QuestionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +55,12 @@ public class QuestionService implements ServiceInterface<QuestionDto> {
     }
 
     @Override
-    public void deleteElement(@NonNull QuestionDto element) {
-        questionDao.deleteById(element.getQuestionId());
+    public void deleteElement(@NonNull UUID id) {
+        questionDao.deleteById(id);
+    }
+
+    public UUID findQuestionId(String header, String body, String authorName) {
+        return questionDao.findQuestionId(header, body, authorName);
     }
 
 }

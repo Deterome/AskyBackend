@@ -53,8 +53,12 @@ public class RoleService implements ServiceInterface<RoleDto> {
     }
 
     @Override
-    public void deleteElement(@NonNull RoleDto element) {
-        roleDao.deleteById(element.getRoleId());
+    public void deleteElement(@NonNull UUID id) {
+        roleDao.deleteById(id);
+    }
+
+    public UUID findRoleId(String roleName) {
+        return roleDao.findRoleId(roleName);
     }
 
 }

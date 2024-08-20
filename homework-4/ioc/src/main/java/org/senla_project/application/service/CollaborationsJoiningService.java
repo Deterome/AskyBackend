@@ -58,8 +58,12 @@ public class CollaborationsJoiningService implements ServiceInterface<Collaborat
     }
 
     @Override
-    public void deleteElement(@NonNull CollaborationsJoiningDto element) {
-        collaborationsJoiningDao.deleteById(element.getJoinId());
+    public void deleteElement(@NonNull UUID id) {
+        collaborationsJoiningDao.deleteById(id);
+    }
+
+    public UUID findCollaborationJoinId(String username, String collaboration) {
+        return collaborationsJoiningDao.findCollaborationJoinId(username, collaboration);
     }
 
 }

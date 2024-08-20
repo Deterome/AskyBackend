@@ -21,7 +21,7 @@ public class ProfileMapperImpl implements ProfileMapper {
 
     @Override
     public Profile toEntity(@NonNull ProfileDto dto) {
-        Profile profile = Profile.builder()
+        return Profile.builder()
                 .bio(dto.getBio())
                 .avatarUrl(dto.getAvatarUrl())
                 .birthday(LocalDate.parse(dto.getBirthday(), dateTimeFormatter_yyyy_MM_dd))
@@ -30,14 +30,11 @@ public class ProfileMapperImpl implements ProfileMapper {
                 .rating(dto.getRating())
                 .user(userDao.findUserByNickname(dto.getUserName()))
             .build();
-        profile.setId(dto.getProfileId());
-        return profile;
     }
 
     @Override
     public ProfileDto toDto(@NonNull Profile entity) {
         return ProfileDto.builder()
-                .profileId(entity.getId())
                 .userName(entity.getUser().getNickname())
                 .avatarUrl(entity.getAvatarUrl())
                 .bio(entity.getBio())

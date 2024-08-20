@@ -8,7 +8,6 @@ import java.util.UUID;
 @AllArgsConstructor @Data @Builder
 public class CollaborationDto {
 
-    private UUID collabId;
     private String collabName;
     private String createTime;
 

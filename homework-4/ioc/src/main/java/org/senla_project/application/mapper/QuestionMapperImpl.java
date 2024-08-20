@@ -20,21 +20,18 @@ public class QuestionMapperImpl implements QuestionMapper {
 
     @Override
     public Question toEntity(@NonNull QuestionDto dto) {
-        Question question = Question.builder()
+        return Question.builder()
                 .header(dto.getHeader())
                 .body(dto.getBody())
                 .author(userDao.findUserByNickname(dto.getAuthorName()))
                 .createTime(LocalDate.parse(dto.getCreateTime(), dateTimeFormatter_yyyy_MM_dd))
                 .interesting(dto.getInteresting())
             .build();
-        question.setId(dto.getQuestionId());
-        return question;
     }
 
     @Override
     public QuestionDto toDto(@NonNull Question entity) {
         return QuestionDto.builder()
-                .questionId(entity.getId())
                 .authorName(entity.getAuthor().getNickname())
                 .header(entity.getHeader())
                 .body(entity.getBody())
