@@ -1,10 +1,10 @@
 package org.senla_project.application.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.senla_project.application.dto.UserDto;
 import org.senla_project.application.service.UserService;
+import org.senla_project.application.util.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ public class UserController implements ControllerInterface<UserDto> {
     @Autowired
     private UserService service;
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonParser jsonParser;
 
     @Override
     public void execute() {
@@ -26,13 +26,13 @@ public class UserController implements ControllerInterface<UserDto> {
     @SneakyThrows
     @Override
     public String getAllElements() {
-        return objectMapper.writeValueAsString(service.getAllElements());
+        return jsonParser.parseObjectToJson(service.getAllElements());
     }
 
     @SneakyThrows
     @Override
     public String getElementById(@NonNull UUID id) {
-        return objectMapper.writeValueAsString(service.getElementById(id));
+        return jsonParser.parseObjectToJson(service.getElementById(id));
     }
 
     @Override
@@ -46,7 +46,11 @@ public class UserController implements ControllerInterface<UserDto> {
     }
 
     @Override
-    public void deleteElement(@NonNull UserDto element) {
-        service.deleteElement(element);
+    public void deleteElement(@NonNull UUID id) {
+        service.deleteElement(id);
+    }
+
+    public UUID findUserId(String nickname) {
+        return service.findUserId(nickname);
     }
 }

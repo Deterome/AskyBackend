@@ -2,8 +2,9 @@ package org.senla_project.application.controller;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import org.senla_project.application.dto.ProfileDto;
-import org.senla_project.application.service.ProfileService;
+import org.senla_project.application.dto.RoleDto;
+import org.senla_project.application.service.RoleService;
+import org.senla_project.application.service.RoleService;
 import org.senla_project.application.util.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,10 +12,10 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-public class ProfileController implements ControllerInterface<ProfileDto> {
+public class RoleController implements ControllerInterface<RoleDto> {
 
     @Autowired
-    private ProfileService service;
+    private RoleService service;
     @Autowired
     private JsonParser jsonParser;
 
@@ -36,12 +37,12 @@ public class ProfileController implements ControllerInterface<ProfileDto> {
     }
 
     @Override
-    public void addElement(@NonNull ProfileDto element) {
+    public void addElement(@NonNull RoleDto element) {
         service.addElement(element);
     }
 
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull ProfileDto updatedElement) {
+    public void updateElement(@NonNull UUID id, @NonNull RoleDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 
@@ -50,7 +51,7 @@ public class ProfileController implements ControllerInterface<ProfileDto> {
         service.deleteElement(id);
     }
 
-    public UUID findProfileId(String nickname) {
-        return service.getProfileId(nickname);
+    public UUID findRoleId(String roleName) {
+        return service.findRoleId(roleName);
     }
 }

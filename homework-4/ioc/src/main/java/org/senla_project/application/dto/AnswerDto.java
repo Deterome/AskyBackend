@@ -8,7 +8,6 @@ import java.util.UUID;
 @AllArgsConstructor @Data @Builder
 public class AnswerDto {
 
-    private UUID answerId;
     private String body;
     private int usefulness;
     private UUID questionId;

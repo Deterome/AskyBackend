@@ -1,16 +1,19 @@
 package org.senla_project.application.dao;
 
 import lombok.NonNull;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.senla_project.application.entity.Entity;
 import org.springframework.lang.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public abstract class Dao<T extends Entity & Cloneable> {
 
-    protected List<T> entities;
+    protected List<T> entities = new ArrayList<>();
     Class<T> entityClass;
 
     public Dao(@NonNull Class<T> entityClass) {
@@ -37,7 +40,17 @@ public abstract class Dao<T extends Entity & Cloneable> {
     }
 
     public void update(@NonNull UUID id, @NonNull T updatedEntity) {
-        entities.replaceAll(entity -> entity.getId().equals(id) ? updatedEntity : entity);
+        updatedEntity.setId(id);
+        try {
+            for (T entity: entities) {
+                if (entity.getId().equals(id)) {
+                        PropertyUtils.copyProperties(entity, updatedEntity);
+                        break;
+                }
+            }
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void deleteById(@NonNull UUID id) {

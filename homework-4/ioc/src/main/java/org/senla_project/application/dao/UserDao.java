@@ -3,6 +3,8 @@ package org.senla_project.application.dao;
 import org.senla_project.application.entity.User;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class UserDao extends Dao<User> {
     public UserDao() {
@@ -16,5 +18,11 @@ public class UserDao extends Dao<User> {
             }
         }
         return null;
+    }
+
+    public UUID findUserId(String nickname) {
+        User user = findUserByNickname(nickname);
+        if (user == null) return null;
+        return user.getId();
     }
 }

@@ -8,7 +8,6 @@ import java.util.UUID;
 @AllArgsConstructor @Data @Builder
 public class ProfileDto {
 
-    private UUID profileId;
     private String userName;
     private String bio;
     private String firstname;

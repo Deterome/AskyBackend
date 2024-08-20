@@ -1,13 +1,15 @@
 package org.senla_project.application.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.senla_project.application.dto.QuestionDto;
 import org.senla_project.application.service.QuestionService;
+import org.senla_project.application.util.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Component
@@ -16,7 +18,7 @@ public class QuestionController implements ControllerInterface<QuestionDto> {
     @Autowired
     private QuestionService service;
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonParser jsonParser;
 
     @Override
     public void execute() {
@@ -26,13 +28,13 @@ public class QuestionController implements ControllerInterface<QuestionDto> {
     @SneakyThrows
     @Override
     public String getAllElements() {
-        return objectMapper.writeValueAsString(service.getAllElements());
+        return jsonParser.parseObjectToJson(service.getAllElements());
     }
 
     @SneakyThrows
     @Override
     public String getElementById(@NonNull UUID id) {
-        return objectMapper.writeValueAsString(service.getElementById(id));
+        return jsonParser.parseObjectToJson(service.getElementById(id));
     }
 
     @Override
@@ -46,7 +48,11 @@ public class QuestionController implements ControllerInterface<QuestionDto> {
     }
 
     @Override
-    public void deleteElement(@NonNull QuestionDto element) {
-        service.deleteElement(element);
+    public void deleteElement(@NonNull UUID id) {
+        service.deleteElement(id);
+    }
+
+    public UUID findQuestionId(String header, String body, String authorName) {
+        return service.findQuestionId(header, body, authorName);
     }
 }

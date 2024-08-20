@@ -13,11 +13,6 @@ import java.util.UUID;
 public interface RoleMapper {
 
     Role toEntity(RoleDto dto);
-
-    @Mapping(source = "id", target = "roleId")
     RoleDto toDto(Role entity);
-
-    @Mapping(source = "roleId", target = "id")
-    void setId(@MappingTarget Role entity, RoleDto dto);
 
 }
