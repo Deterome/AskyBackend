@@ -1,15 +1,19 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
-import org.senla_project.application.db.dao.ProfileDao;
-import org.senla_project.application.db.dao.QuestionDao;
-import org.senla_project.application.db.dao.UserDao;
-import org.senla_project.application.db.dto.ProfileDto;
-import org.senla_project.application.db.entities.Profile;
+import org.senla_project.application.dao.ProfileDao;
+import org.senla_project.application.dao.UserDao;
+import org.senla_project.application.dto.ProfileDto;
+import org.senla_project.application.entity.Profile;
+import org.senla_project.application.mapper.CollaborationsJoiningListMapper;
+import org.senla_project.application.mapper.CollaborationsJoiningMapper;
+import org.senla_project.application.mapper.ProfileListMapper;
+import org.senla_project.application.mapper.ProfileMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +24,10 @@ public class ProfileService implements ServiceInterface<ProfileDto> {
     private ProfileDao profileDao;
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private ProfileMapper profileMapper;
+    @Autowired
+    private ProfileListMapper profileListMapper;
 
     @Override
     public void execute() {}
@@ -27,44 +35,25 @@ public class ProfileService implements ServiceInterface<ProfileDto> {
     @Override
     @NonNull
     public List<ProfileDto> getAllElements() {
-        return profileDao.findAll().stream().map(ProfileDto::new).toList();
+        return profileListMapper.toDtoList(profileDao.findAll());
     }
 
     @Override
     @Nullable
     public ProfileDto getElementById(@NonNull UUID id) {
-        var profile = profileDao.findById(id);
+        Profile profile = profileDao.findById(id);
         if (profile == null) return null;
-        return new ProfileDto(profile);
+        return profileMapper.toDto(profile);
     }
 
     @Override
     public void addElement(@NonNull ProfileDto element) {
-        Profile newElement = Profile.builder()
-                .bio(element.getBio())
-                .user(userDao.findUserByNickname(element.getUserName()))
-                .avatarUrl(element.getAvatarUrl())
-                .birthday(element.getBirthday())
-                .firstname(element.getFirstname())
-                .surname(element.getSurname())
-                .rating(element.getRating())
-            .build();
-        profileDao.create(newElement);
+        profileDao.create(profileMapper.toEntity(element));
     }
 
     @Override
     public void updateElement(@NonNull UUID id, @NonNull ProfileDto updatedElement) {
-        Profile updatedProfile = Profile.builder()
-                .bio(updatedElement.getBio())
-                .user(userDao.findUserByNickname(updatedElement.getUserName()))
-                .avatarUrl(updatedElement.getAvatarUrl())
-                .birthday(updatedElement.getBirthday())
-                .firstname(updatedElement.getFirstname())
-                .surname(updatedElement.getSurname())
-                .rating(updatedElement.getRating())
-            .build();
-        updatedProfile.setId(updatedElement.getProfileId());
-        profileDao.update(id, updatedProfile);
+        profileDao.update(id, profileMapper.toEntity(updatedElement));
     }
 
     @Override

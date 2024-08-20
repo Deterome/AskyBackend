@@ -1,11 +1,13 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
-import org.senla_project.application.db.dao.RoleDao;
-import org.senla_project.application.db.dao.QuestionDao;
-import org.senla_project.application.db.dao.UserDao;
-import org.senla_project.application.db.dto.RoleDto;
-import org.senla_project.application.db.entities.Role;
+import org.senla_project.application.dao.RoleDao;
+import org.senla_project.application.dto.RoleDto;
+import org.senla_project.application.entity.Role;
+import org.senla_project.application.mapper.QuestionListMapper;
+import org.senla_project.application.mapper.QuestionMapper;
+import org.senla_project.application.mapper.RoleListMapper;
+import org.senla_project.application.mapper.RoleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,10 @@ public class RoleService implements ServiceInterface<RoleDto> {
 
     @Autowired
     private RoleDao roleDao;
+    @Autowired
+    private RoleMapper roleMapper;
+    @Autowired
+    private RoleListMapper roleListMapper;
 
     @Override
     public void execute() {}
@@ -25,32 +31,25 @@ public class RoleService implements ServiceInterface<RoleDto> {
     @Override
     @NonNull
     public List<RoleDto> getAllElements() {
-        return roleDao.findAll().stream().map(RoleDto::new).toList();
+        return roleListMapper.toDtoList(roleDao.findAll());
     }
 
     @Override
     @Nullable
     public RoleDto getElementById(@NonNull UUID id) {
-        var role = roleDao.findById(id);
+        Role role = roleDao.findById(id);
         if (role == null) return null;
-        return new RoleDto(role);
+        return roleMapper.toDto(role);
     }
 
     @Override
     public void addElement(@NonNull RoleDto element) {
-        Role newElement = Role.builder()
-                .roleName(element.getRoleName())
-            .build();
-        roleDao.create(newElement);
+        roleDao.create(roleMapper.toEntity(element));
     }
 
     @Override
     public void updateElement(@NonNull UUID id, @NonNull RoleDto updatedElement) {
-        Role updatedRole = Role.builder()
-                .roleName(updatedElement.getRoleName())
-            .build();
-        updatedRole.setId(updatedElement.getRoleId());
-        roleDao.update(id, updatedRole);
+        roleDao.update(id, roleMapper.toEntity(updatedElement));
     }
 
     @Override

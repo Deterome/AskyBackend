@@ -1,15 +1,18 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
-import org.senla_project.application.db.dao.AnswerDao;
-import org.senla_project.application.db.dao.QuestionDao;
-import org.senla_project.application.db.dao.UserDao;
-import org.senla_project.application.db.dto.AnswerDto;
-import org.senla_project.application.db.entities.Answer;
+import org.senla_project.application.dao.AnswerDao;
+import org.senla_project.application.dao.QuestionDao;
+import org.senla_project.application.dao.UserDao;
+import org.senla_project.application.dto.AnswerDto;
+import org.senla_project.application.entity.Answer;
+import org.senla_project.application.mapper.AnswerListMapper;
+import org.senla_project.application.mapper.AnswerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +25,10 @@ public class AnswerService implements ServiceInterface<AnswerDto> {
     private QuestionDao questionDao;
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private AnswerMapper answerMapper;
+    @Autowired
+    private AnswerListMapper answerListMapper;
 
     @Override
     public void execute() {}
@@ -29,40 +36,25 @@ public class AnswerService implements ServiceInterface<AnswerDto> {
     @Override
     @NonNull
     public List<AnswerDto> getAllElements() {
-        return answerDao.findAll().stream().map(AnswerDto::new).toList();
+        return answerListMapper.toDtoList(answerDao.findAll());
     }
 
     @Override
     @Nullable
     public AnswerDto getElementById(@NonNull UUID id) {
-        var answer = answerDao.findById(id);
+        Answer answer = answerDao.findById(id);
         if (answer == null) return null;
-        return new AnswerDto(answer);
+        return answerMapper.toDto(answer);
     }
 
     @Override
     public void addElement(@NonNull AnswerDto element) {
-        Answer newElement = Answer.builder()
-                .createTime(element.getCreateTime())
-                .body(element.getBody())
-                .question(questionDao.findById(element.getQuestionId()))
-                .usefulness(element.getUsefulness())
-                .author(userDao.findUserByNickname(element.getAuthorName()))
-            .build();
-        answerDao.create(newElement);
+        answerDao.create(answerMapper.toEntity(element));
     }
 
     @Override
     public void updateElement(@NonNull UUID id, @NonNull AnswerDto updatedElement) {
-        Answer updatedAnswer = Answer.builder()
-                .createTime(updatedElement.getCreateTime())
-                .body(updatedElement.getBody())
-                .question(questionDao.findById(updatedElement.getQuestionId()))
-                .usefulness(updatedElement.getUsefulness())
-                .author(userDao.findUserByNickname(updatedElement.getAuthorName()))
-            .build();
-        updatedAnswer.setId(updatedElement.getAnswerId());
-        answerDao.update(id, updatedAnswer);
+        answerDao.update(id, answerMapper.toEntity(updatedElement));
     }
 
     @Override
