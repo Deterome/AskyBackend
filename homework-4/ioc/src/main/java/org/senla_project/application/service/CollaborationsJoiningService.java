@@ -5,19 +5,16 @@ import org.senla_project.application.dao.CollaborationDao;
 import org.senla_project.application.dao.CollaborationsJoiningDao;
 import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.dto.CollaborationsJoiningDto;
-import org.senla_project.application.entity.CollaborationsJoining;
-import org.senla_project.application.mapper.CollaborationsJoiningListMapper;
 import org.senla_project.application.mapper.CollaborationsJoiningMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class CollaborationsJoiningService implements ServiceInterface<CollaborationsJoiningDto> {
+public class CollaborationsJoiningService implements ServiceInterface<CollaborationsJoiningDto, CollaborationsJoiningDto> {
 
     @Autowired
     private CollaborationsJoiningDao collaborationsJoiningDao;
@@ -27,24 +24,19 @@ public class CollaborationsJoiningService implements ServiceInterface<Collaborat
     private UserDao userDao;
     @Autowired
     private CollaborationsJoiningMapper collaborationsJoiningMapper;
-    @Autowired
-    private CollaborationsJoiningListMapper collaborationsJoiningListMapper;
 
     @Override
     public void execute() {}
 
     @Override
-    @NonNull
     public List<CollaborationsJoiningDto> getAllElements() {
-        return collaborationsJoiningListMapper.toDtoList(collaborationsJoiningDao.findAll());
+        return collaborationsJoiningMapper.toDtoList(collaborationsJoiningDao.findAll());
     }
 
     @Override
-    @Nullable
-    public CollaborationsJoiningDto getElementById(@NonNull UUID id) {
-        CollaborationsJoining collabJoin = collaborationsJoiningDao.findById(id);
-        if (collabJoin == null) return null;
-        return collaborationsJoiningMapper.toDto(collabJoin);
+    public Optional<CollaborationsJoiningDto> getElementById(@NonNull UUID id) {
+        return collaborationsJoiningDao.findById(id)
+                .map(collaborationsJoiningMapper::toDto);
     }
 
     @Override
@@ -62,7 +54,7 @@ public class CollaborationsJoiningService implements ServiceInterface<Collaborat
         collaborationsJoiningDao.deleteById(id);
     }
 
-    public UUID findCollaborationJoinId(String username, String collaboration) {
+    public Optional<UUID> findCollaborationJoinId(String username, String collaboration) {
         return collaborationsJoiningDao.findCollaborationJoinId(username, collaboration);
     }
 

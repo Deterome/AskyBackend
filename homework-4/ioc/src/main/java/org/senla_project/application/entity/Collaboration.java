@@ -5,7 +5,7 @@ import lombok.*;
 import java.time.LocalDate;
 
 @EqualsAndHashCode(callSuper = true)
-@Data @Builder
+@NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class Collaboration extends Entity {
 
     private String collabName;

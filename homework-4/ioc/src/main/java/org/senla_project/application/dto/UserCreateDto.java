@@ -2,10 +2,8 @@ package org.senla_project.application.dto;
 
 import lombok.*;
 
-import java.util.UUID;
-
-@AllArgsConstructor @Data @Builder
-public class UserDto {
+@NoArgsConstructor @AllArgsConstructor @Data @Builder
+public class UserCreateDto {
 
     private String roleName;
     private String nickname;

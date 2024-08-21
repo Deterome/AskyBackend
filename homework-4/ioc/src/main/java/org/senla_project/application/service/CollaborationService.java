@@ -2,45 +2,35 @@ package org.senla_project.application.service;
 
 import lombok.NonNull;
 import org.senla_project.application.dao.CollaborationDao;
-import org.senla_project.application.dao.QuestionDao;
-import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.dto.CollaborationDto;
-import org.senla_project.application.entity.Collaboration;
-import org.senla_project.application.mapper.CollaborationListMapper;
 import org.senla_project.application.mapper.CollaborationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class CollaborationService implements ServiceInterface<CollaborationDto> {
+public class CollaborationService implements ServiceInterface<CollaborationDto, CollaborationDto> {
 
     @Autowired
     private CollaborationDao collaborationDao;
     @Autowired
     private CollaborationMapper collaborationMapper;
-    @Autowired
-    private CollaborationListMapper collaborationListMapper;
 
     @Override
     public void execute() {}
 
     @Override
-    @NonNull
     public List<CollaborationDto> getAllElements() {
-        return collaborationListMapper.toDtoList(collaborationDao.findAll());
+        return collaborationMapper.toDtoList(collaborationDao.findAll());
     }
 
     @Override
-    @Nullable
-    public CollaborationDto getElementById(@NonNull UUID id) {
-        Collaboration collaboration = collaborationDao.findById(id);
-        if (collaboration == null) return null;
-        return collaborationMapper.toDto(collaboration);
+    public Optional<CollaborationDto> getElementById(@NonNull UUID id) {
+        return collaborationDao.findById(id)
+                .map(collaborationMapper::toDto);
     }
 
     @Override
@@ -58,7 +48,7 @@ public class CollaborationService implements ServiceInterface<CollaborationDto> 
         collaborationDao.deleteById(id);
     }
 
-    public UUID findCollabId(String collabName) {
+    public Optional<UUID> findCollabId(String collabName) {
         return collaborationDao.findCollabId(collabName);
     }
 

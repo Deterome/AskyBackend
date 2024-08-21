@@ -4,19 +4,16 @@ import lombok.NonNull;
 import org.senla_project.application.dao.QuestionDao;
 import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.dto.QuestionDto;
-import org.senla_project.application.entity.Question;
-import org.senla_project.application.mapper.QuestionListMapper;
 import org.senla_project.application.mapper.QuestionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class QuestionService implements ServiceInterface<QuestionDto> {
+public class QuestionService implements ServiceInterface<QuestionDto, QuestionDto> {
 
     @Autowired
     private QuestionDao questionDao;
@@ -24,24 +21,19 @@ public class QuestionService implements ServiceInterface<QuestionDto> {
     private UserDao userDao;
     @Autowired
     private QuestionMapper questionMapper;
-    @Autowired
-    private QuestionListMapper questionListMapper;
 
     @Override
     public void execute() {}
 
     @Override
-    @NonNull
     public List<QuestionDto> getAllElements() {
-        return questionListMapper.toDtoList(questionDao.findAll());
+        return questionMapper.toDtoList(questionDao.findAll());
     }
 
     @Override
-    @Nullable
-    public QuestionDto getElementById(@NonNull UUID id) {
-        Question question = questionDao.findById(id);
-        if (question == null) return null;
-        return questionMapper.toDto(question);
+    public Optional<QuestionDto> getElementById(@NonNull UUID id) {
+        return questionDao.findById(id)
+                .map(questionMapper::toDto);
     }
 
     @Override
@@ -59,7 +51,7 @@ public class QuestionService implements ServiceInterface<QuestionDto> {
         questionDao.deleteById(id);
     }
 
-    public UUID findQuestionId(String header, String body, String authorName) {
+    public Optional<UUID> findQuestionId(String header, String body, String authorName) {
         return questionDao.findQuestionId(header, body, authorName);
     }
 

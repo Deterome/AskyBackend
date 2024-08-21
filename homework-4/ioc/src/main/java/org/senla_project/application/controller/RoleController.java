@@ -1,14 +1,14 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import org.senla_project.application.dto.RoleDto;
 import org.senla_project.application.service.RoleService;
-import org.senla_project.application.service.RoleService;
+import org.senla_project.application.util.Exception.EntityNotFoundException;
 import org.senla_project.application.util.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -24,16 +24,14 @@ public class RoleController implements ControllerInterface<RoleDto> {
         service.execute();
     }
 
-    @SneakyThrows
     @Override
     public String getAllElements() {
         return jsonParser.parseObjectToJson(service.getAllElements());
     }
 
-    @SneakyThrows
     @Override
     public String getElementById(@NonNull UUID id) {
-        return jsonParser.parseObjectToJson(service.getElementById(id));
+        return jsonParser.parseObjectToJson(service.getElementById(id).orElseThrow(() -> new EntityNotFoundException("Role not found")));
     }
 
     @Override
@@ -51,7 +49,7 @@ public class RoleController implements ControllerInterface<RoleDto> {
         service.deleteElement(id);
     }
 
-    public UUID findRoleId(String roleName) {
+    public Optional<UUID> findRoleId(String roleName) {
         return service.findRoleId(roleName);
     }
 }

@@ -1,15 +1,14 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import org.senla_project.application.dto.QuestionDto;
 import org.senla_project.application.service.QuestionService;
+import org.senla_project.application.util.Exception.EntityNotFoundException;
 import org.senla_project.application.util.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -25,16 +24,14 @@ public class QuestionController implements ControllerInterface<QuestionDto> {
         service.execute();
     }
 
-    @SneakyThrows
     @Override
     public String getAllElements() {
         return jsonParser.parseObjectToJson(service.getAllElements());
     }
 
-    @SneakyThrows
     @Override
     public String getElementById(@NonNull UUID id) {
-        return jsonParser.parseObjectToJson(service.getElementById(id));
+        return jsonParser.parseObjectToJson(service.getElementById(id).orElseThrow(() -> new EntityNotFoundException("Question not found")));
     }
 
     @Override
@@ -52,7 +49,7 @@ public class QuestionController implements ControllerInterface<QuestionDto> {
         service.deleteElement(id);
     }
 
-    public UUID findQuestionId(String header, String body, String authorName) {
+    public Optional<UUID> findQuestionId(String header, String body, String authorName) {
         return service.findQuestionId(header, body, authorName);
     }
 }
