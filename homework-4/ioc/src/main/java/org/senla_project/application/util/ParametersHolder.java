@@ -1,13 +1,14 @@
-package org.senla_project.util;
+package org.senla_project.application.util;
 
-import org.senla_project.ioc.annotations.Component;
-import org.senla_project.ioc.annotations.Value;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ParametersHolder {
 
     @Value("${my.param.db}")
     private String someText;
+
 
     public String getSomeText() {
         return someText;
