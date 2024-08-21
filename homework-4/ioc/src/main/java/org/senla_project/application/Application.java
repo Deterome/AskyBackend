@@ -3,6 +3,7 @@ package org.senla_project.application;
 import org.senla_project.application.config.ApplicationConfig;
 import org.senla_project.application.controller.*;
 import org.senla_project.application.dto.*;
+import org.senla_project.application.util.Exception.EntityNotFoundException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -63,56 +64,76 @@ public class Application {
     private static void deleteLastElements() {
         System.out.println();
         System.out.println("Deleting elements");
-        roleController.deleteElement(roleController.findRoleId("god"));
-        userController.deleteElement(userController.findUserId("Bob"));
-        profileController.deleteElement(profileController.findProfileId("Bob"));
-        collaborationController.deleteElement(collaborationController.findCollabId("Girls"));
-        collaborationsJoiningController.deleteElement(collaborationsJoiningController.findCollaborationJoinId("Nick", "Boys"));
-        answerController.deleteElement(answerController.findAnswerId("Alex", questionController.findQuestionId("When?", "Do you know when?", "Nick"), "When?"));
-        questionController.deleteElement(questionController.findQuestionId("When?", "Do you know when?", "Nick"));
+        roleController.deleteElement(roleController
+                .findRoleId("god").orElseThrow(() -> new EntityNotFoundException("Role not found")));
+        userController.deleteElement(userController
+                .findUserId("Bob").orElseThrow(() -> new EntityNotFoundException("User not found")));
+        profileController.deleteElement(profileController
+                .findProfileId("Bob").orElseThrow(() -> new EntityNotFoundException("Profile not found")));
+        collaborationController.deleteElement(collaborationController
+                .findCollabId("Girls").orElseThrow(() -> new EntityNotFoundException("Collab not found")));
+        collaborationsJoiningController.deleteElement(collaborationsJoiningController
+                .findCollaborationJoinId("Nick", "Boys")
+                .orElseThrow(() -> new EntityNotFoundException("Collab join not found")));
+        answerController.deleteElement(answerController
+                .findAnswerId("Alex",
+                        questionController.findQuestionId("When?", "Do you know when?", "Nick")
+                                .orElseThrow(() -> new EntityNotFoundException("Question not found")),
+                        "When?")
+                .orElseThrow(() -> new EntityNotFoundException("Answer not found")));
+        questionController.deleteElement(questionController
+                .findQuestionId("When?", "Do you know when?", "Nick")
+                .orElseThrow(() -> new EntityNotFoundException("Question not found")));
     }
 
     private static void updateFirstElementsAndOutput() {
         System.out.println();
         System.out.println("Updating elements");
 
-        UUID firstRoleId = roleController.findRoleId("admin");
+        UUID firstRoleId = roleController.findRoleId("admin")
+                .orElseThrow(() -> new EntityNotFoundException("Role not found"));
         System.out.println(roleController.getElementById(firstRoleId));
         roleController.updateElement(firstRoleId, RoleDto.builder().roleName("god").build());
         System.out.println(roleController.getElementById(firstRoleId));
         System.out.println();
 
-        UUID firstUserId = userController.findUserId("Alex");
+        UUID firstUserId = userController.findUserId("Alex")
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         System.out.println(userController.getElementById(firstUserId));
-        userController.updateElement(firstUserId, UserDto.builder().roleName("user").nickname("Bob").password("123").build());
+        userController.updateElement(firstUserId, UserCreateDto.builder().roleName("user").nickname("Bob").password("123").build());
         System.out.println(userController.getElementById(firstUserId));
         System.out.println();
 
-        UUID firstProfileId = profileController.findProfileId("Bob");
+        UUID firstProfileId = profileController.findProfileId("Bob")
+                .orElseThrow(() -> new EntityNotFoundException("Profile not found"));
         System.out.println(profileController.getElementById(firstProfileId));
         profileController.updateElement(firstProfileId, ProfileDto.builder().userName("Bob").bio("I'm Bob").firstname("Bob").surname("Lock").birthday("2000-03-01").avatarUrl("org").rating(8).build());
         System.out.println(profileController.getElementById(firstProfileId));
         System.out.println();
 
-        UUID firstCollabId = collaborationController.findCollabId("Bros");
+        UUID firstCollabId = collaborationController.findCollabId("Bros")
+                .orElseThrow(() -> new EntityNotFoundException("Collab not found"));
         System.out.println(collaborationController.getElementById(firstCollabId));
         collaborationController.updateElement(firstCollabId, CollaborationDto.builder().collabName("Girls").createTime("2024-02-01").build());
         System.out.println(collaborationController.getElementById(firstCollabId));
         System.out.println();
 
-        UUID firstCollabJoinId = collaborationsJoiningController.findCollaborationJoinId("Bob", "Boys");
+        UUID firstCollabJoinId = collaborationsJoiningController.findCollaborationJoinId("Bob", "Boys")
+                .orElseThrow(() -> new EntityNotFoundException("Collab join not found"));
         System.out.println(collaborationsJoiningController.getElementById(firstCollabJoinId));
         collaborationsJoiningController.updateElement(firstCollabJoinId, CollaborationsJoiningDto.builder().userName("Bob").collabName("Girls").joinDate("2024-05-03").build());
         System.out.println(collaborationsJoiningController.getElementById(firstCollabJoinId));
         System.out.println();
 
-        UUID firstAnswerId = answerController.findAnswerId("Bob", questionController.findQuestionId("How?", "Do you know how?", "Bob"), "How?");
+        UUID firstAnswerId = answerController.findAnswerId("Bob", questionController.findQuestionId("How?", "Do you know how?", "Bob").orElseThrow(() -> new EntityNotFoundException("Question not found")), "How?")
+                .orElseThrow(() -> new EntityNotFoundException("Answer not found"));
         System.out.println(answerController.getElementById(firstAnswerId));
-        answerController.updateElement(firstAnswerId, AnswerDto.builder().authorName("Bob").body("I know how!").questionId(questionController.findQuestionId("How?", "Do you know how?", "Bob")).usefulness(0).createTime("2024-06-01").build());
+        answerController.updateElement(firstAnswerId, AnswerDto.builder().authorName("Bob").body("I know how!").questionId(questionController.findQuestionId("How?", "Do you know how?", "Bob").orElseThrow(() -> new EntityNotFoundException("Question not found"))).usefulness(0).createTime("2024-06-01").build());
         System.out.println(answerController.getElementById(firstAnswerId));
         System.out.println();
 
-        UUID firstQuestionId = questionController.findQuestionId("How?", "Do you know how?", "Bob");
+        UUID firstQuestionId = questionController.findQuestionId("How?", "Do you know how?", "Bob")
+                .orElseThrow(() -> new EntityNotFoundException("Question not found"));
         System.out.println(questionController.getElementById(firstQuestionId));
         questionController.updateElement(firstQuestionId, QuestionDto.builder().authorName("Bob").header("How?!").body("Do you know how?!").createTime("2024-06-01").interesting(1000).build());
         System.out.println(questionController.getElementById(firstQuestionId));
@@ -126,9 +147,9 @@ public class Application {
     }
 
     private static void addUsers(UserController userController) {
-        userController.addElement(UserDto.builder().roleName("admin").nickname("Alex").password("123").build());
-        userController.addElement(UserDto.builder().roleName("user").nickname("Nick").password("123").build());
-        userController.addElement(UserDto.builder().roleName("user").nickname("Bob").password("123").build());
+        userController.addElement(UserCreateDto.builder().roleName("admin").nickname("Alex").password("123").build());
+        userController.addElement(UserCreateDto.builder().roleName("user").nickname("Nick").password("123").build());
+        userController.addElement(UserCreateDto.builder().roleName("user").nickname("Bob").password("123").build());
     }
 
     private static void addProfiles(ProfileController profileController) {
@@ -156,9 +177,9 @@ public class Application {
     }
 
     private static void addAnswers(AnswerController answerController, QuestionController questionController) {
-        answerController.addElement(AnswerDto.builder().authorName("Bob").body("How?").questionId(questionController.findQuestionId("How?", "Do you know how?", "Alex")).usefulness(0).createTime("2024-06-01").build());
-        answerController.addElement(AnswerDto.builder().authorName("Nick").body("Why?").questionId(questionController.findQuestionId("Why?", "Do you know why?", "Bob")).usefulness(0).createTime("2024-06-01").build());
-        answerController.addElement(AnswerDto.builder().authorName("Alex").body("When?").questionId(questionController.findQuestionId("When?", "Do you know when?", "Nick")).usefulness(0).createTime("2024-06-01").build());
+        answerController.addElement(AnswerDto.builder().authorName("Bob").body("How?").questionId(questionController.findQuestionId("How?", "Do you know how?", "Alex").orElseThrow(() -> new EntityNotFoundException("Question not found"))).usefulness(0).createTime("2024-06-01").build());
+        answerController.addElement(AnswerDto.builder().authorName("Nick").body("Why?").questionId(questionController.findQuestionId("Why?", "Do you know why?", "Bob").orElseThrow(() -> new EntityNotFoundException("Question not found"))).usefulness(0).createTime("2024-06-01").build());
+        answerController.addElement(AnswerDto.builder().authorName("Alex").body("When?").questionId(questionController.findQuestionId("When?", "Do you know when?", "Nick").orElseThrow(() -> new EntityNotFoundException("Question not found"))).usefulness(0).createTime("2024-06-01").build());
     }
 
 }

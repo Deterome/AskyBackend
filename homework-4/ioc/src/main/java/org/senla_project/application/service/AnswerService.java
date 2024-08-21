@@ -5,19 +5,16 @@ import org.senla_project.application.dao.AnswerDao;
 import org.senla_project.application.dao.QuestionDao;
 import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.dto.AnswerDto;
-import org.senla_project.application.entity.Answer;
-import org.senla_project.application.mapper.AnswerListMapper;
 import org.senla_project.application.mapper.AnswerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class AnswerService implements ServiceInterface<AnswerDto> {
+public class AnswerService implements ServiceInterface<AnswerDto, AnswerDto> {
 
     @Autowired
     private AnswerDao answerDao;
@@ -27,24 +24,19 @@ public class AnswerService implements ServiceInterface<AnswerDto> {
     private UserDao userDao;
     @Autowired
     private AnswerMapper answerMapper;
-    @Autowired
-    private AnswerListMapper answerListMapper;
 
     @Override
     public void execute() {}
 
     @Override
-    @NonNull
     public List<AnswerDto> getAllElements() {
-        return answerListMapper.toDtoList(answerDao.findAll());
+        return answerMapper.toDtoList(answerDao.findAll());
     }
 
     @Override
-    @Nullable
-    public AnswerDto getElementById(@NonNull UUID id) {
-        Answer answer = answerDao.findById(id);
-        if (answer == null) return null;
-        return answerMapper.toDto(answer);
+    public Optional<AnswerDto> getElementById(@NonNull UUID id) {
+        return answerDao.findById(id)
+                .map(answerMapper::toDto);
     }
 
     @Override
@@ -62,7 +54,7 @@ public class AnswerService implements ServiceInterface<AnswerDto> {
         answerDao.deleteById(id);
     }
 
-    public UUID findAnswerId(String authorName, UUID questionId, String body) {
+    public Optional<UUID> findAnswerId(String authorName, UUID questionId, String body) {
         return answerDao.findAnswerId(authorName, questionId, body);
     }
 

@@ -1,9 +1,7 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
-import org.springframework.lang.Nullable;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface ControllerInterface<T> {

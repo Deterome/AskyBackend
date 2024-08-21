@@ -3,36 +3,34 @@ package org.senla_project.application.dao;
 import lombok.NonNull;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.senla_project.application.entity.Entity;
-import org.springframework.lang.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public abstract class Dao<T extends Entity & Cloneable> {
 
     protected List<T> entities = new ArrayList<>();
-    Class<T> entityClass;
+    private final Class<T> entityClass;
 
     public Dao(@NonNull Class<T> entityClass) {
         this.entityClass = entityClass;
     }
 
-    @NonNull
     public List<T> findAll() {
-        return entities.stream().map(entity -> entityClass.cast(entity.clone())).collect(Collectors.toList());
+        return entities.stream()
+                .map(entity -> entityClass.cast(entity.clone()))
+                .collect(Collectors.toList());
     }
 
-    @Nullable
-    public T findById(@NonNull UUID id) {
-        for (T entity: entities) {
-            if (entity.getId().equals(id)) {
-                return entityClass.cast(entity.clone());
-            }
-        }
-        return null;
+    public Optional<T> findById(@NonNull UUID id) {
+        return entities.stream()
+                .filter(entity -> entity.getId().equals(id))
+                .findFirst()
+                .map(entity -> entityClass.cast(entity.clone()));
     }
 
     public void create(@NonNull T entity) {

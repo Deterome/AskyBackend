@@ -1,8 +1,10 @@
 package org.senla_project.application.dao;
 
+import org.senla_project.application.entity.Entity;
 import org.senla_project.application.entity.User;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -11,18 +13,13 @@ public class UserDao extends Dao<User> {
         super(User.class);
     }
 
-    public User findUserByNickname(String nickname) {
-        for (User user: entities) {
-            if (user.getNickname().equals(nickname)) {
-                return user;
-            }
-        }
-        return null;
+    public Optional<User> findUserByNickname(String nickname) {
+        return entities.stream()
+                .filter(entity -> entity.getNickname().equals(nickname))
+                .findFirst();
     }
 
-    public UUID findUserId(String nickname) {
-        User user = findUserByNickname(nickname);
-        if (user == null) return null;
-        return user.getId();
+    public Optional<UUID> findUserId(String nickname) {
+        return findUserByNickname(nickname).map(Entity::getId);
     }
 }

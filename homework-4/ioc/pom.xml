@@ -121,6 +121,9 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>4.29.1</version>
                 <configuration>
+                    <url>${DATABASE_URL}</url>
+                    <username>${DATABASE_USERNAME}</username>
+                    <password>${DATABASE_PASSWORD}</password>
                     <propertyFile>liquibase.properties</propertyFile>
                 </configuration>
                 <executions>

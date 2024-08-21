@@ -3,7 +3,7 @@ package org.senla_project.application.entity;
 import lombok.*;
 
 @EqualsAndHashCode(callSuper = true)
-@Data @Builder
+@NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class User extends Entity {
 
     private Role role;

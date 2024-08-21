@@ -1,17 +1,19 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
-import org.senla_project.application.dto.UserDto;
+import org.senla_project.application.dto.UserCreateDto;
+import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.service.UserService;
+import org.senla_project.application.util.Exception.EntityNotFoundException;
 import org.senla_project.application.util.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class UserController implements ControllerInterface<UserDto> {
+public class UserController implements ControllerInterface<UserCreateDto> {
 
     @Autowired
     private UserService service;
@@ -23,25 +25,23 @@ public class UserController implements ControllerInterface<UserDto> {
         service.execute();
     }
 
-    @SneakyThrows
     @Override
     public String getAllElements() {
         return jsonParser.parseObjectToJson(service.getAllElements());
     }
 
-    @SneakyThrows
     @Override
     public String getElementById(@NonNull UUID id) {
-        return jsonParser.parseObjectToJson(service.getElementById(id));
+        return jsonParser.parseObjectToJson(service.getElementById(id).orElseThrow(() -> new EntityNotFoundException("User not found")));
     }
 
     @Override
-    public void addElement(@NonNull UserDto element) {
+    public void addElement(@NonNull UserCreateDto element) {
         service.addElement(element);
     }
 
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull UserDto updatedElement) {
+    public void updateElement(@NonNull UUID id, @NonNull UserCreateDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 
@@ -50,7 +50,7 @@ public class UserController implements ControllerInterface<UserDto> {
         service.deleteElement(id);
     }
 
-    public UUID findUserId(String nickname) {
+    public Optional<UUID> findUserId(String nickname) {
         return service.findUserId(nickname);
     }
 }

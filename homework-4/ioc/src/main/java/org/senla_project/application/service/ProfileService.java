@@ -4,21 +4,16 @@ import lombok.NonNull;
 import org.senla_project.application.dao.ProfileDao;
 import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.dto.ProfileDto;
-import org.senla_project.application.entity.Profile;
-import org.senla_project.application.mapper.CollaborationsJoiningListMapper;
-import org.senla_project.application.mapper.CollaborationsJoiningMapper;
-import org.senla_project.application.mapper.ProfileListMapper;
 import org.senla_project.application.mapper.ProfileMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class ProfileService implements ServiceInterface<ProfileDto> {
+public class ProfileService implements ServiceInterface<ProfileDto, ProfileDto> {
 
     @Autowired
     private ProfileDao profileDao;
@@ -26,24 +21,19 @@ public class ProfileService implements ServiceInterface<ProfileDto> {
     private UserDao userDao;
     @Autowired
     private ProfileMapper profileMapper;
-    @Autowired
-    private ProfileListMapper profileListMapper;
 
     @Override
     public void execute() {}
 
     @Override
-    @NonNull
     public List<ProfileDto> getAllElements() {
-        return profileListMapper.toDtoList(profileDao.findAll());
+        return profileMapper.toDtoList(profileDao.findAll());
     }
 
     @Override
-    @Nullable
-    public ProfileDto getElementById(@NonNull UUID id) {
-        Profile profile = profileDao.findById(id);
-        if (profile == null) return null;
-        return profileMapper.toDto(profile);
+    public Optional<ProfileDto> getElementById(@NonNull UUID id) {
+        return profileDao.findById(id)
+                .map(profileMapper::toDto);
     }
 
     @Override
@@ -61,7 +51,7 @@ public class ProfileService implements ServiceInterface<ProfileDto> {
         profileDao.deleteById(id);
     }
 
-    public UUID getProfileId(String nickname) {
+    public Optional<UUID> getProfileId(String nickname) {
         return profileDao.findProfileId(nickname);
     }
 

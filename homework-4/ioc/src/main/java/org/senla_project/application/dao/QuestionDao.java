@@ -1,10 +1,10 @@
 package org.senla_project.application.dao;
 
-import lombok.NonNull;
+import org.senla_project.application.entity.Entity;
 import org.senla_project.application.entity.Question;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -13,13 +13,12 @@ public class QuestionDao extends Dao<Question> {
         super(Question.class);
     }
 
-    public UUID findQuestionId(String header, String body, String authorName) {
-        for (Question entity: entities) {
-            if (entity.getHeader().equals(header)
+    public Optional<UUID> findQuestionId(String header, String body, String authorName) {
+        return entities.stream()
+                .filter(entity -> entity.getHeader().equals(header)
                     && entity.getBody().equals(body)
                     && entity.getAuthor().getNickname().equals(authorName))
-                return entity.getId();
-        }
-        return null;
+                .findFirst()
+                .map(Entity::getId);
     }
 }

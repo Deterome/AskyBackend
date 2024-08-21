@@ -1,8 +1,10 @@
 package org.senla_project.application.dao;
 
 import org.senla_project.application.entity.Collaboration;
+import org.senla_project.application.entity.Entity;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -11,18 +13,13 @@ public class CollaborationDao extends Dao<Collaboration> {
         super(Collaboration.class);
     }
 
-    public Collaboration findCollabByName(String collabName) {
-        for (Collaboration collab: entities) {
-            if (collab.getCollabName().equals(collabName)) {
-                return collab;
-            }
-        }
-        return null;
+    public Optional<Collaboration> findCollabByName(String collabName) {
+        return entities.stream()
+                .filter(entity -> entity.getCollabName().equals(collabName))
+                .findFirst();
     }
 
-    public UUID findCollabId(String collabName) {
-        Collaboration collab = findCollabByName(collabName);
-        if (collab == null) return null;
-        return collab.getId();
+    public Optional<UUID> findCollabId(String collabName) {
+        return findCollabByName(collabName).map(Entity::getId);
     }
 }
