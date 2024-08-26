@@ -22,17 +22,6 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public Connection connection(@NonNull DatabaseConfig databaseConfig) {
-        try {
-            return DriverManager.getConnection(databaseConfig.getUrl(),
-                    databaseConfig.getUsername(),
-                    databaseConfig.getPassword());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Bean
     public PGSimpleDataSource dataSource(@NonNull DatabaseConfig databaseConfig) {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
         dataSource.setURL(databaseConfig.getUrl());

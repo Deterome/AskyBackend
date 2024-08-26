@@ -3,6 +3,7 @@ package org.senla_project.application.dao.daoImpl;
 import lombok.NonNull;
 import org.senla_project.application.dao.RoleDao;
 import org.senla_project.application.entity.Role;
+import org.senla_project.application.util.connectionUtil.ConnectionHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 public class RoleDaoImpl implements RoleDao {
 
     @Autowired
-    Connection dbConn;
+    ConnectionHolder connectionHolder;
 
     final String selectRolesSqlQuery =
             "SELECT * FROM roles AS r\n";
@@ -27,7 +28,7 @@ public class RoleDaoImpl implements RoleDao {
                 "INSERT INTO roles\n" +
                 "   (role_id, role_name)\n" +
                 "VALUES (?, ?)";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, entity.getId());
             prepStmt.setString(2, entity.getRoleName());
 
@@ -44,7 +45,7 @@ public class RoleDaoImpl implements RoleDao {
                 "   role_name = ?\n" +
                 "WHERE role_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setString(1, updatedEntity.getRoleName());
             prepStmt.setObject(2, id);
 
@@ -60,7 +61,7 @@ public class RoleDaoImpl implements RoleDao {
                 "DELETE FROM roles\n" +
                 "   WHERE role_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, id);
 
             prepStmt.executeUpdate();
@@ -72,7 +73,7 @@ public class RoleDaoImpl implements RoleDao {
     @Override
     public List<Role> findAll() {
         List<Role> roles = new ArrayList<>();
-        try (Statement stmt = dbConn.createStatement();
+        try (Statement stmt = connectionHolder.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(selectRolesSqlQuery)){
             while (rs.next()) {
                 roles.add(makeEntityFromResultSet(rs));
@@ -88,7 +89,7 @@ public class RoleDaoImpl implements RoleDao {
         String sqlQuery = selectRolesSqlQuery +
                 "WHERE role_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setObject(1, id);
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {
@@ -107,7 +108,7 @@ public class RoleDaoImpl implements RoleDao {
         String sqlQuery = selectRolesSqlQuery +
                 "WHERE r.role_name = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setString(1, roleName);
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {

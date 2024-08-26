@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.entity.Role;
 import org.senla_project.application.entity.User;
+import org.senla_project.application.util.connectionUtil.ConnectionHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,7 @@ import java.util.UUID;
 public class UserDaoImpl implements UserDao {
 
     @Autowired
-    Connection dbConn;
+    ConnectionHolder connectionHolder;
 
     final String selectUsersSqlQuery =
             "SELECT * FROM users AS u\n" +
@@ -30,7 +31,7 @@ public class UserDaoImpl implements UserDao {
                 "INSERT INTO users\n" +
                 "   (user_id, role_id, username, hashed_password)\n" +
                 "VALUES (?, ?, ?, ?)";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, entity.getId());
             prepStmt.setObject(2, entity.getRole().getId());
             prepStmt.setString(3, entity.getNickname());
@@ -51,7 +52,7 @@ public class UserDaoImpl implements UserDao {
                 "   hashed_password = ?\n" +
                 "WHERE user_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, updatedEntity.getRole().getId());
             prepStmt.setString(2, updatedEntity.getNickname());
             prepStmt.setString(3, updatedEntity.getPassword());
@@ -69,7 +70,7 @@ public class UserDaoImpl implements UserDao {
                 "DELETE FROM users\n" +
                 "   WHERE user_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, id);
 
             prepStmt.executeUpdate();
@@ -81,7 +82,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        try (Statement stmt = dbConn.createStatement();
+        try (Statement stmt = connectionHolder.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(selectUsersSqlQuery)){
             while (rs.next()) {
                 users.add(makeEntityFromResultSet(rs));
@@ -97,7 +98,7 @@ public class UserDaoImpl implements UserDao {
         String sqlQuery = selectUsersSqlQuery +
                 "WHERE user_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setObject(1, id);
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {
@@ -116,7 +117,7 @@ public class UserDaoImpl implements UserDao {
         String sqlQuery = selectUsersSqlQuery +
                 "WHERE username = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setString(1, nickname);
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {
