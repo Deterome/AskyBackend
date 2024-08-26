@@ -16,7 +16,7 @@ import java.util.Map;
 public class ConnectionHolder {
 
     private final DataSource dataSource;
-    private final TimedPool<Connection> idleConnectionsPool;
+    private final ConnectionPool idleConnectionsPool;
     private final Map<Thread, Connection> usedConnections;
 
     @Value("60000")
@@ -26,7 +26,7 @@ public class ConnectionHolder {
     @Autowired
     public ConnectionHolder(@NonNull DataSource dataSource) {
         this.dataSource = dataSource;
-        this.idleConnectionsPool = new TimedPool<>();
+        this.idleConnectionsPool = new ConnectionPool();
         this.usedConnections = new HashMap<>();
     }
 
