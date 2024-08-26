@@ -3,6 +3,7 @@ package org.senla_project.application.dao.daoImpl;
 import lombok.NonNull;
 import org.senla_project.application.dao.AnswerDao;
 import org.senla_project.application.entity.*;
+import org.senla_project.application.util.connectionUtil.ConnectionHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 public class AnswerDaoImpl implements AnswerDao {
 
     @Autowired
-    Connection dbConn;
+    ConnectionHolder connectionHolder;
 
     final String selectAnswersSqlQuery =
             "SELECT a.answer_id, a.body, a.usefulness, a.create_time,\n" +
@@ -38,7 +39,7 @@ public class AnswerDaoImpl implements AnswerDao {
                 "INSERT INTO answers\n" +
                 "   (answer_id, body, author, question_id, usefulness, create_time)\n" +
                 "VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, entity.getId());
             prepStmt.setString(2, entity.getBody());
             prepStmt.setObject(3, entity.getAuthor().getId());
@@ -63,7 +64,7 @@ public class AnswerDaoImpl implements AnswerDao {
                 "   create_time = ?\n" +
                 "WHERE answer_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setString(1, updatedEntity.getBody());
             prepStmt.setObject(2, updatedEntity.getAuthor().getId());
             prepStmt.setObject(3, updatedEntity.getQuestion().getId());
@@ -83,7 +84,7 @@ public class AnswerDaoImpl implements AnswerDao {
                 "DELETE FROM answers\n" +
                 "   WHERE answer_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, id);
 
             prepStmt.executeUpdate();
@@ -95,7 +96,7 @@ public class AnswerDaoImpl implements AnswerDao {
     @Override
     public List<Answer> findAll() {
         List<Answer> answers = new ArrayList<>();
-        try (Statement stmt = dbConn.createStatement();
+        try (Statement stmt = connectionHolder.getConnection().createStatement();
                 ResultSet rs = stmt.executeQuery(selectAnswersSqlQuery)){
             while (rs.next()) {
                 answers.add(makeEntityFromResultSet(rs));
@@ -111,7 +112,7 @@ public class AnswerDaoImpl implements AnswerDao {
         String sqlQuery = selectAnswersSqlQuery +
                         "WHERE a.answer_id = ?\n" +
                         "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setObject(1, id);
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {
@@ -132,7 +133,7 @@ public class AnswerDaoImpl implements AnswerDao {
                         "   AND question_id = ?\n" +
                         "   AND body = ?\n" +
                         "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setString(1, authorName);
             prepStmt.setObject(2, questionId);
             prepStmt.setString(3, body);

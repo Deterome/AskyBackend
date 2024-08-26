@@ -2,6 +2,7 @@ package org.senla_project.application.dao.daoImpl;
 
 import lombok.NonNull;
 import org.senla_project.application.entity.*;
+import org.senla_project.application.util.connectionUtil.ConnectionHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ import java.util.UUID;
 public class CollaborationsJoiningDao implements org.senla_project.application.dao.CollaborationsJoiningDao {
 
     @Autowired
-    Connection dbConn;
+    ConnectionHolder connectionHolder;
 
     final String selectRolesSqlQuery =
             "SELECT * FROM collaborations_users AS cu\n" +
@@ -32,7 +33,7 @@ public class CollaborationsJoiningDao implements org.senla_project.application.d
                 "INSERT INTO collaborations_users\n" +
                         "   (join_id, collab_id, user_id, join_date)\n" +
                         "VALUES (?, ?, ?, ?)";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, entity.getId());
             prepStmt.setObject(2, entity.getCollab().getId());
             prepStmt.setObject(3, entity.getUser().getId());
@@ -53,7 +54,7 @@ public class CollaborationsJoiningDao implements org.senla_project.application.d
                 "   join_date = ?\n" +
                 "WHERE role_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, updatedEntity.getCollab().getId());
             prepStmt.setObject(2, updatedEntity.getUser().getId());
             prepStmt.setTimestamp(3, Timestamp.valueOf(updatedEntity.getJoinDate().atStartOfDay()));
@@ -71,7 +72,7 @@ public class CollaborationsJoiningDao implements org.senla_project.application.d
                 "DELETE FROM collaborations_users\n" +
                 "   WHERE join_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, id);
 
             prepStmt.executeUpdate();
@@ -83,7 +84,7 @@ public class CollaborationsJoiningDao implements org.senla_project.application.d
     @Override
     public List<CollaborationsJoining> findAll() {
         List<CollaborationsJoining> joins = new ArrayList<>();
-        try (Statement stmt = dbConn.createStatement();
+        try (Statement stmt = connectionHolder.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(selectRolesSqlQuery)){
             while (rs.next()) {
                 joins.add(makeEntityFromResultSet(rs));
@@ -99,7 +100,7 @@ public class CollaborationsJoiningDao implements org.senla_project.application.d
         String sqlQuery = selectRolesSqlQuery +
                 "WHERE join_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setObject(1, id);
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {
@@ -119,7 +120,7 @@ public class CollaborationsJoiningDao implements org.senla_project.application.d
                 "WHERE u.username = ?\n" +
                 "   AND c.collab_name = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setString(1, username);
             prepStmt.setString(2, collaboration);
             try (ResultSet rs = prepStmt.executeQuery()) {

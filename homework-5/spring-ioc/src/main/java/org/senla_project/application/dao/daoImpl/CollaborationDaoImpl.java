@@ -3,6 +3,7 @@ package org.senla_project.application.dao.daoImpl;
 import lombok.NonNull;
 import org.senla_project.application.dao.CollaborationDao;
 import org.senla_project.application.entity.Collaboration;
+import org.senla_project.application.util.connectionUtil.ConnectionHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 public class CollaborationDaoImpl implements CollaborationDao {
 
     @Autowired
-    Connection dbConn;
+    ConnectionHolder connectionHolder;
 
     final String selectRolesSqlQuery =
             "SELECT * FROM collaborations AS c\n";
@@ -27,7 +28,7 @@ public class CollaborationDaoImpl implements CollaborationDao {
                 "INSERT INTO collaborations\n" +
                 "   (collab_id, collab_name, create_time)\n" +
                 "VALUES (?, ?, ?)";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, entity.getId());
             prepStmt.setString(2, entity.getCollabName());
             prepStmt.setTimestamp(3, Timestamp.valueOf(entity.getCreateTime().atStartOfDay()));
@@ -46,7 +47,7 @@ public class CollaborationDaoImpl implements CollaborationDao {
                 "   create_time = ?\n" +
                 "WHERE role_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setString(1, updatedEntity.getCollabName());
             prepStmt.setTimestamp(2, Timestamp.valueOf(updatedEntity.getCreateTime().atStartOfDay()));
             prepStmt.setObject(3, id);
@@ -63,7 +64,7 @@ public class CollaborationDaoImpl implements CollaborationDao {
                 "DELETE FROM collaborations\n" +
                 "   WHERE collab_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, id);
 
             prepStmt.executeUpdate();
@@ -75,7 +76,7 @@ public class CollaborationDaoImpl implements CollaborationDao {
     @Override
     public List<Collaboration> findAll() {
         List<Collaboration> collaborations = new ArrayList<>();
-        try (Statement stmt = dbConn.createStatement();
+        try (Statement stmt = connectionHolder.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(selectRolesSqlQuery)){
             while (rs.next()) {
                 collaborations.add(makeEntityFromResultSet(rs));
@@ -91,7 +92,7 @@ public class CollaborationDaoImpl implements CollaborationDao {
         String sqlQuery = selectRolesSqlQuery +
                 "WHERE collab_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setObject(1, id);
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {
@@ -110,7 +111,7 @@ public class CollaborationDaoImpl implements CollaborationDao {
         String sqlQuery = selectRolesSqlQuery +
                 "WHERE collab_name = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setString(1, collabName);
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {

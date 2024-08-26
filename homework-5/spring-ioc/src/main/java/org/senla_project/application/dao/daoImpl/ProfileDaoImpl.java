@@ -3,6 +3,7 @@ package org.senla_project.application.dao.daoImpl;
 import lombok.NonNull;
 import org.senla_project.application.dao.ProfileDao;
 import org.senla_project.application.entity.*;
+import org.senla_project.application.util.connectionUtil.ConnectionHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 public class ProfileDaoImpl implements ProfileDao {
 
     @Autowired
-    Connection dbConn;
+    ConnectionHolder connectionHolder;
 
     final String selectRolesSqlQuery =
             "SELECT * FROM profiles AS p\n" +
@@ -31,7 +32,7 @@ public class ProfileDaoImpl implements ProfileDao {
                 "INSERT INTO profiles\n" +
                 "   (profile_id, user_id, bio, firstname, surname, birthday, avatar_url, rating)\n" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, entity.getId());
             prepStmt.setObject(2, entity.getUser().getId());
             prepStmt.setString(3, entity.getBio());
@@ -59,7 +60,7 @@ public class ProfileDaoImpl implements ProfileDao {
                 "   rating = ?\n" +
                 "WHERE profile_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setString(1, updatedEntity.getBio());
             prepStmt.setString(2, updatedEntity.getFirstname());
             prepStmt.setString(3, updatedEntity.getSurname());
@@ -81,7 +82,7 @@ public class ProfileDaoImpl implements ProfileDao {
                 "DELETE FROM profiles\n" +
                 "   WHERE profile_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)) {
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)) {
             prepStmt.setObject(1, id);
 
             prepStmt.executeUpdate();
@@ -93,7 +94,7 @@ public class ProfileDaoImpl implements ProfileDao {
     @Override
     public List<Profile> findAll() {
         List<Profile> profiles = new ArrayList<>();
-        try (Statement stmt = dbConn.createStatement();
+        try (Statement stmt = connectionHolder.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(selectRolesSqlQuery)){
             while (rs.next()) {
                 profiles.add(makeEntityFromResultSet(rs));
@@ -109,7 +110,7 @@ public class ProfileDaoImpl implements ProfileDao {
         String sqlQuery = selectRolesSqlQuery +
                 "WHERE profile_id = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setObject(1, id);
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {
@@ -128,7 +129,7 @@ public class ProfileDaoImpl implements ProfileDao {
         String sqlQuery = selectRolesSqlQuery +
                 "WHERE u.username = ?\n" +
                 "LIMIT 1";
-        try (PreparedStatement prepStmt = dbConn.prepareStatement(sqlQuery)){
+        try (PreparedStatement prepStmt = connectionHolder.getConnection().prepareStatement(sqlQuery)){
             prepStmt.setString(1, nickname);
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {
