@@ -48,17 +48,20 @@ public class AnswerService implements ServiceInterface<AnswerDto, AnswerDto> {
         answerDao.deleteById(id);
     }
 
+    @Transaction
     @Override
     public List<AnswerDto> getAllElements() {
         return answerMapper.toDtoList(answerDao.findAll());
     }
 
+    @Transaction
     @Override
     public Optional<AnswerDto> getElementById(@NonNull UUID id) {
         return answerDao.findById(id)
                 .map(answerMapper::toDto);
     }
 
+    @Transaction
     public Optional<UUID> findAnswerId(String authorName, UUID questionId, String body) {
         return answerDao.findAnswer(authorName, questionId, body).map(Entity::getId);
     }

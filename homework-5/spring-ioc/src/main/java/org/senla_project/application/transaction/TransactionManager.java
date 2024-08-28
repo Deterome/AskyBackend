@@ -27,12 +27,13 @@ public class TransactionManager {
     public void transaction() {}
 
     @Around("transaction()")
-    public void transactionAdvice(ProceedingJoinPoint joinPoint) {
+    public Object transactionAdvice(ProceedingJoinPoint joinPoint) {
+        Object returnValue = null;
         Connection connection = connectionHolder.getConnection();
         connectionHolder.setTransactionOpened(true);
         try {
             connection.setAutoCommit(false);
-            joinPoint.proceed();
+            returnValue = joinPoint.proceed();
             connection.commit();
             connectionHolder.setTransactionOpened(false);
         } catch (Throwable e) {
@@ -45,6 +46,7 @@ public class TransactionManager {
         } finally {
             connectionHolder.releaseConnectionIfTransactionClosed();
         }
+        return returnValue;
     }
 
 }

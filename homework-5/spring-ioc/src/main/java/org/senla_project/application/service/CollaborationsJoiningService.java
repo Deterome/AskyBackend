@@ -48,17 +48,20 @@ public class CollaborationsJoiningService implements ServiceInterface<Collaborat
         collaborationsJoiningDao.deleteById(id);
     }
 
+    @Transaction
     @Override
     public List<CollaborationsJoiningDto> getAllElements() {
         return collaborationsJoiningMapper.toDtoList(collaborationsJoiningDao.findAll());
     }
 
+    @Transaction
     @Override
     public Optional<CollaborationsJoiningDto> getElementById(@NonNull UUID id) {
         return collaborationsJoiningDao.findById(id)
                 .map(collaborationsJoiningMapper::toDto);
     }
 
+    @Transaction
     public Optional<UUID> findCollaborationJoinId(String username, String collaboration) {
         return collaborationsJoiningDao.findCollaborationJoin(username, collaboration).map(Entity::getId);
     }

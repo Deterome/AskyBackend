@@ -42,17 +42,20 @@ public class RoleService implements ServiceInterface<RoleDto, RoleDto> {
         roleDao.deleteById(id);
     }
 
+    @Transaction
     @Override
     public List<RoleDto> getAllElements() {
         return roleMapper.toDtoList(roleDao.findAll());
     }
 
+    @Transaction
     @Override
     public Optional<RoleDto> getElementById(@NonNull UUID id) {
         return roleDao.findById(id)
                 .map(roleMapper::toDto);
     }
 
+    @Transaction
     public Optional<UUID> findRoleId(String roleName) {
         return roleDao.findRoleByName(roleName).map(Entity::getId);
     }
