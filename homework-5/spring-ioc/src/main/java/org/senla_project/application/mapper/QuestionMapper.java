@@ -7,7 +7,7 @@ import org.mapstruct.Named;
 import org.senla_project.application.dao.QuestionDao;
 import org.senla_project.application.dto.QuestionDto;
 import org.senla_project.application.entity.Question;
-import org.senla_project.application.util.Exception.EntityNotFoundException;
+import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;

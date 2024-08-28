@@ -8,7 +8,7 @@ import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.dto.UserCreateDto;
 import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.entity.User;
-import org.senla_project.application.util.Exception.EntityNotFoundException;
+import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;

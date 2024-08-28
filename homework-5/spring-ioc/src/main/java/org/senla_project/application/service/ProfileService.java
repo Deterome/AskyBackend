@@ -6,6 +6,7 @@ import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.dto.ProfileDto;
 import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.ProfileMapper;
+import org.senla_project.application.transaction.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,24 @@ public class ProfileService implements ServiceInterface<ProfileDto, ProfileDto> 
     @Override
     public void execute() {}
 
+    @Transaction
+    @Override
+    public void addElement(@NonNull ProfileDto element) {
+        profileDao.create(profileMapper.toEntity(element));
+    }
+
+    @Transaction
+    @Override
+    public void updateElement(@NonNull UUID id, @NonNull ProfileDto updatedElement) {
+        profileDao.update(id, profileMapper.toEntity(updatedElement));
+    }
+
+    @Transaction
+    @Override
+    public void deleteElement(@NonNull UUID id) {
+        profileDao.deleteById(id);
+    }
+
     @Override
     public List<ProfileDto> getAllElements() {
         return profileMapper.toDtoList(profileDao.findAll());
@@ -35,21 +54,6 @@ public class ProfileService implements ServiceInterface<ProfileDto, ProfileDto> 
     public Optional<ProfileDto> getElementById(@NonNull UUID id) {
         return profileDao.findById(id)
                 .map(profileMapper::toDto);
-    }
-
-    @Override
-    public void addElement(@NonNull ProfileDto element) {
-        profileDao.create(profileMapper.toEntity(element));
-    }
-
-    @Override
-    public void updateElement(@NonNull UUID id, @NonNull ProfileDto updatedElement) {
-        profileDao.update(id, profileMapper.toEntity(updatedElement));
-    }
-
-    @Override
-    public void deleteElement(@NonNull UUID id) {
-        profileDao.deleteById(id);
     }
 
     public Optional<UUID> getProfileId(String nickname) {

@@ -7,6 +7,7 @@ import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.dto.CollaborationsJoiningDto;
 import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.CollaborationsJoiningMapper;
+import org.senla_project.application.transaction.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,24 @@ public class CollaborationsJoiningService implements ServiceInterface<Collaborat
     @Override
     public void execute() {}
 
+    @Transaction
+    @Override
+    public void addElement(@NonNull CollaborationsJoiningDto element) {
+        collaborationsJoiningDao.create(collaborationsJoiningMapper.toEntity(element));
+    }
+
+    @Transaction
+    @Override
+    public void updateElement(@NonNull UUID id, @NonNull CollaborationsJoiningDto updatedElement) {
+        collaborationsJoiningDao.update(id, collaborationsJoiningMapper.toEntity(updatedElement));
+    }
+
+    @Transaction
+    @Override
+    public void deleteElement(@NonNull UUID id) {
+        collaborationsJoiningDao.deleteById(id);
+    }
+
     @Override
     public List<CollaborationsJoiningDto> getAllElements() {
         return collaborationsJoiningMapper.toDtoList(collaborationsJoiningDao.findAll());
@@ -38,21 +57,6 @@ public class CollaborationsJoiningService implements ServiceInterface<Collaborat
     public Optional<CollaborationsJoiningDto> getElementById(@NonNull UUID id) {
         return collaborationsJoiningDao.findById(id)
                 .map(collaborationsJoiningMapper::toDto);
-    }
-
-    @Override
-    public void addElement(@NonNull CollaborationsJoiningDto element) {
-        collaborationsJoiningDao.create(collaborationsJoiningMapper.toEntity(element));
-    }
-
-    @Override
-    public void updateElement(@NonNull UUID id, @NonNull CollaborationsJoiningDto updatedElement) {
-        collaborationsJoiningDao.update(id, collaborationsJoiningMapper.toEntity(updatedElement));
-    }
-
-    @Override
-    public void deleteElement(@NonNull UUID id) {
-        collaborationsJoiningDao.deleteById(id);
     }
 
     public Optional<UUID> findCollaborationJoinId(String username, String collaboration) {

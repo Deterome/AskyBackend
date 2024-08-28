@@ -6,7 +6,7 @@ import org.mapstruct.Named;
 import org.senla_project.application.dao.CollaborationDao;
 import org.senla_project.application.dto.CollaborationDto;
 import org.senla_project.application.entity.Collaboration;
-import org.senla_project.application.util.Exception.EntityNotFoundException;
+import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
