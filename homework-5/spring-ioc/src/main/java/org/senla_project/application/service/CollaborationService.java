@@ -42,17 +42,20 @@ public class CollaborationService implements ServiceInterface<CollaborationDto, 
         collaborationDao.deleteById(id);
     }
 
+    @Transaction
     @Override
     public List<CollaborationDto> getAllElements() {
         return collaborationMapper.toDtoList(collaborationDao.findAll());
     }
 
+    @Transaction
     @Override
     public Optional<CollaborationDto> getElementById(@NonNull UUID id) {
         return collaborationDao.findById(id)
                 .map(collaborationMapper::toDto);
     }
 
+    @Transaction
     public Optional<UUID> findCollabId(String collabName) {
         return collaborationDao.findCollabByName(collabName).map(Entity::getId);
     }

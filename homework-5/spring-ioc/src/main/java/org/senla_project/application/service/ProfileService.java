@@ -45,17 +45,20 @@ public class ProfileService implements ServiceInterface<ProfileDto, ProfileDto> 
         profileDao.deleteById(id);
     }
 
+    @Transaction
     @Override
     public List<ProfileDto> getAllElements() {
         return profileMapper.toDtoList(profileDao.findAll());
     }
 
+    @Transaction
     @Override
     public Optional<ProfileDto> getElementById(@NonNull UUID id) {
         return profileDao.findById(id)
                 .map(profileMapper::toDto);
     }
 
+    @Transaction
     public Optional<UUID> getProfileId(String nickname) {
         return profileDao.findProfileByNickname(nickname).map(Entity::getId);
     }

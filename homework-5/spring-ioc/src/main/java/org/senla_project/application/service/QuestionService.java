@@ -45,17 +45,20 @@ public class QuestionService implements ServiceInterface<QuestionDto, QuestionDt
         questionDao.deleteById(id);
     }
 
+    @Transaction
     @Override
     public List<QuestionDto> getAllElements() {
         return questionMapper.toDtoList(questionDao.findAll());
     }
 
+    @Transaction
     @Override
     public Optional<QuestionDto> getElementById(@NonNull UUID id) {
         return questionDao.findById(id)
                 .map(questionMapper::toDto);
     }
 
+    @Transaction
     public Optional<UUID> findQuestionId(String header, String body, String authorName) {
         return questionDao.findQuestion(header, body, authorName).map(Entity::getId);
     }

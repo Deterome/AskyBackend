@@ -46,17 +46,20 @@ public class UserService implements ServiceInterface<UserCreateDto, UserResponse
         userDao.deleteById(id);
     }
 
+    @Transaction
     @Override
     public List<UserResponseDto> getAllElements() {
         return userMapper.toUserResponseDtoList(userDao.findAll());
     }
 
+    @Transaction
     @Override
     public Optional<UserResponseDto> getElementById(@NonNull UUID id) {
         return userDao.findById(id)
                 .map(userMapper::toUserResponseDto);
     }
 
+    @Transaction
     public Optional<UUID> findUserId(@NonNull String nickname) {
         return userDao.findUserByNickname(nickname).map(Entity::getId);
     }
