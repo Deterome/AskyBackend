@@ -7,7 +7,7 @@ import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.dto.AnswerDto;
 import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.AnswerMapper;
-import org.senla_project.application.util.Exception.EntityNotFoundException;
+import org.senla_project.application.transaction.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +30,24 @@ public class AnswerService implements ServiceInterface<AnswerDto, AnswerDto> {
     @Override
     public void execute() {}
 
+    @Transaction
+    @Override
+    public void addElement(@NonNull AnswerDto element) {
+        answerDao.create(answerMapper.toEntity(element));
+    }
+
+    @Transaction
+    @Override
+    public void updateElement(@NonNull UUID id, @NonNull AnswerDto updatedElement) {
+        answerDao.update(id, answerMapper.toEntity(updatedElement));
+    }
+
+    @Transaction
+    @Override
+    public void deleteElement(@NonNull UUID id) {
+        answerDao.deleteById(id);
+    }
+
     @Override
     public List<AnswerDto> getAllElements() {
         return answerMapper.toDtoList(answerDao.findAll());
@@ -39,21 +57,6 @@ public class AnswerService implements ServiceInterface<AnswerDto, AnswerDto> {
     public Optional<AnswerDto> getElementById(@NonNull UUID id) {
         return answerDao.findById(id)
                 .map(answerMapper::toDto);
-    }
-
-    @Override
-    public void addElement(@NonNull AnswerDto element) {
-        answerDao.create(answerMapper.toEntity(element));
-    }
-
-    @Override
-    public void updateElement(@NonNull UUID id, @NonNull AnswerDto updatedElement) {
-        answerDao.update(id, answerMapper.toEntity(updatedElement));
-    }
-
-    @Override
-    public void deleteElement(@NonNull UUID id) {
-        answerDao.deleteById(id);
     }
 
     public Optional<UUID> findAnswerId(String authorName, UUID questionId, String body) {

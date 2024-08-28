@@ -3,7 +3,7 @@ package org.senla_project.application.controller;
 import lombok.NonNull;
 import org.senla_project.application.dto.RoleDto;
 import org.senla_project.application.service.RoleService;
-import org.senla_project.application.util.Exception.EntityNotFoundException;
+import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

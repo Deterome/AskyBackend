@@ -1,48 +1,55 @@
 package org.senla_project.application.util;
 
+import lombok.NonNull;
+
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TimedPool<T> {
 
-    private final Queue<Map.Entry<Timer, T>> poolMap;
+    final private ScheduledExecutorService scheduler;
+    final protected Queue<Map.Entry<ScheduledFuture<?>, T>> poolMap;
 
     public TimedPool() {
-        this.poolMap = new ConcurrentLinkedQueue<>();
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
+        this.poolMap = new LinkedList<>();
     }
 
-    public Optional<T> pop() {
-        Map.Entry<Timer, T> timedConnection = poolMap.poll();
+    synchronized public Optional<T> pop() {
+        Map.Entry<ScheduledFuture<?>, T> timedConnection = poolMap.poll();
         if (timedConnection != null) {
-            timedConnection.getKey().cancel();
+            timedConnection.getKey().cancel(true);
             return Optional.of(timedConnection.getValue());
         }
         return Optional.empty();
     }
 
-    public void push(T element, int poolTimeInMillis) {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                deleteElementFromQueue(element);
+    synchronized public void push(T element, int poolTime, TimeUnit timeUnit) {
+        poolMap.add(new AbstractMap.SimpleEntry<>(
+                scheduler.schedule(() -> deleteElementFromQueue(element), poolTime, timeUnit),
+                element));
+    }
+
+    synchronized private void deleteElementFromQueue(T element) {
+        AtomicBoolean found = new AtomicBoolean(false);
+        poolMap.removeIf(el -> {
+            if (el.getValue().equals(element) && found.compareAndSet(false, true)) {
+                preElementDelete(element);
+                return true;
             }
-        }, poolTimeInMillis);
-        poolMap.add(new AbstractMap.SimpleEntry<>(timer, element));
+            return false;
+        });
     }
 
-    private void deleteElementFromQueue(T element) {
-        poolMap.stream()
-                .filter(el -> el.getValue().equals(element))
-                .map(Map.Entry::getValue)
-                .forEach(this::preElementDelete);
-        poolMap.removeIf(el -> el.getValue().equals(element));
-    }
-
-    protected void preElementDelete(T element) {}
+    protected void preElementDelete(@NonNull T element) {}
 
     public boolean isEmpty() {
         return poolMap.isEmpty();
+    }
+
+    public void stopScheduler() {
+        scheduler.shutdown();
     }
 
 }

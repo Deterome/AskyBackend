@@ -2,9 +2,8 @@ package org.senla_project.application.controller;
 
 import lombok.NonNull;
 import org.senla_project.application.dto.UserCreateDto;
-import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.service.UserService;
-import org.senla_project.application.util.Exception.EntityNotFoundException;
+import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

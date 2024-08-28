@@ -5,6 +5,7 @@ import org.senla_project.application.dao.RoleDao;
 import org.senla_project.application.dto.RoleDto;
 import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.RoleMapper;
+import org.senla_project.application.transaction.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,24 @@ public class RoleService implements ServiceInterface<RoleDto, RoleDto> {
     @Override
     public void execute() {}
 
+    @Transaction
+    @Override
+    public void addElement(@NonNull RoleDto element) {
+        roleDao.create(roleMapper.toEntity(element));
+    }
+
+    @Transaction
+    @Override
+    public void updateElement(@NonNull UUID id, @NonNull RoleDto updatedElement) {
+        roleDao.update(id, roleMapper.toEntity(updatedElement));
+    }
+
+    @Transaction
+    @Override
+    public void deleteElement(@NonNull UUID id) {
+        roleDao.deleteById(id);
+    }
+
     @Override
     public List<RoleDto> getAllElements() {
         return roleMapper.toDtoList(roleDao.findAll());
@@ -32,21 +51,6 @@ public class RoleService implements ServiceInterface<RoleDto, RoleDto> {
     public Optional<RoleDto> getElementById(@NonNull UUID id) {
         return roleDao.findById(id)
                 .map(roleMapper::toDto);
-    }
-
-    @Override
-    public void addElement(@NonNull RoleDto element) {
-        roleDao.create(roleMapper.toEntity(element));
-    }
-
-    @Override
-    public void updateElement(@NonNull UUID id, @NonNull RoleDto updatedElement) {
-        roleDao.update(id, roleMapper.toEntity(updatedElement));
-    }
-
-    @Override
-    public void deleteElement(@NonNull UUID id) {
-        roleDao.deleteById(id);
     }
 
     public Optional<UUID> findRoleId(String roleName) {

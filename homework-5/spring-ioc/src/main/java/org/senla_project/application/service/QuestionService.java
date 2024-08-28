@@ -6,6 +6,7 @@ import org.senla_project.application.dao.UserDao;
 import org.senla_project.application.dto.QuestionDto;
 import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.QuestionMapper;
+import org.senla_project.application.transaction.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,24 @@ public class QuestionService implements ServiceInterface<QuestionDto, QuestionDt
     @Override
     public void execute() {}
 
+    @Transaction
+    @Override
+    public void addElement(@NonNull QuestionDto element) {
+        questionDao.create(questionMapper.toEntity(element));
+    }
+
+    @Transaction
+    @Override
+    public void updateElement(@NonNull UUID id, @NonNull QuestionDto updatedElement) {
+        questionDao.update(id, questionMapper.toEntity(updatedElement));
+    }
+
+    @Transaction
+    @Override
+    public void deleteElement(@NonNull UUID id) {
+        questionDao.deleteById(id);
+    }
+
     @Override
     public List<QuestionDto> getAllElements() {
         return questionMapper.toDtoList(questionDao.findAll());
@@ -35,21 +54,6 @@ public class QuestionService implements ServiceInterface<QuestionDto, QuestionDt
     public Optional<QuestionDto> getElementById(@NonNull UUID id) {
         return questionDao.findById(id)
                 .map(questionMapper::toDto);
-    }
-
-    @Override
-    public void addElement(@NonNull QuestionDto element) {
-        questionDao.create(questionMapper.toEntity(element));
-    }
-
-    @Override
-    public void updateElement(@NonNull UUID id, @NonNull QuestionDto updatedElement) {
-        questionDao.update(id, questionMapper.toEntity(updatedElement));
-    }
-
-    @Override
-    public void deleteElement(@NonNull UUID id) {
-        questionDao.deleteById(id);
     }
 
     public Optional<UUID> findQuestionId(String header, String body, String authorName) {

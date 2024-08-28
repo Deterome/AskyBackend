@@ -3,8 +3,8 @@ package org.senla_project.application;
 import org.senla_project.application.config.ApplicationConfig;
 import org.senla_project.application.controller.*;
 import org.senla_project.application.dto.*;
-import org.senla_project.application.util.Exception.EntityNotFoundException;
-import org.springframework.context.ApplicationContext;
+import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.UUID;
@@ -21,7 +21,7 @@ public class Application {
 
     public static void main(String[] args) {
 
-        ApplicationContext application = new AnnotationConfigApplicationContext(ApplicationConfig.class);
+        ConfigurableApplicationContext application = new AnnotationConfigApplicationContext(ApplicationConfig.class);
 
         roleController = application.getBean(RoleController.class);
         userController = application.getBean(UserController.class);
@@ -31,24 +31,33 @@ public class Application {
         questionController = application.getBean(QuestionController.class);
         answerController = application.getBean(AnswerController.class);
 
-//        addElements();
-        outputElements();
-/*        deleteLastElements();
-        outputElements();
-        updateFirstElementsAndOutput();*/
+        try {
+            addElements();
+            outputElements();
+//        deleteLastElements();
+//        outputElements();
+//        updateFirstElementsAndOutput();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
+        application.close();
     }
 
-    private static void addElements() {
+    private static void addElements() throws InterruptedException {
         System.out.println();
         System.out.println("Adding elements");
-//        addRoles(roleController);
-//        addUsers(userController);
-//        addProfiles(profileController);
-//        addCollaborations(collaborationController);
-//        addCollaborationsJoining(collaborationsJoiningController);
-//        addQuestions(questionController);
-//        addAnswers(answerController, questionController);
+        addRoles(roleController);
+        Thread.sleep(100);
+        addUsers(userController);
+        Thread.sleep(100);
+        addProfiles(profileController);
+        addCollaborations(collaborationController);
+        Thread.sleep(100);
+        addCollaborationsJoining(collaborationsJoiningController);
+        addQuestions(questionController);
+        Thread.sleep(100);
+        addAnswers(answerController, questionController);
     }
 
     private static void outputElements() {
@@ -141,45 +150,45 @@ public class Application {
     }
 
     private static void addRoles(RoleController roleController) {
-        roleController.addElement(RoleDto.builder().roleName("admin").build());
-        roleController.addElement(RoleDto.builder().roleName("user").build());
-        roleController.addElement(RoleDto.builder().roleName("god").build());
+        new Thread(() -> roleController.addElement(RoleDto.builder().roleName("admin").build())).start();
+        new Thread(() -> roleController.addElement(RoleDto.builder().roleName("user").build())).start();
+        new Thread(() -> roleController.addElement(RoleDto.builder().roleName("god").build())).start();
     }
 
     private static void addUsers(UserController userController) {
-        userController.addElement(UserCreateDto.builder().roleName("admin").nickname("Alex").password("123").build());
-        userController.addElement(UserCreateDto.builder().roleName("user").nickname("Nick").password("123").build());
-        userController.addElement(UserCreateDto.builder().roleName("user").nickname("Bob").password("123").build());
+        new Thread(() -> userController.addElement(UserCreateDto.builder().roleName("admin").nickname("Alex").password("123").build())).start();
+        new Thread(() -> userController.addElement(UserCreateDto.builder().roleName("user").nickname("Nick").password("123").build())).start();
+        new Thread(() -> userController.addElement(UserCreateDto.builder().roleName("user").nickname("Bob").password("123").build())).start();
     }
 
     private static void addProfiles(ProfileController profileController) {
-        profileController.addElement(ProfileDto.builder().userName("Alex").bio("I'm Alex").firstname("Alex").surname("Hock").birthday("2000-01-01").avatarUrl("org").rating(10).build());
-        profileController.addElement(ProfileDto.builder().userName("Nick").bio("I'm Nick").firstname("Nick").surname("Mock").birthday("2000-02-01").avatarUrl("org").rating(9).build());
-        profileController.addElement(ProfileDto.builder().userName("Bob").bio("I'm Bob").firstname("Bob").surname("Lock").birthday("2000-03-01").avatarUrl("org").rating(8).build());
+        new Thread(() -> profileController.addElement(ProfileDto.builder().userName("Alex").bio("I'm Alex").firstname("Alex").surname("Hock").birthday("2000-01-01").avatarUrl("org").rating(10).build())).start();
+        new Thread(() -> profileController.addElement(ProfileDto.builder().userName("Nick").bio("I'm Nick").firstname("Nick").surname("Mock").birthday("2000-02-01").avatarUrl("org").rating(9).build())).start();
+        new Thread(() -> profileController.addElement(ProfileDto.builder().userName("Bob").bio("I'm Bob").firstname("Bob").surname("Lock").birthday("2000-03-01").avatarUrl("org").rating(8).build())).start();
     }
 
     private static void addCollaborations(CollaborationController collaborationController) {
-        collaborationController.addElement(CollaborationDto.builder().collabName("Bros").createTime("2024-05-01").build());
-        collaborationController.addElement(CollaborationDto.builder().collabName("Boys").createTime("2024-01-01").build());
-        collaborationController.addElement(CollaborationDto.builder().collabName("Girls").createTime("2024-02-01").build());
+        new Thread(() -> collaborationController.addElement(CollaborationDto.builder().collabName("Bros").createTime("2024-05-01").build())).start();
+        new Thread(() -> collaborationController.addElement(CollaborationDto.builder().collabName("Boys").createTime("2024-01-01").build())).start();
+        new Thread(() -> collaborationController.addElement(CollaborationDto.builder().collabName("Girls").createTime("2024-02-01").build())).start();
     }
 
     private static void addCollaborationsJoining(CollaborationsJoiningController collaborationsJoiningController) {
-        collaborationsJoiningController.addElement(CollaborationsJoiningDto.builder().userName("Alex").collabName("Boys").joinDate("2024-05-01").build());
-        collaborationsJoiningController.addElement(CollaborationsJoiningDto.builder().userName("Bob").collabName("Boys").joinDate("2024-05-02").build());
-        collaborationsJoiningController.addElement(CollaborationsJoiningDto.builder().userName("Nick").collabName("Boys").joinDate("2024-05-03").build());
+        new Thread(() -> collaborationsJoiningController.addElement(CollaborationsJoiningDto.builder().userName("Alex").collabName("Boys").joinDate("2024-05-01").build())).start();
+        new Thread(() -> collaborationsJoiningController.addElement(CollaborationsJoiningDto.builder().userName("Bob").collabName("Boys").joinDate("2024-05-02").build())).start();
+        new Thread(() -> collaborationsJoiningController.addElement(CollaborationsJoiningDto.builder().userName("Nick").collabName("Boys").joinDate("2024-05-03").build())).start();
     }
 
     private static void addQuestions(QuestionController questionController) {
-        questionController.addElement(QuestionDto.builder().authorName("Alex").header("How?").body("Do you know how?").createTime("2024-06-01").interesting(1000).build());
-        questionController.addElement(QuestionDto.builder().authorName("Bob").header("Why?").body("Do you know why?").createTime("2024-07-01").interesting(1100).build());
-        questionController.addElement(QuestionDto.builder().authorName("Nick").header("When?").body("Do you know when?").createTime("2024-08-01").interesting(1200).build());
+        new Thread(() -> questionController.addElement(QuestionDto.builder().authorName("Alex").header("How?").body("Do you know how?").createTime("2024-06-01").interesting(1000).build())).start();
+        new Thread(() -> questionController.addElement(QuestionDto.builder().authorName("Bob").header("Why?").body("Do you know why?").createTime("2024-07-01").interesting(1100).build())).start();
+        new Thread(() -> questionController.addElement(QuestionDto.builder().authorName("Nick").header("When?").body("Do you know when?").createTime("2024-08-01").interesting(1200).build())).start();
     }
 
     private static void addAnswers(AnswerController answerController, QuestionController questionController) {
-        answerController.addElement(AnswerDto.builder().authorName("Bob").body("How?").questionId(questionController.findQuestionId("How?", "Do you know how?", "Alex").orElseThrow(() -> new EntityNotFoundException("Question not found"))).usefulness(0).createTime("2024-06-01").build());
-        answerController.addElement(AnswerDto.builder().authorName("Nick").body("Why?").questionId(questionController.findQuestionId("Why?", "Do you know why?", "Bob").orElseThrow(() -> new EntityNotFoundException("Question not found"))).usefulness(0).createTime("2024-06-01").build());
-        answerController.addElement(AnswerDto.builder().authorName("Alex").body("When?").questionId(questionController.findQuestionId("When?", "Do you know when?", "Nick").orElseThrow(() -> new EntityNotFoundException("Question not found"))).usefulness(0).createTime("2024-06-01").build());
+        new Thread(() -> answerController.addElement(AnswerDto.builder().authorName("Bob").body("How?").questionId(questionController.findQuestionId("How?", "Do you know how?", "Alex").orElseThrow(() -> new EntityNotFoundException("Question not found"))).usefulness(0).createTime("2024-06-01").build())).start();
+        new Thread(() -> answerController.addElement(AnswerDto.builder().authorName("Nick").body("Why?").questionId(questionController.findQuestionId("Why?", "Do you know why?", "Bob").orElseThrow(() -> new EntityNotFoundException("Question not found"))).usefulness(0).createTime("2024-06-01").build())).start();
+        new Thread(() -> answerController.addElement(AnswerDto.builder().authorName("Alex").body("When?").questionId(questionController.findQuestionId("When?", "Do you know when?", "Nick").orElseThrow(() -> new EntityNotFoundException("Question not found"))).usefulness(0).createTime("2024-06-01").build())).start();
     }
 
 }

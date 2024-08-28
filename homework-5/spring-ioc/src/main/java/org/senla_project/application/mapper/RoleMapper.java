@@ -5,7 +5,7 @@ import org.mapstruct.Named;
 import org.senla_project.application.dao.RoleDao;
 import org.senla_project.application.dto.RoleDto;
 import org.senla_project.application.entity.Role;
-import org.senla_project.application.util.Exception.EntityNotFoundException;
+import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;

@@ -5,6 +5,7 @@ import org.senla_project.application.dao.CollaborationDao;
 import org.senla_project.application.dto.CollaborationDto;
 import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.CollaborationMapper;
+import org.senla_project.application.transaction.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,24 @@ public class CollaborationService implements ServiceInterface<CollaborationDto, 
     @Override
     public void execute() {}
 
+    @Transaction
+    @Override
+    public void addElement(@NonNull CollaborationDto element) {
+        collaborationDao.create(collaborationMapper.toEntity(element));
+    }
+
+    @Transaction
+    @Override
+    public void updateElement(@NonNull UUID id, @NonNull CollaborationDto updatedElement) {
+        collaborationDao.update(id, collaborationMapper.toEntity(updatedElement));
+    }
+
+    @Transaction
+    @Override
+    public void deleteElement(@NonNull UUID id) {
+        collaborationDao.deleteById(id);
+    }
+
     @Override
     public List<CollaborationDto> getAllElements() {
         return collaborationMapper.toDtoList(collaborationDao.findAll());
@@ -32,21 +51,6 @@ public class CollaborationService implements ServiceInterface<CollaborationDto, 
     public Optional<CollaborationDto> getElementById(@NonNull UUID id) {
         return collaborationDao.findById(id)
                 .map(collaborationMapper::toDto);
-    }
-
-    @Override
-    public void addElement(@NonNull CollaborationDto element) {
-        collaborationDao.create(collaborationMapper.toEntity(element));
-    }
-
-    @Override
-    public void updateElement(@NonNull UUID id, @NonNull CollaborationDto updatedElement) {
-        collaborationDao.update(id, collaborationMapper.toEntity(updatedElement));
-    }
-
-    @Override
-    public void deleteElement(@NonNull UUID id) {
-        collaborationDao.deleteById(id);
     }
 
     public Optional<UUID> findCollabId(String collabName) {
