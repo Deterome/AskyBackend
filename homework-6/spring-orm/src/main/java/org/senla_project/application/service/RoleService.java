@@ -1,9 +1,10 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import org.senla_project.application.dto.RoleCreateDto;
+import org.senla_project.application.dto.RoleResponseDto;
+import org.senla_project.application.entity.Role;
 import org.senla_project.application.repository.RoleRepository;
-import org.senla_project.application.dto.RoleDto;
-import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.RoleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class RoleService implements ServiceInterface<RoleDto, RoleDto> {
+public class RoleService implements ServiceInterface<UUID, RoleCreateDto, RoleResponseDto> {
 
     @Autowired
     private RoleRepository roleRepository;
@@ -26,14 +27,14 @@ public class RoleService implements ServiceInterface<RoleDto, RoleDto> {
 
     @Transactional
     @Override
-    public void addElement(@NonNull RoleDto element) {
+    public void addElement(@NonNull RoleCreateDto element) {
         roleRepository.create(roleMapper.toEntity(element));
     }
 
     @Transactional
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull RoleDto updatedElement) {
-        roleRepository.update(id, roleMapper.toEntity(updatedElement));
+    public void updateElement(@NonNull UUID id, @NonNull RoleCreateDto updatedElement) {
+        roleRepository.update(roleMapper.toEntity(id, updatedElement));
     }
 
     @Transactional
@@ -44,20 +45,20 @@ public class RoleService implements ServiceInterface<RoleDto, RoleDto> {
 
     @Transactional
     @Override
-    public List<RoleDto> getAllElements() {
+    public List<RoleResponseDto> getAllElements() {
         return roleMapper.toDtoList(roleRepository.findAll());
     }
 
     @Transactional
     @Override
-    public Optional<RoleDto> getElementById(@NonNull UUID id) {
+    public Optional<RoleResponseDto> getElementById(@NonNull UUID id) {
         return roleRepository.findById(id)
-                .map(roleMapper::toDto);
+                .map(roleMapper::toResponseDto);
     }
 
     @Transactional
     public Optional<UUID> findRoleId(String roleName) {
-        return roleRepository.findRoleByName(roleName).map(Entity::getId);
+        return roleRepository.findRoleByName(roleName).map(Role::getRoleId);
     }
 
 }

@@ -1,7 +1,8 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
-import org.senla_project.application.dto.AnswerDto;
+import org.senla_project.application.dto.AnswerCreateDto;
+import org.senla_project.application.dto.AnswerResponseDto;
 import org.senla_project.application.service.AnswerService;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.JsonParser;
@@ -12,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class AnswerController implements ControllerInterface<AnswerDto> {
+public class AnswerController implements ControllerInterface<UUID, AnswerCreateDto> {
 
     @Autowired
     private AnswerService service;
@@ -35,12 +36,12 @@ public class AnswerController implements ControllerInterface<AnswerDto> {
     }
 
     @Override
-    public void addElement(@NonNull AnswerDto element) {
+    public void addElement(@NonNull AnswerCreateDto element) {
         service.addElement(element);
     }
 
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull AnswerDto updatedElement) {
+    public void updateElement(@NonNull UUID id, @NonNull AnswerCreateDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 

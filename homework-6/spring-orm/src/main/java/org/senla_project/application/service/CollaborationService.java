@@ -1,9 +1,10 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import org.senla_project.application.dto.CollaborationCreateDto;
+import org.senla_project.application.dto.CollaborationResponseDto;
+import org.senla_project.application.entity.Collaboration;
 import org.senla_project.application.repository.CollaborationRepository;
-import org.senla_project.application.dto.CollaborationDto;
-import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.CollaborationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class CollaborationService implements ServiceInterface<CollaborationDto, CollaborationDto> {
+public class CollaborationService implements ServiceInterface<UUID, CollaborationCreateDto, CollaborationResponseDto> {
 
     @Autowired
     private CollaborationRepository collaborationRepository;
@@ -26,14 +27,14 @@ public class CollaborationService implements ServiceInterface<CollaborationDto, 
 
     @Transactional
     @Override
-    public void addElement(@NonNull CollaborationDto element) {
+    public void addElement(@NonNull CollaborationCreateDto element) {
         collaborationRepository.create(collaborationMapper.toEntity(element));
     }
 
     @Transactional
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull CollaborationDto updatedElement) {
-        collaborationRepository.update(id, collaborationMapper.toEntity(updatedElement));
+    public void updateElement(@NonNull UUID id, @NonNull CollaborationCreateDto updatedElement) {
+        collaborationRepository.update(collaborationMapper.toEntity(id, updatedElement));
     }
 
     @Transactional
@@ -44,20 +45,20 @@ public class CollaborationService implements ServiceInterface<CollaborationDto, 
 
     @Transactional
     @Override
-    public List<CollaborationDto> getAllElements() {
+    public List<CollaborationResponseDto> getAllElements() {
         return collaborationMapper.toDtoList(collaborationRepository.findAll());
     }
 
     @Transactional
     @Override
-    public Optional<CollaborationDto> getElementById(@NonNull UUID id) {
+    public Optional<CollaborationResponseDto> getElementById(@NonNull UUID id) {
         return collaborationRepository.findById(id)
-                .map(collaborationMapper::toDto);
+                .map(collaborationMapper::toResponseDto);
     }
 
     @Transactional
     public Optional<UUID> findCollabId(String collabName) {
-        return collaborationRepository.findCollabByName(collabName).map(Entity::getId);
+        return collaborationRepository.findCollabByName(collabName).map(Collaboration::getCollabId);
     }
 
 }

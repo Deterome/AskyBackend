@@ -1,7 +1,8 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
-import org.senla_project.application.dto.CollaborationDto;
+import org.senla_project.application.dto.CollaborationCreateDto;
+import org.senla_project.application.dto.CollaborationResponseDto;
 import org.senla_project.application.service.CollaborationService;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.JsonParser;
@@ -12,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class CollaborationController implements ControllerInterface<CollaborationDto> {
+public class CollaborationController implements ControllerInterface<UUID, CollaborationCreateDto> {
 
     @Autowired
     private CollaborationService service;
@@ -35,12 +36,12 @@ public class CollaborationController implements ControllerInterface<Collaboratio
     }
 
     @Override
-    public void addElement(@NonNull CollaborationDto element) {
+    public void addElement(@NonNull CollaborationCreateDto element) {
         service.addElement(element);
     }
 
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull CollaborationDto updatedElement) {
+    public void updateElement(@NonNull UUID id, @NonNull CollaborationCreateDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 

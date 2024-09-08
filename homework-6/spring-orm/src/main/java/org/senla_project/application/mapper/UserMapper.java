@@ -1,7 +1,6 @@
 package org.senla_project.application.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
 import org.senla_project.application.repository.UserRepository;
@@ -12,9 +11,10 @@ import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.UUID;
 
 @Named("UserMapper")
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {RoleMapper.class})
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UuidMapper.class})
 public abstract class UserMapper {
 
     @Autowired
@@ -25,12 +25,12 @@ public abstract class UserMapper {
         return userRepository.findUserByNickname(userName).orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
-    @Mapping(target = "role", source = "roleName", qualifiedByName = {"RoleMapper", "toRoleEntityFromName"})
-    public abstract User toEntity(UserCreateDto dto);
-    @Mapping(target = "roleName", expression = "java(entity.getRole().getRoleName())")
-    public abstract UserCreateDto toUserCreateDto(User entity);
-    @Mapping(target = "roleName", expression = "java(entity.getRole().getRoleName())")
-    public abstract UserResponseDto toUserResponseDto(User entity);
+    public abstract User toEntity(UUID id, UserCreateDto dto);
+    public User toEntity(UserCreateDto dto) {
+        return toEntity(UUID.randomUUID(), dto);
+    }
+    public abstract UserCreateDto toCreateDto(User entity);
+    public abstract UserResponseDto toResponseDto(User entity);
     public abstract List<User> toEntityList(List<UserResponseDto> dtoList);
     public abstract List<UserResponseDto> toUserResponseDtoList(List<User> entityList);
 

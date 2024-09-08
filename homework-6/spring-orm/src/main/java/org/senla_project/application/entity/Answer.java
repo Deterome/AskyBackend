@@ -11,12 +11,14 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class Answer {
 
-    @Id @GeneratedValue UUID answerId;
+    @Column(name = "answer_id") @Id @GeneratedValue UUID answerId;
     String body;
-    @ManyToOne(fetch = FetchType.LAZY) User author;
-    @Column(name = "question_id") @ManyToOne(fetch = FetchType.LAZY) Question question;
+    @EqualsAndHashCode.Exclude
+    @JoinColumn(name = "author") @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST) User author;
+    @EqualsAndHashCode.Exclude
+    @JoinColumn(name = "question_id") @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST) Question question;
     int usefulness;
-    LocalDate createTime;
+    @Column(name = "create_time") LocalDate createTime;
 
 }
 

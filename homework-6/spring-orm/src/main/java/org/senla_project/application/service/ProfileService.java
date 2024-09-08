@@ -1,10 +1,11 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import org.senla_project.application.dto.ProfileCreateDto;
+import org.senla_project.application.dto.ProfileResponseDto;
+import org.senla_project.application.entity.Profile;
 import org.senla_project.application.repository.ProfileRepository;
 import org.senla_project.application.repository.UserRepository;
-import org.senla_project.application.dto.ProfileDto;
-import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.ProfileMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class ProfileService implements ServiceInterface<ProfileDto, ProfileDto> {
+public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, ProfileResponseDto> {
 
     @Autowired
     private ProfileRepository profileRepository;
@@ -29,14 +30,14 @@ public class ProfileService implements ServiceInterface<ProfileDto, ProfileDto> 
 
     @Transactional
     @Override
-    public void addElement(@NonNull ProfileDto element) {
+    public void addElement(@NonNull ProfileCreateDto element) {
         profileRepository.create(profileMapper.toEntity(element));
     }
 
     @Transactional
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull ProfileDto updatedElement) {
-        profileRepository.update(id, profileMapper.toEntity(updatedElement));
+    public void updateElement(@NonNull UUID id, @NonNull ProfileCreateDto updatedElement) {
+        profileRepository.update(profileMapper.toEntity(id, updatedElement));
     }
 
     @Transactional
@@ -47,20 +48,20 @@ public class ProfileService implements ServiceInterface<ProfileDto, ProfileDto> 
 
     @Transactional
     @Override
-    public List<ProfileDto> getAllElements() {
+    public List<ProfileResponseDto> getAllElements() {
         return profileMapper.toDtoList(profileRepository.findAll());
     }
 
     @Transactional
     @Override
-    public Optional<ProfileDto> getElementById(@NonNull UUID id) {
+    public Optional<ProfileResponseDto> getElementById(@NonNull UUID id) {
         return profileRepository.findById(id)
-                .map(profileMapper::toDto);
+                .map(profileMapper::toResponseDto);
     }
 
     @Transactional
     public Optional<UUID> getProfileId(String nickname) {
-        return profileRepository.findProfileByNickname(nickname).map(Entity::getId);
+        return profileRepository.findProfileByNickname(nickname).map(Profile::getProfileId);
     }
 
 }

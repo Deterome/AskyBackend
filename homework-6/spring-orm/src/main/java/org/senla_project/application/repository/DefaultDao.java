@@ -6,9 +6,9 @@ import java.util.Optional;
 public interface DefaultDao<K, T> {
 
     void create(T entity);
-    Optional<T> getById(K id);
-    List<T> getAll();
-    void updateById(T updatedEntity);
+    Optional<T> findById(K id);
+    List<T> findAll();
+    void update(T updatedEntity);
     void deleteById(K id);
 
 }

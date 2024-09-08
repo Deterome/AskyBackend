@@ -4,15 +4,14 @@ import lombok.NonNull;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public interface ServiceInterface<T, R> {
+public interface ServiceInterface<K, T, R> {
     void execute();
 
     List<R> getAllElements();
-    Optional<R> getElementById(@NonNull UUID id);
+    Optional<R> getElementById(@NonNull K id);
     void addElement(@NonNull T element);
-    void updateElement(@NonNull UUID id, @NonNull T newElement);
-    void deleteElement(@NonNull UUID id);
+    void updateElement(@NonNull K id, @NonNull T updatedElement);
+    void deleteElement(@NonNull K id);
 
 }

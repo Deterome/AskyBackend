@@ -11,15 +11,9 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class Role {
 
-    @Id @GeneratedValue UUID roleId;
-    String roleName;
+    @Column(name = "role_id") @Id @GeneratedValue UUID roleId;
+    @Column(name = "role_name") String roleName;
 
-    @OneToMany(mappedBy = "role_id") Set<User> users;
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    )
-    Set<Role> roles;
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    Set<User> users;
 }

@@ -1,10 +1,11 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import org.senla_project.application.dto.QuestionCreateDto;
+import org.senla_project.application.dto.QuestionResponseDto;
+import org.senla_project.application.entity.Question;
 import org.senla_project.application.repository.QuestionRepository;
 import org.senla_project.application.repository.UserRepository;
-import org.senla_project.application.dto.QuestionDto;
-import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.QuestionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class QuestionService implements ServiceInterface<QuestionDto, QuestionDto> {
+public class QuestionService implements ServiceInterface<UUID, QuestionCreateDto, QuestionResponseDto> {
 
     @Autowired
     private QuestionRepository questionRepository;
@@ -29,14 +30,14 @@ public class QuestionService implements ServiceInterface<QuestionDto, QuestionDt
 
     @Transactional
     @Override
-    public void addElement(@NonNull QuestionDto element) {
+    public void addElement(@NonNull QuestionCreateDto element) {
         questionRepository.create(questionMapper.toEntity(element));
     }
 
     @Transactional
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull QuestionDto updatedElement) {
-        questionRepository.update(id, questionMapper.toEntity(updatedElement));
+    public void updateElement(@NonNull UUID id, @NonNull QuestionCreateDto updatedElement) {
+        questionRepository.update(questionMapper.toEntity(id, updatedElement));
     }
 
     @Transactional
@@ -47,20 +48,20 @@ public class QuestionService implements ServiceInterface<QuestionDto, QuestionDt
 
     @Transactional
     @Override
-    public List<QuestionDto> getAllElements() {
+    public List<QuestionResponseDto> getAllElements() {
         return questionMapper.toDtoList(questionRepository.findAll());
     }
 
     @Transactional
     @Override
-    public Optional<QuestionDto> getElementById(@NonNull UUID id) {
+    public Optional<QuestionResponseDto> getElementById(@NonNull UUID id) {
         return questionRepository.findById(id)
-                .map(questionMapper::toDto);
+                .map(questionMapper::toResponseDto);
     }
 
     @Transactional
     public Optional<UUID> findQuestionId(String header, String body, String authorName) {
-        return questionRepository.findQuestion(header, body, authorName).map(Entity::getId);
+        return questionRepository.findQuestion(header, body, authorName).map(Question::getQuestionId);
     }
 
 }

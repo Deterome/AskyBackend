@@ -3,8 +3,9 @@ package org.senla_project.application.dto;
 import lombok.*;
 
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
-public class ProfileDto {
+public class ProfileResponseDto {
 
+    private String profileId;
     private String userName;
     private String bio;
     private String firstname;

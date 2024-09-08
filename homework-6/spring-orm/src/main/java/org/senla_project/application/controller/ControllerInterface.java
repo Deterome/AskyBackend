@@ -4,12 +4,12 @@ import lombok.NonNull;
 
 import java.util.UUID;
 
-public interface ControllerInterface<T> {
+public interface ControllerInterface<K, T> {
     void execute();
 
     String getAllElements();
-    String getElementById(UUID id);
+    String getElementById(K id);
     void addElement(@NonNull T element);
-    void updateElement(@NonNull UUID id, @NonNull T newElement);
-    void deleteElement(@NonNull UUID id);
+    void updateElement(@NonNull K id, @NonNull T updatedElement);
+    void deleteElement(@NonNull K id);
 }

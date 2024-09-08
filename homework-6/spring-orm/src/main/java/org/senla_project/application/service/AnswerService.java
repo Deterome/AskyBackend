@@ -1,12 +1,12 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import org.senla_project.application.dto.AnswerCreateDto;
+import org.senla_project.application.dto.AnswerResponseDto;
+import org.senla_project.application.entity.Answer;
 import org.senla_project.application.repository.AnswerRepository;
-import org.senla_project.application.repository.daoImpl.AnswerDaoImpl;
 import org.senla_project.application.repository.QuestionRepository;
 import org.senla_project.application.repository.UserRepository;
-import org.senla_project.application.dto.AnswerDto;
-import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.AnswerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class AnswerService implements ServiceInterface<AnswerDto, AnswerDto> {
+public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, AnswerResponseDto> {
 
     @Autowired
     private AnswerRepository answerRepository;
@@ -33,14 +33,14 @@ public class AnswerService implements ServiceInterface<AnswerDto, AnswerDto> {
 
     @Transactional
     @Override
-    public void addElement(@NonNull AnswerDto element) {
+    public void addElement(@NonNull AnswerCreateDto element) {
         answerRepository.create(answerMapper.toEntity(element));
     }
 
     @Transactional
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull AnswerDto updatedElement) {
-        answerRepository.update(id, answerMapper.toEntity(updatedElement));
+    public void updateElement(@NonNull UUID id, @NonNull AnswerCreateDto updatedElement) {
+        answerRepository.update(answerMapper.toEntity(id, updatedElement));
     }
 
     @Transactional
@@ -51,20 +51,20 @@ public class AnswerService implements ServiceInterface<AnswerDto, AnswerDto> {
 
     @Transactional
     @Override
-    public List<AnswerDto> getAllElements() {
+    public List<AnswerResponseDto> getAllElements() {
         return answerMapper.toDtoList(answerRepository.findAll());
     }
 
     @Transactional
     @Override
-    public Optional<AnswerDto> getElementById(@NonNull UUID id) {
+    public Optional<AnswerResponseDto> getElementById(@NonNull UUID id) {
         return answerRepository.findById(id)
-                .map(answerMapper::toDto);
+                .map(answerMapper::toResponseDto);
     }
 
     @Transactional
     public Optional<UUID> findAnswerId(String authorName, UUID questionId, String body) {
-        return answerRepository.findAnswer(authorName, questionId, body).map(Entity::getId);
+        return answerRepository.findAnswer(authorName, questionId, body).map(Answer::getAnswerId);
     }
 
 }

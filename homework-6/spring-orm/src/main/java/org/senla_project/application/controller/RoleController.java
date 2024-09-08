@@ -1,7 +1,8 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
-import org.senla_project.application.dto.RoleDto;
+import org.senla_project.application.dto.RoleCreateDto;
+import org.senla_project.application.dto.RoleResponseDto;
 import org.senla_project.application.service.RoleService;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.JsonParser;
@@ -12,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class RoleController implements ControllerInterface<RoleDto> {
+public class RoleController implements ControllerInterface<UUID, RoleCreateDto> {
 
     @Autowired
     private RoleService service;
@@ -35,12 +36,12 @@ public class RoleController implements ControllerInterface<RoleDto> {
     }
 
     @Override
-    public void addElement(@NonNull RoleDto element) {
+    public void addElement(@NonNull RoleCreateDto element) {
         service.addElement(element);
     }
 
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull RoleDto updatedElement) {
+    public void updateElement(@NonNull UUID id, @NonNull RoleCreateDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 

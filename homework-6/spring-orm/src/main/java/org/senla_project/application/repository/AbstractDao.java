@@ -18,22 +18,21 @@ public abstract class AbstractDao<K, T> implements DefaultDao<K, T>{
         entityManager.persist(entity);
     }
 
-    public Optional<T> getById(K id) {
+    public Optional<T> findById(K id) {
         return Optional.ofNullable(entityManager.find(getEntityClass(), id));
     }
 
-    public List<T> getAll() {
+    public List<T> findAll() {
         CriteriaQuery<T>  query = entityManager.getCriteriaBuilder().createQuery(getEntityClass());
         query.from(getEntityClass());
         return entityManager.createQuery(query).getResultList();
     }
 
-    public void updateById(T updatedEntity) {
+    public void update(T updatedEntity) {
         entityManager.merge(updatedEntity);
     }
 
     public void deleteById(K id) {
-        entityManager.remove(getById(id));
+        findById(id).ifPresent(el -> entityManager.remove(el));
     }
-
 }
