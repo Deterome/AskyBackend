@@ -1,11 +1,12 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import org.senla_project.application.dto.CollaborationsJoiningCreateDto;
+import org.senla_project.application.dto.CollaborationsJoiningResponseDto;
+import org.senla_project.application.entity.CollaborationsJoining;
 import org.senla_project.application.repository.CollaborationRepository;
 import org.senla_project.application.repository.CollaborationsJoiningRepository;
 import org.senla_project.application.repository.UserRepository;
-import org.senla_project.application.dto.CollaborationsJoiningDto;
-import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.CollaborationsJoiningMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class CollaborationsJoiningService implements ServiceInterface<CollaborationsJoiningDto, CollaborationsJoiningDto> {
+public class CollaborationsJoiningService implements ServiceInterface<UUID, CollaborationsJoiningCreateDto, CollaborationsJoiningResponseDto> {
 
     @Autowired
     private CollaborationsJoiningRepository collaborationsJoiningRepository;
@@ -32,14 +33,14 @@ public class CollaborationsJoiningService implements ServiceInterface<Collaborat
 
     @Transactional
     @Override
-    public void addElement(@NonNull CollaborationsJoiningDto element) {
+    public void addElement(@NonNull CollaborationsJoiningCreateDto element) {
         collaborationsJoiningRepository.create(collaborationsJoiningMapper.toEntity(element));
     }
 
     @Transactional
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull CollaborationsJoiningDto updatedElement) {
-        collaborationsJoiningRepository.update(id, collaborationsJoiningMapper.toEntity(updatedElement));
+    public void updateElement(@NonNull UUID id, @NonNull CollaborationsJoiningCreateDto updatedElement) {
+        collaborationsJoiningRepository.update(collaborationsJoiningMapper.toEntity(id, updatedElement));
     }
 
     @Transactional
@@ -50,20 +51,20 @@ public class CollaborationsJoiningService implements ServiceInterface<Collaborat
 
     @Transactional
     @Override
-    public List<CollaborationsJoiningDto> getAllElements() {
+    public List<CollaborationsJoiningResponseDto> getAllElements() {
         return collaborationsJoiningMapper.toDtoList(collaborationsJoiningRepository.findAll());
     }
 
     @Transactional
     @Override
-    public Optional<CollaborationsJoiningDto> getElementById(@NonNull UUID id) {
+    public Optional<CollaborationsJoiningResponseDto> getElementById(@NonNull UUID id) {
         return collaborationsJoiningRepository.findById(id)
-                .map(collaborationsJoiningMapper::toDto);
+                .map(collaborationsJoiningMapper::toResponseDto);
     }
 
     @Transactional
     public Optional<UUID> findCollaborationJoinId(String username, String collaboration) {
-        return collaborationsJoiningRepository.findCollaborationJoin(username, collaboration).map(Entity::getId);
+        return collaborationsJoiningRepository.findCollaborationJoin(username, collaboration).map(CollaborationsJoining::getJoinId);
     }
 
 }

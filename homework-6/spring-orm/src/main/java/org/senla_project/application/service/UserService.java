@@ -1,11 +1,11 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import org.senla_project.application.entity.User;
 import org.senla_project.application.repository.RoleRepository;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.dto.UserCreateDto;
 import org.senla_project.application.dto.UserResponseDto;
-import org.senla_project.application.entity.Entity;
 import org.senla_project.application.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class UserService implements ServiceInterface<UserCreateDto, UserResponseDto> {
+public class UserService implements ServiceInterface<UUID, UserCreateDto, UserResponseDto> {
 
     @Autowired
     private UserRepository userRepository;
@@ -37,7 +37,7 @@ public class UserService implements ServiceInterface<UserCreateDto, UserResponse
     @Transactional
     @Override
     public void updateElement(@NonNull UUID id, @NonNull UserCreateDto updatedElement) {
-        userRepository.update(id, userMapper.toEntity(updatedElement));
+        userRepository.update(userMapper.toEntity(id, updatedElement));
     }
 
     @Transactional
@@ -56,12 +56,12 @@ public class UserService implements ServiceInterface<UserCreateDto, UserResponse
     @Override
     public Optional<UserResponseDto> getElementById(@NonNull UUID id) {
         return userRepository.findById(id)
-                .map(userMapper::toUserResponseDto);
+                .map(userMapper::toResponseDto);
     }
 
     @Transactional
     public Optional<UUID> findUserId(@NonNull String nickname) {
-        return userRepository.findUserByNickname(nickname).map(Entity::getId);
+        return userRepository.findUserByNickname(nickname).map(User::getUserId);
     }
 
 }

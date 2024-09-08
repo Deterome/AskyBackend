@@ -1,10 +1,7 @@
 package org.senla_project.application.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -14,9 +11,11 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class CollaborationsJoining {
 
-    @Id @GeneratedValue UUID joinId;
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "collab_id") Collaboration collab;
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id") User user;
-    LocalDate joinTime;
+    @Column(name = "join_id") @Id @GeneratedValue UUID joinId;
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST) @JoinColumn(name = "collab_id") Collaboration collab;
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST) @JoinColumn(name = "user_id") User user;
+    @Column(name = "join_date") LocalDate joinDate;
 
 }

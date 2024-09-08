@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class UserController implements ControllerInterface<UserCreateDto> {
+public class UserController implements ControllerInterface<UUID, UserCreateDto> {
 
     @Autowired
     private UserService service;
