@@ -12,14 +12,26 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class Question {
 
-    @Column(name = "question_id") @Id @GeneratedValue UUID questionId;
-    String header;
-    String body;
-    @EqualsAndHashCode.Exclude
-    @JoinColumn(name = "author") @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST) User author;
-    int interesting;
-    @Column(name = "create_time") LocalDate createTime;
+    @Column(name = "question_id")
+    @Id
+    @GeneratedValue
+    UUID questionId;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = CascadeType.ALL) Set<Answer> answers;
+    String header;
+
+    String body;
+
+    @EqualsAndHashCode.Exclude
+    @JoinColumn(name = "author")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    User author;
+
+    int interesting;
+
+    @Column(name = "create_time")
+    LocalDate createTime;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = CascadeType.ALL)
+    Set<Answer> answers;
 
 }

@@ -1,9 +1,6 @@
 package org.senla_project.application;
 
-import lombok.extern.log4j.Log4j;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
-import org.senla_project.application.config.ApplicationConfig;
 import org.senla_project.application.controller.*;
 import org.senla_project.application.dto.*;
 import org.senla_project.application.util.exception.EntityNotFoundException;
@@ -24,7 +21,6 @@ public class Application {
     static AnswerController answerController;
 
     public static void main(String[] args) {
-
         ConfigurableApplicationContext application = new AnnotationConfigApplicationContext("org.senla_project.application");
 
         roleController = application.getBean(RoleController.class);

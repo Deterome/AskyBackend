@@ -11,11 +11,22 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class CollaborationsJoining {
 
-    @Column(name = "join_id") @Id @GeneratedValue UUID joinId;
+    @Column(name = "join_id")
+    @Id
+    @GeneratedValue
+    UUID joinId;
+
     @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST) @JoinColumn(name = "collab_id") Collaboration collab;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "collab_id")
+    Collaboration collab;
+
     @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST) @JoinColumn(name = "user_id") User user;
-    @Column(name = "join_date") LocalDate joinDate;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "user_id")
+    User user;
+
+    @Column(name = "join_date")
+    LocalDate joinDate;
 
 }

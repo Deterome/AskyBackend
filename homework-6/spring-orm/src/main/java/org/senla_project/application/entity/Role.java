@@ -11,8 +11,13 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class Role {
 
-    @Column(name = "role_id") @Id @GeneratedValue UUID roleId;
-    @Column(name = "role_name") String roleName;
+    @Column(name = "role_id")
+    @Id
+    @GeneratedValue
+    UUID roleId;
+
+    @Column(name = "role_name")
+    String roleName;
 
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     Set<User> users;
