@@ -11,14 +11,29 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class User {
 
-    @Column(name = "user_id") @Id @GeneratedValue UUID userId;
-    @Column(name = "username") String nickname;
-    @Column(name = "hashed_password") String password;
+    @Column(name = "user_id")
+    @Id
+    @GeneratedValue
+    UUID userId;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL) Profile profile;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "author", cascade = CascadeType.ALL) Set<Question> questions;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "author", cascade = CascadeType.ALL) Set<Answer> answers;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL) Set<CollaborationsJoining> collaborationsJoining;
+    @Column(name = "username")
+    String nickname;
+
+    @Column(name = "hashed_password")
+    String password;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
+    Profile profile;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "author", cascade = CascadeType.ALL)
+    Set<Question> questions;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "author", cascade = CascadeType.ALL)
+    Set<Answer> answers;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
+    Set<CollaborationsJoining> collaborationsJoining;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_roles",

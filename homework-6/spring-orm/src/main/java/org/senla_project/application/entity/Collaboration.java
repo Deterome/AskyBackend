@@ -12,10 +12,18 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class Collaboration {
 
-    @Column(name = "collab_id") @Id @GeneratedValue UUID collabId;
-    @Column(name = "collab_name") String collabName;
-    @Column(name = "create_time") LocalDate createTime;
+    @Column(name = "collab_id")
+    @Id
+    @GeneratedValue
+    UUID collabId;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "collab", cascade = CascadeType.ALL) Set<CollaborationsJoining> users;
+    @Column(name = "collab_name")
+    String collabName;
+
+    @Column(name = "create_time")
+    LocalDate createTime;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "collab", cascade = CascadeType.ALL)
+    Set<CollaborationsJoining> users;
 
 }

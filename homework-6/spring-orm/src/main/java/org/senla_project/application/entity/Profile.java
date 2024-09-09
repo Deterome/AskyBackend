@@ -17,14 +17,27 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class Profile {
 
-    @Column(name = "profile_id") @Id @GeneratedValue UUID profileId;
+    @Column(name = "profile_id")
+    @Id
+    @GeneratedValue
+    UUID profileId;
+
     @EqualsAndHashCode.Exclude
-    @JoinColumn(name = "user_id") @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) User user;
+    @JoinColumn(name = "user_id")
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    User user;
+
     String bio;
+
     String firstname;
+
     String surname;
+
     LocalDate birthday;
-    @Column(name = "avatar_url") String avatarUrl;
+
+    @Column(name = "avatar_url")
+    String avatarUrl;
+
     int rating;
 
 }
