@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>   
+<databaseChangeLog
+   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd
+      http://www.liquibase.org/xml/ns/pro 
+      http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd"
+      logicalFilePath="v0.0.1">  
+    
+    <changeSet id="homework-2-roles" author="Rodion Vorobev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="roles"/>
+            </not>
+        </preConditions>
+        <sqlFile encoding="utf8" path="./sql/00.create-roles-table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+
+    <changeSet id="homework-2-users" author="Rodion Vorobev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+        <sqlFile encoding="utf8" path="./sql/01.create-users-table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+    
+    <changeSet id="homework-2-profiles" author="Rodion Vorobev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="profiles"/>
+            </not>
+        </preConditions>
+        <sqlFile encoding="utf8" path="./sql/02.create-profiles-table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+        
+    <changeSet id="homework-2-collaborations" author="Rodion Vorobev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="collaborations"/>
+            </not>
+        </preConditions>
+        <sqlFile encoding="utf8" path="./sql/03.create-collaborations-table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+        
+    <changeSet id="homework-2-questions" author="Rodion Vorobev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="questions"/>
+            </not>
+        </preConditions>
+        <sqlFile encoding="utf8" path="./sql/04.create-questions-table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+        
+    <changeSet id="homework-2-answers" author="Rodion Vorobev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="answers"/>
+            </not>
+        </preConditions>
+        <sqlFile encoding="utf8" path="./sql/05.create-answers-table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+        
+    <changeSet id="homework-2-collaborations_users" author="Rodion Vorobev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="collaborations_users"/>
+            </not>
+        </preConditions>
+        <sqlFile encoding="utf8" path="./sql/06.create-collaborations_users-table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+
+</databaseChangeLog>
