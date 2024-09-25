@@ -1,6 +1,8 @@
 package org.senla_project.application.mapper;
 
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -13,26 +15,27 @@ import java.util.List;
 import java.util.UUID;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UserMapper.class, UuidMapper.class})
-public interface ProfileMapper {
+public abstract class ProfileMapper {
     @Mappings({
         @Mapping(source = "dto.birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-        @Mapping(source = "dto.userName", target = "user", qualifiedByName = {"UserMapper", "toUserFromName"})
+        @Mapping(source = "dto.userName", target = "user", qualifiedByName = {"UserMapper", "toUserFromName"}),
+        @Mapping(source = "id", target = "profileId")
     })
-    Profile toEntity(UUID id, ProfileCreateDto dto);
-    default Profile toEntity(ProfileCreateDto dto) {
-        return toEntity(UUID.randomUUID(), dto);
+    public abstract Profile toEntity(UUID id, ProfileCreateDto dto);
+    public Profile toEntity(ProfileCreateDto dto) {
+        return toEntity(null, dto);
     }
     @Mappings({
         @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
         @Mapping(target = "userName", expression = "java(entity.getUser().getNickname())")
     })
-    ProfileCreateDto toCreateDto(Profile entity);
+    public abstract ProfileCreateDto toCreateDto(Profile entity);
     @Mappings({
         @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
         @Mapping(target = "userName", expression = "java(entity.getUser().getNickname())")
     })
-    ProfileResponseDto toResponseDto(Profile entity);
-    List<Profile> toEntityList(List<ProfileResponseDto> dtoList);
-    List<ProfileResponseDto> toDtoList(List<Profile> entityList);
+    public abstract ProfileResponseDto toResponseDto(Profile entity);
+    public abstract List<Profile> toEntityList(List<ProfileResponseDto> dtoList);
+    public abstract List<ProfileResponseDto> toDtoList(List<Profile> entityList);
 
 }

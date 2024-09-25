@@ -1,10 +1,10 @@
 package org.senla_project.application.util;
 
 import lombok.experimental.UtilityClass;
+import org.senla_project.application.dto.*;
 import org.senla_project.application.entity.*;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @UtilityClass
 public class TestData {
@@ -15,8 +15,20 @@ public class TestData {
                 .build();
     }
     public Role getUpdatedRole() {
-        return Role.builder()
-                .roleName("client")
+        Role role = getRole();
+        role.setRoleName("client");
+        return role;
+    }
+    public RoleCreateDto getRoleCreateDto() {
+        Role role = getRole();
+        return RoleCreateDto.builder()
+                .roleName(role.getRoleName())
+                .build();
+    }
+    public RoleCreateDto getUpdatedRoleCreateDto() {
+        Role updatedRole = getUpdatedRole();
+        return RoleCreateDto.builder()
+                .roleName(updatedRole.getRoleName())
                 .build();
     }
 
@@ -27,9 +39,22 @@ public class TestData {
                 .build();
     }
     public User getUpdatedUser() {
-        return User.builder()
-                .nickname("Alex")
-                .password("123456789")
+        User user = getUser();
+        user.setPassword("123456789");
+        return user;
+    }
+    public UserCreateDto getUserCreateDto() {
+        User user = getUser();
+        return UserCreateDto.builder()
+                .nickname(user.getNickname())
+                .password(user.getPassword())
+                .build();
+    }
+    public UserCreateDto getUpdatedUserCreateDto() {
+        User updatedUser = getUpdatedUser();
+        return UserCreateDto.builder()
+                .nickname(updatedUser.getNickname())
+                .password(updatedUser.getPassword())
                 .build();
     }
 
@@ -45,16 +70,33 @@ public class TestData {
                 .build();
     }
     public Profile getUpdatedProfile() {
-        return Profile.builder()
-                .user(getUser())
-                .bio("Hello world!")
-                .avatarUrl("./here/ava.png")
-                .firstname("Alex")
-                .surname("Clock")
-                .rating(100)
-                .birthday(LocalDate.of(2000, 10, 10))
+        Profile profile = getProfile();
+        profile.setBio("Hello world!");
+        return profile;
+    }
+    public ProfileCreateDto getProfileCreateDto() {
+        Profile profile = getProfile();
+        return ProfileCreateDto.builder()
+                .userName(profile.getUser().getNickname())
+                .bio(profile.getBio())
+                .avatarUrl(profile.getAvatarUrl())
+                .firstname(profile.getFirstname())
+                .surname(profile.getSurname())
+                .birthday(profile.getBirthday().toString())
                 .build();
     }
+    public ProfileCreateDto getUpdatedProfileCreateDto() {
+        Profile updatedProfile = getUpdatedProfile();
+        return ProfileCreateDto.builder()
+                .userName(updatedProfile.getUser().getNickname())
+                .bio(updatedProfile.getBio())
+                .avatarUrl(updatedProfile.getAvatarUrl())
+                .firstname(updatedProfile.getFirstname())
+                .surname(updatedProfile.getSurname())
+                .birthday(updatedProfile.getBirthday().toString())
+                .build();
+    }
+
 
     public Collaboration getCollaboration() {
         return Collaboration.builder()
@@ -63,9 +105,20 @@ public class TestData {
                 .build();
     }
     public Collaboration getUpdatedCollaboration() {
-        return Collaboration.builder()
-                .collabName("Bros")
-                .createTime(LocalDate.of(2015, 1, 1))
+        Collaboration collab = getCollaboration();
+        collab.setCollabName("Bros");
+        return collab;
+    }
+    public CollaborationCreateDto getCollaborationCreateDto() {
+        Collaboration collab = getCollaboration();
+        return CollaborationCreateDto.builder()
+                .collabName(collab.getCollabName())
+                .build();
+    }
+    public CollaborationCreateDto getUpdatedCollaborationCreateDto() {
+        Collaboration updatedCollab = getUpdatedCollaboration();
+        return CollaborationCreateDto.builder()
+                .collabName(updatedCollab.getCollabName())
                 .build();
     }
 
@@ -77,10 +130,22 @@ public class TestData {
                 .build();
     }
     public CollaborationsJoining getUpdatedCollabJoining() {
-        return CollaborationsJoining.builder()
-                .collab(getCollaboration())
-                .user(getUser())
-                .joinDate(LocalDate.of(2020, 1, 1))
+        CollaborationsJoining collabJoin = getCollabJoining();
+        collabJoin.setJoinDate(LocalDate.of(2020, 1, 1));
+        return collabJoin;
+    }
+    public CollaborationsJoiningCreateDto getCollabJoiningCreateDto() {
+        CollaborationsJoining collabJoin = getCollabJoining();
+        return CollaborationsJoiningCreateDto.builder()
+                .collabName(collabJoin.getCollab().getCollabName())
+                .userName(collabJoin.getUser().getNickname())
+                .build();
+    }
+    public CollaborationsJoiningCreateDto getUpdatedCollabJoiningCreateDto() {
+        CollaborationsJoining updatedCollabJoin = getUpdatedCollabJoining();
+        return CollaborationsJoiningCreateDto.builder()
+                .collabName(updatedCollabJoin.getCollab().getCollabName())
+                .userName(updatedCollabJoin.getUser().getNickname())
                 .build();
     }
 
@@ -94,12 +159,24 @@ public class TestData {
                 .build();
     }
     public Question getUpdatedQuestion() {
-        return Question.builder()
-                .header("What?")
-                .body("What?")
-                .author(getUser())
-                .interesting(15)
-                .createTime(LocalDate.of(2024, 3, 3))
+        Question question = getQuestion();
+        question.setBody("What?");
+        return question;
+    }
+    public QuestionCreateDto getQuestionCreateDto() {
+        Question question = getQuestion();
+        return QuestionCreateDto.builder()
+                .authorName(question.getAuthor().getNickname())
+                .header(question.getHeader())
+                .body(question.getBody())
+                .build();
+    }
+    public QuestionCreateDto getUpdatedQuestionCreateDto() {
+        Question updatedQuestion = getUpdatedQuestion();
+        return QuestionCreateDto.builder()
+                .authorName(updatedQuestion.getAuthor().getNickname())
+                .header(updatedQuestion.getHeader())
+                .body(updatedQuestion.getBody())
                 .build();
     }
 
@@ -113,12 +190,24 @@ public class TestData {
                 .build();
     }
     public Answer getUpdatedAnswer() {
-        return Answer.builder()
-                .body("I don't know what is it!")
-                .usefulness(1)
-                .author(getUser())
-                .question(getQuestion())
-                .createTime(LocalDate.of(2024, 3, 4))
+        Answer answer = getAnswer();
+        answer.setBody("I don't know what is it!");
+        return answer;
+    }
+    public AnswerCreateDto getAnswerCreateDto() {
+        Answer answer = getAnswer();
+        return AnswerCreateDto.builder()
+                .authorName(answer.getAuthor().getNickname())
+                .body(answer.getBody())
+                .questionId(answer.getQuestion().getQuestionId())
+                .build();
+    }
+    public AnswerCreateDto getUpdatedAnswerCreateDto() {
+        Answer updatedAnswer = getUpdatedAnswer();
+        return AnswerCreateDto.builder()
+                .authorName(updatedAnswer.getAuthor().getNickname())
+                .body(updatedAnswer.getBody())
+                .questionId(updatedAnswer.getQuestion().getQuestionId())
                 .build();
     }
 

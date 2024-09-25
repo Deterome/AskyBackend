@@ -10,6 +10,7 @@ import org.senla_project.application.util.TestData;
 import org.senla_project.application.repository.AnswerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@SpringJUnitConfig({DataSourceConfigTest.class, HibernateConfigTest.class, AnswerRepositoryImpl.class})
+@SpringJUnitWebConfig({DataSourceConfigTest.class, HibernateConfigTest.class, AnswerRepositoryImpl.class})
 @Transactional
 class AnswerRepositoryImplTest {
 

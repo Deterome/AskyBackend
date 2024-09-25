@@ -1,5 +1,6 @@
 package org.senla_project.application.mapper;
 
+import lombok.AllArgsConstructor;
 import org.mapstruct.*;
 import org.senla_project.application.dto.QuestionCreateDto;
 import org.senla_project.application.repository.QuestionRepository;
@@ -25,11 +26,12 @@ public abstract class QuestionMapper {
 
     @Mappings({
         @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-        @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"})
+        @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"}),
+        @Mapping(source = "id", target = "questionId")
     })
     public abstract Question toEntity(UUID id, QuestionCreateDto dto);
     public Question toEntity(QuestionCreateDto dto) {
-        return toEntity(UUID.randomUUID(), dto);
+        return toEntity(null, dto);
     }
     @Mappings({
         @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),

@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -36,23 +35,23 @@ public class UserController implements ControllerInterface<UUID, UserCreateDto, 
     }
 
     @Override
-    @PostMapping("/users")
+    @PostMapping("/users/create")
     @ResponseStatus(HttpStatus.CREATED)
     public void addElement(@NonNull @RequestBody UserCreateDto element) {
         service.addElement(element);
     }
 
     @Override
-    @PutMapping("/users")
+    @PutMapping("/users/update")
     @ResponseStatus(HttpStatus.OK)
-    public void updateElement(@NonNull @RequestParam UUID id, @NonNull @RequestBody UserCreateDto updatedElement) {
+    public void updateElement(@NonNull @RequestParam(name = "id") UUID id, @NonNull @RequestBody UserCreateDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 
     @Override
-    @DeleteMapping("/users")
+    @DeleteMapping("/users/delete")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteElement(@NonNull @RequestParam UUID id) {
+    public void deleteElement(@NonNull @RequestParam(name = "id") UUID id) {
         service.deleteElement(id);
     }
 
@@ -64,10 +63,17 @@ public class UserController implements ControllerInterface<UUID, UserCreateDto, 
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDto findUser(@RequestParam(name = "id", required = false) UUID userId,
                                     @RequestParam(name = "username", required = false) String username) {
-        if (userId != null)
+        if (userId != null && username != null) {
+            UserResponseDto responseDto = findElementById(userId);
+            if (!username.equals(responseDto.getNickname()))
+                throw new EntityNotFoundException("User with the specified parameters was not found");
+            return responseDto;
+        } else if (userId != null) {
             return findElementById(userId);
-        if (username != null)
+        } else if (username != null) {
             return findUserByName(username);
-        throw new InvalidRequestParametersException("Invalid requests parameters");
+        } else {
+            throw new InvalidRequestParametersException("Invalid requests parameters");
+        }
     }
 }

@@ -1,5 +1,7 @@
 package org.senla_project.application.mapper;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;

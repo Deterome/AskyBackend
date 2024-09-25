@@ -1,7 +1,9 @@
 package org.senla_project.application.mapper;
 
+import lombok.AllArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.senla_project.application.dto.CollaborationCreateDto;
 import org.senla_project.application.repository.CollaborationRepository;
@@ -25,10 +27,13 @@ public abstract class CollaborationMapper {
         return collabDao.findCollabByName(collabName).orElseThrow(() -> new EntityNotFoundException("Collaboration not found"));
     }
 
-    @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd")
+    @Mappings({
+            @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
+            @Mapping(source = "id", target = "collabId")
+    })
     public abstract Collaboration toEntity(UUID id, CollaborationCreateDto dto);
     public Collaboration toEntity(CollaborationCreateDto dto) {
-        return toEntity(UUID.randomUUID(), dto);
+        return toEntity(null, dto);
     }
     @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd")
     public abstract CollaborationCreateDto toCreateDto(Collaboration entity);

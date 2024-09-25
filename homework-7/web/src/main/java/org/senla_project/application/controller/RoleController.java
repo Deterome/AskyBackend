@@ -34,23 +34,23 @@ public class RoleController implements ControllerInterface<UUID, RoleCreateDto, 
     }
 
     @Override
-    @PostMapping("/roles")
+    @PostMapping("/roles/create")
     @ResponseStatus(HttpStatus.CREATED)
     public void addElement(@NonNull @RequestBody RoleCreateDto element) {
         service.addElement(element);
     }
 
     @Override
-    @PutMapping("/roles")
+    @PutMapping("/roles/update")
     @ResponseStatus(HttpStatus.OK)
-    public void updateElement(@NonNull @RequestParam UUID id, @NonNull @RequestBody RoleCreateDto updatedElement) {
+    public void updateElement(@NonNull @RequestParam(name = "id") UUID id, @NonNull @RequestBody RoleCreateDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 
     @Override
-    @DeleteMapping("/roles")
+    @DeleteMapping("/roles/delete")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteElement(@NonNull @RequestParam UUID id) {
+    public void deleteElement(@NonNull @RequestParam(name = "id") UUID id) {
         service.deleteElement(id);
     }
 
@@ -62,10 +62,17 @@ public class RoleController implements ControllerInterface<UUID, RoleCreateDto, 
     @ResponseStatus(HttpStatus.OK)
     public RoleResponseDto findRole(@RequestParam(name = "id", required = false) UUID roleId,
                                     @RequestParam(name = "role-name", required = false) String roleName) {
-        if (roleId != null)
+        if (roleId != null && roleName != null) {
+            RoleResponseDto responseDto = findElementById(roleId);
+            if (!roleName.equals(responseDto.getRoleName()))
+                throw new EntityNotFoundException("Role with the specified parameters was not found");
+            return responseDto;
+        } else if (roleId != null) {
             return findElementById(roleId);
-        if (roleName != null)
+        } else if (roleName != null) {
             return findRoleByName(roleName);
-        throw new InvalidRequestParametersException("Invalid requests parameters");
+        } else {
+            throw new InvalidRequestParametersException("Invalid requests parameters");
+        }
     }
 }

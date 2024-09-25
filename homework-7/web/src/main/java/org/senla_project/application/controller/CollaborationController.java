@@ -3,6 +3,7 @@ package org.senla_project.application.controller;
 import lombok.NonNull;
 import org.senla_project.application.dto.CollaborationCreateDto;
 import org.senla_project.application.dto.CollaborationResponseDto;
+import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.service.CollaborationService;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.exception.InvalidRequestParametersException;
@@ -34,23 +35,23 @@ public class CollaborationController implements ControllerInterface<UUID, Collab
     }
 
     @Override
-    @PostMapping("/collabs")
+    @PostMapping("/collabs/create")
     @ResponseStatus(HttpStatus.CREATED)
     public void addElement(@NonNull @RequestBody CollaborationCreateDto element) {
         service.addElement(element);
     }
 
     @Override
-    @PutMapping("/collabs")
+    @PutMapping("/collabs/update")
     @ResponseStatus(HttpStatus.OK)
-    public void updateElement(@NonNull @RequestParam UUID id, @NonNull @RequestBody CollaborationCreateDto updatedElement) {
+    public void updateElement(@NonNull @RequestParam(name = "id") UUID id, @NonNull @RequestBody CollaborationCreateDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 
     @Override
-    @DeleteMapping("/collabs")
+    @DeleteMapping("/collabs/delete")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteElement(@NonNull @RequestParam UUID id) {
+    public void deleteElement(@NonNull @RequestParam(name = "id") UUID id) {
         service.deleteElement(id);
     }
 
@@ -62,11 +63,18 @@ public class CollaborationController implements ControllerInterface<UUID, Collab
     @ResponseStatus(HttpStatus.OK)
     public CollaborationResponseDto findCollab(@RequestParam(name = "id", required = false) UUID collabId,
                                        @RequestParam(name = "collab-name", required = false) String collabName) {
-        if (collabId != null)
+        if (collabId != null && collabName != null) {
+            CollaborationResponseDto responseDto = findElementById(collabId);
+            if (!collabName.equals(responseDto.getCollabName()))
+                throw new EntityNotFoundException("Collab with the specified parameters was not found");
+            return responseDto;
+        } else if (collabId != null) {
             return findElementById(collabId);
-        if (collabName != null)
+        } else if (collabName != null) {
             return findCollabByName(collabName);
-        throw new InvalidRequestParametersException("Invalid requests parameters");
+        } else {
+            throw new InvalidRequestParametersException("Invalid requests parameters");
+        }
     }
 
 }
