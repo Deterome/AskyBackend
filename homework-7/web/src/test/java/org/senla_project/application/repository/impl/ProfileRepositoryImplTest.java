@@ -11,6 +11,7 @@ import org.senla_project.application.repository.ProfileRepository;
 import org.senla_project.application.util.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
-@SpringJUnitConfig({DataSourceConfigTest.class, HibernateConfigTest.class, ProfileRepositoryImpl.class})
+@SpringJUnitWebConfig({DataSourceConfigTest.class, HibernateConfigTest.class, ProfileRepositoryImpl.class})
 @Transactional
 class ProfileRepositoryImplTest {
 

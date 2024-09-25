@@ -3,6 +3,7 @@ package org.senla_project.application.controller;
 import lombok.NonNull;
 import org.senla_project.application.dto.ProfileCreateDto;
 import org.senla_project.application.dto.ProfileResponseDto;
+import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.service.ProfileService;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.exception.InvalidRequestParametersException;
@@ -34,23 +35,23 @@ public class ProfileController implements ControllerInterface<UUID, ProfileCreat
     }
 
     @Override
-    @PostMapping("/profiles")
+    @PostMapping("/profiles/create")
     @ResponseStatus(HttpStatus.CREATED)
     public void addElement(@NonNull @RequestBody ProfileCreateDto element) {
         service.addElement(element);
     }
 
     @Override
-    @PutMapping("/profiles")
+    @PutMapping("/profiles/update")
     @ResponseStatus(HttpStatus.OK)
-    public void updateElement(@NonNull @RequestParam UUID id, @NonNull @RequestBody ProfileCreateDto updatedElement) {
+    public void updateElement(@NonNull @RequestParam(name = "id") UUID id, @NonNull @RequestBody ProfileCreateDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 
     @Override
-    @DeleteMapping("/profiles")
+    @DeleteMapping("/profiles/delete")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteElement(@NonNull @RequestParam UUID id) {
+    public void deleteElement(@NonNull @RequestParam(name = "id") UUID id) {
         service.deleteElement(id);
     }
 
@@ -62,10 +63,17 @@ public class ProfileController implements ControllerInterface<UUID, ProfileCreat
     @ResponseStatus(HttpStatus.OK)
     public ProfileResponseDto findProfile(@RequestParam(name = "id", required = false) UUID profileId,
                                     @RequestParam(name = "username", required = false) String username) {
-        if (profileId != null)
+        if (profileId != null && username != null) {
+            ProfileResponseDto responseDto = findElementById(profileId);
+            if (!username.equals(responseDto.getUserName()))
+                throw new EntityNotFoundException("Profile with the specified parameters was not found");
+            return responseDto;
+        } else if (profileId != null) {
             return findElementById(profileId);
-        if (username != null)
+        } else if (username != null) {
             return findProfileByUsername(username);
-        throw new InvalidRequestParametersException("Invalid requests parameters");
+        } else {
+            throw new InvalidRequestParametersException("Invalid requests parameters");
+        }
     }
 }

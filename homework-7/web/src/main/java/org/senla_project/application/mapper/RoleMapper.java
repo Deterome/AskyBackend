@@ -1,6 +1,8 @@
 package org.senla_project.application.mapper;
 
+import lombok.AllArgsConstructor;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.senla_project.application.dto.RoleCreateDto;
 import org.senla_project.application.dto.RoleResponseDto;
@@ -24,9 +26,10 @@ public abstract class RoleMapper {
         return roleRepository.findRoleByName(roleName).orElseThrow(() -> new EntityNotFoundException("Role not found"));
     }
 
+    @Mapping(source = "id", target = "roleId")
     public abstract Role toEntity(UUID id, RoleCreateDto dto);
     public Role toEntity(RoleCreateDto dto) {
-        return toEntity(UUID.randomUUID(), dto);
+        return toEntity(null, dto);
     }
     public abstract RoleCreateDto toCreateDto(Role entity);
     public abstract RoleResponseDto toResponseDto(Role entity);

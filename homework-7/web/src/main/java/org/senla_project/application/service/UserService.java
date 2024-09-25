@@ -20,8 +20,6 @@ public class UserService implements ServiceInterface<UUID, UserCreateDto, UserRe
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
     private UserMapper userMapper;
 
     @Transactional

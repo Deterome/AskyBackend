@@ -1,6 +1,8 @@
 package org.senla_project.application.mapper;
 
+import lombok.AllArgsConstructor;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
 import org.senla_project.application.repository.UserRepository;
@@ -25,9 +27,10 @@ public abstract class UserMapper {
         return userRepository.findUserByNickname(userName).orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
+    @Mapping(source = "id", target = "userId")
     public abstract User toEntity(UUID id, UserCreateDto dto);
     public User toEntity(UserCreateDto dto) {
-        return toEntity(UUID.randomUUID(), dto);
+        return toEntity(null, dto);
     }
     public abstract UserCreateDto toCreateDto(User entity);
     public abstract UserResponseDto toResponseDto(User entity);

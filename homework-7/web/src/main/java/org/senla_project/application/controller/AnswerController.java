@@ -3,7 +3,7 @@ package org.senla_project.application.controller;
 import lombok.NonNull;
 import org.senla_project.application.dto.AnswerCreateDto;
 import org.senla_project.application.dto.AnswerResponseDto;
-import org.senla_project.application.dto.CollaborationResponseDto;
+import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.service.AnswerService;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.exception.InvalidRequestParametersException;
@@ -35,23 +35,23 @@ public class AnswerController implements ControllerInterface<UUID, AnswerCreateD
     }
 
     @Override
-    @PostMapping("/answers")
+    @PostMapping("/answers/create")
     @ResponseStatus(HttpStatus.CREATED)
     public void addElement(@NonNull @RequestBody AnswerCreateDto element) {
         service.addElement(element);
     }
 
     @Override
-    @PutMapping("/answers")
+    @PutMapping("/answers/update")
     @ResponseStatus(HttpStatus.OK)
-    public void updateElement(@NonNull @RequestParam UUID id, @NonNull @RequestBody AnswerCreateDto updatedElement) {
+    public void updateElement(@NonNull @RequestParam(name = "id") UUID id, @NonNull @RequestBody AnswerCreateDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 
     @Override
-    @DeleteMapping("/answers")
+    @DeleteMapping("/answers/delete")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteElement(@NonNull @RequestParam UUID id) {
+    public void deleteElement(@NonNull @RequestParam(name = "id") UUID id) {
         service.deleteElement(id);
     }
 
@@ -65,10 +65,19 @@ public class AnswerController implements ControllerInterface<UUID, AnswerCreateD
                                              @RequestParam(name ="author", required = false) String authorName,
                                              @RequestParam(name ="question-id", required = false) UUID questionId,
                                              @RequestParam(name ="body", required = false) String body) {
-        if (answerId != null)
+        if (answerId != null && authorName != null && questionId != null && body != null) {
+            AnswerResponseDto responseDto = findElementById(answerId);
+            if (!authorName.equals(responseDto.getAuthorName())
+                    && !questionId.equals(responseDto.getQuestionId())
+                    && !body.equals(responseDto.getBody()))
+                throw new EntityNotFoundException("Answer with the specified parameters was not found");
+            return responseDto;
+        } else if (answerId != null) {
             return findElementById(answerId);
-        if (authorName != null && questionId != null && body != null)
+        } else if (authorName != null && questionId != null && body != null) {
             return findAnswerByParams(authorName, questionId, body);
-        throw new InvalidRequestParametersException("Invalid requests parameters");
+        } else {
+            throw new InvalidRequestParametersException("Invalid requests parameters");
+        }
     }
 }

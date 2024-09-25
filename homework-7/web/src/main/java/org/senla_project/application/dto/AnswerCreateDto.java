@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
@@ -14,7 +15,7 @@ public class AnswerCreateDto {
     private int usefulness;
     private UUID questionId;
     private String authorName;
-    private String createTime;
+    private String createTime = LocalDate.now().toString();
 
 }
 

@@ -3,6 +3,7 @@ package org.senla_project.application.controller;
 import lombok.NonNull;
 import org.senla_project.application.dto.QuestionCreateDto;
 import org.senla_project.application.dto.QuestionResponseDto;
+import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.service.QuestionService;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.exception.InvalidRequestParametersException;
@@ -34,23 +35,23 @@ public class QuestionController implements ControllerInterface<UUID, QuestionCre
     }
 
     @Override
-    @PostMapping("/questions")
+    @PostMapping("/questions/create")
     @ResponseStatus(HttpStatus.CREATED)
     public void addElement(@NonNull @RequestBody QuestionCreateDto element) {
         service.addElement(element);
     }
 
     @Override
-    @PutMapping("/questions")
+    @PutMapping("/questions/update")
     @ResponseStatus(HttpStatus.OK)
-    public void updateElement(@NonNull @RequestParam UUID id, @NonNull @RequestBody QuestionCreateDto updatedElement) {
+    public void updateElement(@NonNull @RequestParam(name = "id") UUID id, @NonNull @RequestBody QuestionCreateDto updatedElement) {
         service.updateElement(id, updatedElement);
     }
 
     @Override
-    @DeleteMapping("/questions")
+    @DeleteMapping("/questions/delete")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteElement(@NonNull @RequestParam UUID id) {
+    public void deleteElement(@NonNull @RequestParam(name = "id") UUID id) {
         service.deleteElement(id);
     }
 
@@ -64,10 +65,19 @@ public class QuestionController implements ControllerInterface<UUID, QuestionCre
                                     @RequestParam(name = "header", required = false) String header,
                                     @RequestParam(name = "body", required = false) String body,
                                     @RequestParam(name = "author", required = false) String authorName) {
-        if (questionId != null)
+        if (questionId != null && header != null && body != null && authorName != null) {
+            QuestionResponseDto responseDto = findElementById(questionId);
+            if (!header.equals(responseDto.getHeader())
+                    && !body.equals(responseDto.getBody())
+                    && !authorName.equals(responseDto.getAuthorName()))
+                throw new EntityNotFoundException("Question with the specified parameters was not found");
+            return responseDto;
+        } else if (questionId != null) {
             return findElementById(questionId);
-        if (header != null && body != null && authorName != null)
+        } else if (header != null && body != null && authorName != null) {
             return findQuestionByParams(header, body, authorName);
-        throw new InvalidRequestParametersException("Invalid requests parameters");
+        } else {
+            throw new InvalidRequestParametersException("Invalid requests parameters");
+        }
     }
 }
