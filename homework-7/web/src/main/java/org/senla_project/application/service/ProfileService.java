@@ -6,12 +6,14 @@ import org.senla_project.application.dto.ProfileResponseDto;
 import org.senla_project.application.repository.ProfileRepository;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.mapper.ProfileMapper;
+import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.senla_project.application.util.exception.InvalidRequestParametersException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -26,14 +28,14 @@ public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, 
 
     @Transactional
     @Override
-    public void addElement(@NonNull ProfileCreateDto element) {
-        profileRepository.create(profileMapper.toEntity(element));
+    public ProfileResponseDto addElement(@NonNull ProfileCreateDto element) {
+        return profileMapper.toResponseDto(profileRepository.create(profileMapper.toEntity(element)));
     }
 
     @Transactional
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull ProfileCreateDto updatedElement) {
-        profileRepository.update(profileMapper.toEntity(id, updatedElement));
+    public ProfileResponseDto updateElement(@NonNull UUID id, @NonNull ProfileCreateDto updatedElement) {
+        return profileMapper.toResponseDto(profileRepository.update(profileMapper.toEntity(id, updatedElement)));
     }
 
     @Transactional
@@ -42,23 +44,25 @@ public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, 
         profileRepository.deleteById(id);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
-    public List<ProfileResponseDto> getAllElements() {
-        return profileMapper.toDtoList(profileRepository.findAll());
+    public List<ProfileResponseDto> getAllElements() throws EntityNotFoundException {
+        var elements = profileMapper.toDtoList(profileRepository.findAll());
+        if (elements.isEmpty()) throw new EntityNotFoundException("Profiles not found");
+        return elements;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
-    public Optional<ProfileResponseDto> findElementById(@NonNull UUID id) {
+    public ProfileResponseDto findElementById(@NonNull UUID id) throws EntityNotFoundException {
         return profileRepository.findById(id)
-                .map(profileMapper::toResponseDto);
+                .map(profileMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Profile not found"));
     }
 
-    @Transactional
-    public Optional<ProfileResponseDto> findProfile(String nickname) {
+    @Transactional(readOnly = true)
+    public ProfileResponseDto findProfileByUsername(String nickname) throws EntityNotFoundException {
         return profileRepository.findProfileByNickname(nickname)
-                .map(profileMapper::toResponseDto);
+                .map(profileMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Profile not found"));
     }
 
 }

@@ -9,6 +9,7 @@ import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.dto.AnswerCreateDto;
 import org.senla_project.application.dto.AnswerResponseDto;
+import org.senla_project.application.dto.QuestionResponseDto;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
@@ -22,6 +23,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -37,9 +39,9 @@ class AnswerControllerTest {
     @Autowired
     AnswerController answerController;
     @Autowired
-    UserController userController;
-    @Autowired
     QuestionController questionController;
+    @Autowired
+    UserController userController;
 
     MockMvc mockMvc;
 
@@ -56,9 +58,9 @@ class AnswerControllerTest {
                 .andExpect(status().isNotFound());
 
         userController.addElement(TestData.getUserCreateDto());
-        questionController.addElement(TestData.getQuestionCreateDto());
+        QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
-        answerCreateDto.setQuestionId(UUID.fromString(questionController.getAllElements().getFirst().getQuestionId()));
+        answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
         answerController.addElement(answerCreateDto);
         mockMvc.perform(get("/answers/all")
                         .accept(MediaType.APPLICATION_JSON))
@@ -70,34 +72,30 @@ class AnswerControllerTest {
 
     @Test
     void findElementById() throws Exception {
-        mockMvc.perform(get("/answers?id={id}", UUID.randomUUID())
+        mockMvc.perform(get("/answers/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
         userController.addElement(TestData.getUserCreateDto());
-        questionController.addElement(TestData.getQuestionCreateDto());
+        QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
-        answerCreateDto.setQuestionId(UUID.fromString(questionController.getAllElements().getFirst().getQuestionId()));
-        answerController.addElement(answerCreateDto);
-        String answerIdString = answerController.findAnswerByParams(answerCreateDto.getAuthorName(),
-                answerCreateDto.getQuestionId(),
-                answerCreateDto.getBody()).getAnswerId();
-        mockMvc.perform(get("/answers?id={id}", answerIdString)
+        answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
+        AnswerResponseDto createdAnswer = answerController.addElement(answerCreateDto);
+        mockMvc.perform(get("/answers/{id}", createdAnswer.getAnswerId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(answerController.findElementById(UUID.fromString(answerIdString)).getAnswerId(),
-                answerIdString);
+        Assertions.assertEquals(createdAnswer.getBody(),
+                answerCreateDto.getBody());
     }
 
     @Test
     void addElement() throws Exception {
         userController.addElement(TestData.getUserCreateDto());
-        questionController.addElement(TestData.getQuestionCreateDto());
+        QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
-        answerCreateDto.setQuestionId(UUID.fromString(questionController.getAllElements().getFirst().getQuestionId()));
-        answerController.addElement(answerCreateDto);
+        answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
         mockMvc.perform(post("/answers/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(answerCreateDto))
@@ -105,125 +103,93 @@ class AnswerControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        Assertions.assertEquals(answerController.findAnswerByParams(answerCreateDto.getAuthorName(),
+        Assertions.assertEquals(answerController.findAnswerByParams(
+                        answerCreateDto.getAuthorName(),
                         answerCreateDto.getQuestionId(),
-                        answerCreateDto.getBody()).getBody(),
+                        answerCreateDto.getBody()
+                ).getBody(),
                 answerCreateDto.getBody());
     }
 
     @Test
     void updateElement() throws Exception {
         userController.addElement(TestData.getUserCreateDto());
-        questionController.addElement(TestData.getQuestionCreateDto());
-        UUID questionId = UUID.fromString(questionController.getAllElements().getFirst().getQuestionId());
+        QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
-        answerCreateDto.setQuestionId(questionId);
-        answerController.addElement(answerCreateDto);
-        mockMvc.perform(put("/answers/update?id={id}", UUID.randomUUID())
+        answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
+        mockMvc.perform(put("/answers/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(answerCreateDto)))
                 .andDo(print())
                 .andExpect(status().isPreconditionFailed());
 
-
-        AnswerResponseDto answerResponseDto = answerController.findAnswerByParams(answerCreateDto.getAuthorName(),
-                answerCreateDto.getQuestionId(),
-                answerCreateDto.getBody());
+        AnswerResponseDto answerResponseDto = answerController.addElement(answerCreateDto);
         AnswerCreateDto updatedAnswerCreateDto = TestData.getUpdatedAnswerCreateDto();
-        updatedAnswerCreateDto.setQuestionId(questionId);
+        updatedAnswerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
 
-        mockMvc.perform(put("/answers/update?id={id}", answerResponseDto.getAnswerId())
+        mockMvc.perform(put("/answers/update/{id}", answerResponseDto.getAnswerId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(updatedAnswerCreateDto)))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(answerController.findAnswerByParams(updatedAnswerCreateDto.getAuthorName(),
+        Assertions.assertEquals(answerController.findAnswerByParams(
+                        updatedAnswerCreateDto.getAuthorName(),
                         updatedAnswerCreateDto.getQuestionId(),
-                        updatedAnswerCreateDto.getBody()).getBody(),
+                        updatedAnswerCreateDto.getBody()
+                ).getBody(),
                 updatedAnswerCreateDto.getBody());
-        Assertions.assertEquals(answerController.findAnswerByParams(updatedAnswerCreateDto.getAuthorName(),
+        Assertions.assertEquals(answerController.findAnswerByParams(
+                        updatedAnswerCreateDto.getAuthorName(),
                         updatedAnswerCreateDto.getQuestionId(),
-                        updatedAnswerCreateDto.getBody()).getAnswerId(),
+                        updatedAnswerCreateDto.getBody()
+                ).getAnswerId(),
                 answerResponseDto.getAnswerId());
     }
 
     @Test
     void deleteElement() throws Exception {
-        mockMvc.perform(delete("/answers/delete?id={id}", UUID.randomUUID())
+        mockMvc.perform(delete("/answers/delete/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         userController.addElement(TestData.getUserCreateDto());
-        questionController.addElement(TestData.getQuestionCreateDto());
+        QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
-        answerCreateDto.setQuestionId(UUID.fromString(questionController.getAllElements().getFirst().getQuestionId()));
-        answerController.addElement(answerCreateDto);
-        String answerIdString = answerController.findAnswerByParams(answerCreateDto.getAuthorName(),
-                answerCreateDto.getQuestionId(),
-                answerCreateDto.getBody()).getAnswerId();
-        mockMvc.perform(delete("/answers/delete?id={id}", answerIdString)
+        answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
+        AnswerResponseDto answerResponseDto = answerController.addElement(answerCreateDto);
+        mockMvc.perform(delete("/answers/delete/{id}", answerResponseDto.getAnswerId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertThrows(EntityNotFoundException.class, () -> answerController.findElementById(UUID.fromString(answerIdString)));
+                .andExpect(status().isNoContent());
+        Assertions.assertThrows(EntityNotFoundException.class, () -> answerController.getElementById(UUID.fromString(answerResponseDto.getAnswerId())));
     }
 
     @Test
     void findAnswerByParams() throws Exception {
-        mockMvc.perform(get("/answers?author={author}&question-id={questionId}&body={body}", "123", UUID.randomUUID(), "123")
+        mockMvc.perform(get("/answers?author={author}&question_id={question_id}&body={body}", "123", UUID.randomUUID(), "123")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
         userController.addElement(TestData.getUserCreateDto());
-        questionController.addElement(TestData.getQuestionCreateDto());
+        QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
-        answerCreateDto.setQuestionId(UUID.fromString(questionController.getAllElements().getFirst().getQuestionId()));
+        answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
         answerController.addElement(answerCreateDto);
-        mockMvc.perform(get("/answers?author={author}&question-id={questionId}&body={body}", answerCreateDto.getAuthorName(), answerCreateDto.getQuestionId(), answerCreateDto.getBody())
+        mockMvc.perform(get("/answers?author={author}&question_id={question_id}&body={body}",
+                        answerCreateDto.getAuthorName(),
+                        answerCreateDto.getQuestionId(),
+                        answerCreateDto.getBody())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(answerController.findAnswerByParams(answerCreateDto.getAuthorName(),
-                        answerCreateDto.getQuestionId(),
-                        answerCreateDto.getBody()).getBody(),
-                answerCreateDto.getBody());
-    }
-
-    @Test
-    void findAnswer() throws Exception {
-        mockMvc.perform(get("/answers?id={id}&author={author}&question-id={questionId}&body={body}",  UUID.randomUUID(), "123", UUID.randomUUID(), "123")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        userController.addElement(TestData.getUserCreateDto());
-        questionController.addElement(TestData.getQuestionCreateDto());
-        AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
-        answerCreateDto.setQuestionId(UUID.fromString(questionController.getAllElements().getFirst().getQuestionId()));
-        answerController.addElement(answerCreateDto);
-        String answerIdString = answerController.findAnswerByParams(answerCreateDto.getAuthorName(),
+        AnswerResponseDto answerResponseDto = answerController.findAnswerByParams(answerCreateDto.getAuthorName(),
                 answerCreateDto.getQuestionId(),
-                answerCreateDto.getBody()).getAnswerId();
-        mockMvc.perform(get("/answers?id={id}&author={author}&question-id={questionId}&body={body}", answerIdString, answerCreateDto.getAuthorName(), answerCreateDto.getQuestionId(), answerCreateDto.getBody())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertEquals(answerController.findAnswerByParams(answerCreateDto.getAuthorName(),
-                        answerCreateDto.getQuestionId(),
-                        answerCreateDto.getBody()).getBody(),
                 answerCreateDto.getBody());
-
-        mockMvc.perform(get("/answers?id={id}&author={author}&question-id={questionId}&body={body}", UUID.randomUUID(), answerCreateDto.getAuthorName(), answerCreateDto.getQuestionId(), answerCreateDto.getBody())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        mockMvc.perform(get("/answers?id={id}&author={author}&question-id={questionId}&body={body}", answerIdString, "123", UUID.randomUUID(), "123")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
+        Assertions.assertEquals(answerResponseDto.getBody(),
+                answerCreateDto.getBody());
     }
+
 }

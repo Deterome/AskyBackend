@@ -7,9 +7,9 @@ import java.util.Optional;
 
 public interface ServiceInterface<K, T, R> {
     List<R> getAllElements();
-    Optional<R> findElementById(@NonNull K id);
-    void addElement(@NonNull T element);
-    void updateElement(@NonNull K id, @NonNull T updatedElement);
+    R findElementById(@NonNull K id);
+    R addElement(@NonNull T element);
+    R updateElement(@NonNull K id, @NonNull T updatedElement);
     void deleteElement(@NonNull K id);
 
 }

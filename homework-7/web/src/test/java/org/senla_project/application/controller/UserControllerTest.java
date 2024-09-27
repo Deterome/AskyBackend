@@ -46,13 +46,13 @@ class UserControllerTest {
     @Test
     void getAllElements() throws Exception {
         mockMvc.perform(get("/users/all")
-                    .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
         userController.addElement(TestData.getUserCreateDto());
         mockMvc.perform(get("/users/all")
-                    .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -61,29 +61,28 @@ class UserControllerTest {
 
     @Test
     void findElementById() throws Exception {
-        mockMvc.perform(get("/users?id={id}", UUID.randomUUID())
-                    .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/users/{id}", UUID.randomUUID())
+                        .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
         UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        userController.addElement(userCreateDto);
-        String userIdString = userController.findUserByName(userCreateDto.getNickname()).getUserId();
-        mockMvc.perform(get("/users?id={id}", userIdString)
+        UserResponseDto createdUser = userController.addElement(userCreateDto);
+        mockMvc.perform(get("/users/{id}", createdUser.getUserId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(userController.findElementById(UUID.fromString(userIdString)).getUserId(),
-                userIdString);
+        Assertions.assertEquals(createdUser.getNickname(),
+                userCreateDto.getNickname());
     }
 
     @Test
     void addElement() throws Exception {
         UserCreateDto userCreateDto = TestData.getUserCreateDto();
         mockMvc.perform(post("/users/create")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonParser.parseObjectToJson(userCreateDto))
-                    .accept(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(userCreateDto))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
@@ -94,17 +93,16 @@ class UserControllerTest {
     @Test
     void updateElement() throws Exception {
         UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        mockMvc.perform(put("/users/update?id={id}", UUID.randomUUID())
+        mockMvc.perform(put("/users/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(userCreateDto)))
                 .andDo(print())
                 .andExpect(status().isPreconditionFailed());
 
-        userController.addElement(userCreateDto);
-        UserResponseDto userResponseDto = userController.findUserByName(userCreateDto.getNickname());
+        UserResponseDto userResponseDto = userController.addElement(userCreateDto);
         UserCreateDto updatedUserCreateDto = TestData.getUpdatedUserCreateDto();
 
-        mockMvc.perform(put("/users/update?id={id}", userResponseDto.getUserId())
+        mockMvc.perform(put("/users/update/{id}", userResponseDto.getUserId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(updatedUserCreateDto)))
                 .andDo(print())
@@ -118,19 +116,18 @@ class UserControllerTest {
 
     @Test
     void deleteElement() throws Exception {
-        mockMvc.perform(delete("/users/delete?id={id}", UUID.randomUUID())
+        mockMvc.perform(delete("/users/delete/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        userController.addElement(userCreateDto);
-        String userIdString = userController.findUserByName(userCreateDto.getNickname()).getUserId();
-        mockMvc.perform(delete("/users/delete?id={id}", userIdString)
+        UserResponseDto userResponseDto = userController.addElement(userCreateDto);
+        mockMvc.perform(delete("/users/delete/{id}", userResponseDto.getUserId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertThrows(EntityNotFoundException.class, () -> userController.findElementById(UUID.fromString(userIdString)));
+                .andExpect(status().isNoContent());
+        Assertions.assertThrows(EntityNotFoundException.class, () -> userController.getElementById(UUID.fromString(userResponseDto.getUserId())));
     }
 
     @Test
@@ -146,35 +143,9 @@ class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(userController.findUserByName(userCreateDto.getNickname()).getNickname(),
+        UserResponseDto userResponseDto = userController.findUserByName(userCreateDto.getNickname());
+        Assertions.assertEquals(userResponseDto.getNickname(),
                 userCreateDto.getNickname());
     }
 
-    @Test
-    void findUser() throws Exception {
-        mockMvc.perform(get("/users?username={name}&id={id}", "Alex", UUID.randomUUID())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        userController.addElement(userCreateDto);
-        String userIdString = userController.findUserByName(userCreateDto.getNickname()).getUserId();
-        mockMvc.perform(get("/users?username={name}&id={id}", userCreateDto.getNickname(), userIdString)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertEquals(userController.findUserByName(userCreateDto.getNickname()).getNickname(),
-                userCreateDto.getNickname());
-
-        mockMvc.perform(get("/users?username={name}&id={id}", userCreateDto.getNickname(), UUID.randomUUID())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        mockMvc.perform(get("/users?username={name}&id={id}", "Nick", userIdString)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-    }
 }

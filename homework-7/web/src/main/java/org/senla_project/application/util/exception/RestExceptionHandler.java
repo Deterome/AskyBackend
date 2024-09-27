@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class RestExceptionHandler {
 
-    @ExceptionHandler({EntityNotFoundException.class, })
+    @ExceptionHandler({EntityNotFoundException.class})
     public ResponseEntity<?> onEntityNotFoundException(EntityNotFoundException exception) {
         log.error(exception.getMessage(), exception);
         return ResponseEntity

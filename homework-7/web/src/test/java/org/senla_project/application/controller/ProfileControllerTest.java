@@ -22,7 +22,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -66,21 +65,20 @@ class ProfileControllerTest {
 
     @Test
     void findElementById() throws Exception {
-        mockMvc.perform(get("/profiles?id={id}", UUID.randomUUID())
+        mockMvc.perform(get("/profiles/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
         userController.addElement(TestData.getUserCreateDto());
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        profileController.addElement(profileCreateDto);
-        String profileIdString = profileController.findProfileByUsername(profileCreateDto.getUserName()).getProfileId();
-        mockMvc.perform(get("/profiles?id={id}", profileIdString)
+        ProfileResponseDto createdProfile = profileController.addElement(profileCreateDto);
+        mockMvc.perform(get("/profiles/{id}", createdProfile.getProfileId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(profileController.findElementById(UUID.fromString(profileIdString)).getProfileId(),
-                profileIdString);
+        Assertions.assertEquals(createdProfile.getUserName(),
+                profileCreateDto.getUserName());
     }
 
     @Test
@@ -100,25 +98,18 @@ class ProfileControllerTest {
 
     @Test
     void updateElement() throws Exception {
-        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        mockMvc.perform(put("/profiles/update?id={id}", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(profileCreateDto)))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
         userController.addElement(TestData.getUserCreateDto());
-        mockMvc.perform(put("/profiles/update?id={id}", UUID.randomUUID())
+        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        mockMvc.perform(put("/profiles/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(profileCreateDto)))
                 .andDo(print())
                 .andExpect(status().isPreconditionFailed());
 
-        profileController.addElement(profileCreateDto);
-        ProfileResponseDto profileResponseDto = profileController.findProfileByUsername(profileCreateDto.getUserName());
+        ProfileResponseDto profileResponseDto = profileController.addElement(profileCreateDto);
         ProfileCreateDto updatedProfileCreateDto = TestData.getUpdatedProfileCreateDto();
 
-        mockMvc.perform(put("/profiles/update?id={id}", profileResponseDto.getProfileId())
+        mockMvc.perform(put("/profiles/update/{id}", profileResponseDto.getProfileId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(updatedProfileCreateDto)))
                 .andDo(print())
@@ -132,24 +123,23 @@ class ProfileControllerTest {
 
     @Test
     void deleteElement() throws Exception {
-        mockMvc.perform(delete("/profiles/delete?id={id}", UUID.randomUUID())
+        mockMvc.perform(delete("/profiles/delete/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         userController.addElement(TestData.getUserCreateDto());
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        profileController.addElement(profileCreateDto);
-        String profileIdString = profileController.findProfileByUsername(profileCreateDto.getUserName()).getProfileId();
-        mockMvc.perform(delete("/profiles/delete?id={id}", profileIdString)
+        ProfileResponseDto profileResponseDto = profileController.addElement(profileCreateDto);
+        mockMvc.perform(delete("/profiles/delete/{id}", profileResponseDto.getProfileId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertThrows(EntityNotFoundException.class, () -> profileController.findElementById(UUID.fromString(profileIdString)));
+                .andExpect(status().isNoContent());
+        Assertions.assertThrows(EntityNotFoundException.class, () -> profileController.getElementById(UUID.fromString(profileResponseDto.getProfileId())));
     }
 
     @Test
-    void findProfileByName() throws Exception {
+    void findProfileByUsername() throws Exception {
         mockMvc.perform(get("/profiles?username={name}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -162,36 +152,9 @@ class ProfileControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(profileController.findProfileByUsername(profileCreateDto.getUserName()).getUserName(),
+        ProfileResponseDto profileResponseDto = profileController.findProfileByUsername(profileCreateDto.getUserName());
+        Assertions.assertEquals(profileResponseDto.getUserName(),
                 profileCreateDto.getUserName());
     }
 
-    @Test
-    void findProfile() throws Exception {
-        mockMvc.perform(get("/profiles?username={name}&id={id}", "Alex", UUID.randomUUID())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        userController.addElement(TestData.getUserCreateDto());
-        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        profileController.addElement(profileCreateDto);
-        String profileIdString = profileController.findProfileByUsername(profileCreateDto.getUserName()).getProfileId();
-        mockMvc.perform(get("/profiles?username={name}&id={id}", profileCreateDto.getUserName(), profileIdString)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertEquals(profileController.findProfileByUsername(profileCreateDto.getUserName()).getUserName(),
-                profileCreateDto.getUserName());
-
-        mockMvc.perform(get("/profiles?username={name}&id={id}", profileCreateDto.getUserName(), UUID.randomUUID())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        mockMvc.perform(get("/profiles?username={name}&id={id}", "Nick", profileIdString)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-    }
 }
