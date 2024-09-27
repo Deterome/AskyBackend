@@ -62,20 +62,19 @@ class CollaborationControllerTest {
 
     @Test
     void findElementById() throws Exception {
-        mockMvc.perform(get("/collabs?id={id}", UUID.randomUUID())
+        mockMvc.perform(get("/collabs/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        collabController.addElement(collabCreateDto);
-        String collabIdString = collabController.findCollabByName(collabCreateDto.getCollabName()).getCollabId();
-        mockMvc.perform(get("/collabs?id={id}", collabIdString)
+        CollaborationResponseDto createdCollaboration = collabController.addElement(collabCreateDto);
+        mockMvc.perform(get("/collabs/{id}", createdCollaboration.getCollabId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(collabController.findElementById(UUID.fromString(collabIdString)).getCollabId(),
-                collabIdString);
+        Assertions.assertEquals(createdCollaboration.getCollabName(),
+                collabCreateDto.getCollabName());
     }
 
     @Test
@@ -95,17 +94,16 @@ class CollaborationControllerTest {
     @Test
     void updateElement() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        mockMvc.perform(put("/collabs/update?id={id}", UUID.randomUUID())
+        mockMvc.perform(put("/collabs/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(collabCreateDto)))
                 .andDo(print())
                 .andExpect(status().isPreconditionFailed());
 
-        collabController.addElement(collabCreateDto);
-        CollaborationResponseDto collabResponseDto = collabController.findCollabByName(collabCreateDto.getCollabName());
+        CollaborationResponseDto collabResponseDto = collabController.addElement(collabCreateDto);
         CollaborationCreateDto updatedCollaborationCreateDto = TestData.getUpdatedCollaborationCreateDto();
 
-        mockMvc.perform(put("/collabs/update?id={id}", collabResponseDto.getCollabId())
+        mockMvc.perform(put("/collabs/update/{id}", collabResponseDto.getCollabId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(updatedCollaborationCreateDto)))
                 .andDo(print())
@@ -119,63 +117,36 @@ class CollaborationControllerTest {
 
     @Test
     void deleteElement() throws Exception {
-        mockMvc.perform(delete("/collabs/delete?id={id}", UUID.randomUUID())
+        mockMvc.perform(delete("/collabs/delete/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        collabController.addElement(collabCreateDto);
-        String collabIdString = collabController.findCollabByName(collabCreateDto.getCollabName()).getCollabId();
-        mockMvc.perform(delete("/collabs/delete?id={id}", collabIdString)
+        CollaborationResponseDto collabResponseDto = collabController.addElement(collabCreateDto);
+        mockMvc.perform(delete("/collabs/delete/{id}", collabResponseDto.getCollabId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertThrows(EntityNotFoundException.class, () -> collabController.findElementById(UUID.fromString(collabIdString)));
+                .andExpect(status().isNoContent());
+        Assertions.assertThrows(EntityNotFoundException.class, () -> collabController.getElementById(UUID.fromString(collabResponseDto.getCollabId())));
     }
 
     @Test
     void findCollabByName() throws Exception {
-        mockMvc.perform(get("/collabs?collab-name={name}", "Alex")
+        mockMvc.perform(get("/collabs?collab_name={name}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         collabController.addElement(collabCreateDto);
-        mockMvc.perform(get("/collabs?collab-name={name}", collabCreateDto.getCollabName())
+        mockMvc.perform(get("/collabs?collab_name={name}", collabCreateDto.getCollabName())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(collabController.findCollabByName(collabCreateDto.getCollabName()).getCollabName(),
+        CollaborationResponseDto collabResponseDto = collabController.findCollabByName(collabCreateDto.getCollabName());
+        Assertions.assertEquals(collabResponseDto.getCollabName(),
                 collabCreateDto.getCollabName());
     }
 
-    @Test
-    void findCollaboration() throws Exception {
-        mockMvc.perform(get("/collabs?collab-name={name}&id={id}", "Alex", UUID.randomUUID())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        collabController.addElement(collabCreateDto);
-        String collabIdString = collabController.findCollabByName(collabCreateDto.getCollabName()).getCollabId();
-        mockMvc.perform(get("/collabs?collab-name={name}&id={id}", collabCreateDto.getCollabName(), collabIdString)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertEquals(collabController.findCollabByName(collabCreateDto.getCollabName()).getCollabName(),
-                collabCreateDto.getCollabName());
-
-        mockMvc.perform(get("/collabs?collab-name={name}&id={id}", collabCreateDto.getCollabName(), UUID.randomUUID())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        mockMvc.perform(get("/collabs?collab-name={name}&id={id}", "Nick", collabIdString)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-    }
 }

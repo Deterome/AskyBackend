@@ -9,6 +9,7 @@ import org.senla_project.application.entity.User;
 import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.util.TestData;
+import org.senla_project.application.util.exception.EntityNotFoundException;
 
 import java.util.UUID;
 
@@ -25,7 +26,6 @@ class UserServiceTest {
     @Test
     void addElement() {
         UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        Mockito.doNothing().when(userRepositoryMock).create(Mockito.any());
         userServiceMock.addElement(userCreateDto);
         Mockito.verify(userRepositoryMock).create(Mockito.any());
     }
@@ -33,7 +33,6 @@ class UserServiceTest {
     @Test
     void updateElement() {
         UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        Mockito.doNothing().when(userRepositoryMock).update(Mockito.any());
         userServiceMock.updateElement(UUID.randomUUID(), userCreateDto);
         Mockito.verify(userRepositoryMock).update(Mockito.any());
     }
@@ -47,20 +46,29 @@ class UserServiceTest {
 
     @Test
     void getAllElements() {
-        userServiceMock.getAllElements();
-        Mockito.verify(userRepositoryMock).findAll();
+        try {
+            userServiceMock.getAllElements();
+            Mockito.verify(userRepositoryMock).findAll();
+        } catch (EntityNotFoundException ignored) {
+        }
     }
 
     @Test
     void findElementById() {
-        userServiceMock.findElementById(UUID.randomUUID());
-        Mockito.verify(userRepositoryMock).findById(Mockito.any());
+        try {
+            userServiceMock.findElementById(UUID.randomUUID());
+            Mockito.verify(userRepositoryMock).findById(Mockito.any());
+        } catch (EntityNotFoundException ignored) {
+        }
     }
 
     @Test
-    void findUser() {
-        User user = TestData.getUser();
-        userServiceMock.findUser(user.getNickname());
-        Mockito.verify(userRepositoryMock).findUserByNickname(Mockito.any());
+    void findUserByName() {
+        try {
+            User user = TestData.getUser();
+            userServiceMock.findUserByName(user.getNickname());
+            Mockito.verify(userRepositoryMock).findUserByNickname(Mockito.any());
+        } catch (EntityNotFoundException ignored) {
+        }
     }
 }

@@ -65,21 +65,20 @@ class QuestionControllerTest {
 
     @Test
     void findElementById() throws Exception {
-        mockMvc.perform(get("/questions?id={id}", UUID.randomUUID())
+        mockMvc.perform(get("/questions/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
         userController.addElement(TestData.getUserCreateDto());
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        questionController.addElement(questionCreateDto);
-        String questionIdString = questionController.findQuestionByParams(questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName()).getQuestionId();
-        mockMvc.perform(get("/questions?id={id}", questionIdString)
+        QuestionResponseDto createdQuestion = questionController.addElement(questionCreateDto);
+        mockMvc.perform(get("/questions/{id}", createdQuestion.getQuestionId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(questionController.findElementById(UUID.fromString(questionIdString)).getQuestionId(),
-                questionIdString);
+        Assertions.assertEquals(createdQuestion.getBody(),
+                questionCreateDto.getBody());
     }
 
     @Test
@@ -93,71 +92,62 @@ class QuestionControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        Assertions.assertEquals(questionController.findQuestionByParams(questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName()).getBody(),
+        Assertions.assertEquals(questionController.findQuestionByParams(questionCreateDto.getHeader(),
+                        questionCreateDto.getBody(),
+                        questionCreateDto.getAuthorName()).getBody(),
                 questionCreateDto.getBody());
     }
 
     @Test
     void updateElement() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        mockMvc.perform(put("/questions/update?id={id}", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionCreateDto)))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
         userController.addElement(TestData.getUserCreateDto());
-        mockMvc.perform(put("/questions/update?id={id}", UUID.randomUUID())
+        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
+        mockMvc.perform(put("/questions/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(questionCreateDto)))
                 .andDo(print())
                 .andExpect(status().isPreconditionFailed());
 
-        questionController.addElement(questionCreateDto);
-        QuestionResponseDto questionResponseDto = questionController.findQuestionByParams(questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName());
+        QuestionResponseDto questionResponseDto = questionController.addElement(questionCreateDto);
         QuestionCreateDto updatedQuestionCreateDto = TestData.getUpdatedQuestionCreateDto();
 
-        mockMvc.perform(put("/questions/update?id={id}", questionResponseDto.getQuestionId())
+        mockMvc.perform(put("/questions/update/{id}", questionResponseDto.getQuestionId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(updatedQuestionCreateDto)))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(questionController.findQuestionByParams(
-                        updatedQuestionCreateDto.getHeader(),
-                        updatedQuestionCreateDto.getBody(),
-                        updatedQuestionCreateDto.getAuthorName())
-                    .getBody(),
-                updatedQuestionCreateDto.getBody());
-
         Assertions.assertEquals(questionController.findQuestionByParams(updatedQuestionCreateDto.getHeader(),
                         updatedQuestionCreateDto.getBody(),
-                        updatedQuestionCreateDto.getAuthorName())
-                    .getQuestionId(),
+                        updatedQuestionCreateDto.getAuthorName()).getBody(),
+                updatedQuestionCreateDto.getBody());
+        Assertions.assertEquals(questionController.findQuestionByParams(updatedQuestionCreateDto.getHeader(),
+                        updatedQuestionCreateDto.getBody(),
+                        updatedQuestionCreateDto.getAuthorName()).getQuestionId(),
                 questionResponseDto.getQuestionId());
     }
 
     @Test
     void deleteElement() throws Exception {
-        mockMvc.perform(delete("/questions/delete?id={id}", UUID.randomUUID())
+        mockMvc.perform(delete("/questions/delete/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         userController.addElement(TestData.getUserCreateDto());
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        questionController.addElement(questionCreateDto);
-        String questionIdString = questionController.findQuestionByParams(questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName()).getQuestionId();
-        mockMvc.perform(delete("/questions/delete?id={id}", questionIdString)
+        QuestionResponseDto questionResponseDto = questionController.addElement(questionCreateDto);
+        mockMvc.perform(delete("/questions/delete/{id}", questionResponseDto.getQuestionId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertThrows(EntityNotFoundException.class, () -> questionController.findElementById(UUID.fromString(questionIdString)));
+                .andExpect(status().isNoContent());
+        Assertions.assertThrows(EntityNotFoundException.class,
+                () -> questionController.getElementById(UUID.fromString(questionResponseDto.getQuestionId())));
     }
 
     @Test
     void findQuestionByParams() throws Exception {
-        mockMvc.perform(get("/questions?header={head}&body={body}&author={author}", "123", "123", "123")
+        mockMvc.perform(get("/questions?header={header}&body={body}&author={author}", "123", "123", "123")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -165,40 +155,17 @@ class QuestionControllerTest {
         userController.addElement(TestData.getUserCreateDto());
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
         questionController.addElement(questionCreateDto);
-        mockMvc.perform(get("/questions?header={head}&body={body}&author={author}", questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName())
+        mockMvc.perform(get("/questions?header={header}&body={body}&author={author}", questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(questionController.findQuestionByParams(questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName()).getBody(),
+        QuestionResponseDto questionResponseDto =
+                questionController.findQuestionByParams(
+                        questionCreateDto.getHeader(),
+                        questionCreateDto.getBody(),
+                        questionCreateDto.getAuthorName());
+        Assertions.assertEquals(questionResponseDto.getBody(),
                 questionCreateDto.getBody());
     }
 
-    @Test
-    void findQuestion() throws Exception {
-        mockMvc.perform(get("/questions?id={id}&header={head}&body={body}&author={author}",  UUID.randomUUID(), "123", "123", "123")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        userController.addElement(TestData.getUserCreateDto());
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        questionController.addElement(questionCreateDto);
-        String questionIdString = questionController.findQuestionByParams(questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName()).getQuestionId();
-        mockMvc.perform(get("/questions?id={id}&header={head}&body={body}&author={author}", questionIdString, questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertEquals(questionController.findQuestionByParams(questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName()).getBody(),
-                questionCreateDto.getBody());
-
-        mockMvc.perform(get("/questions?id={id}&header={head}&body={body}&author={author}", UUID.randomUUID(), questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        mockMvc.perform(get("/questions?id={id}&header={head}&body={body}&author={author}", questionIdString, "123", "123", "123")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-    }
 }

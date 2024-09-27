@@ -7,12 +7,14 @@ import org.senla_project.application.repository.AnswerRepository;
 import org.senla_project.application.repository.QuestionRepository;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.mapper.AnswerMapper;
+import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.senla_project.application.util.exception.InvalidRequestParametersException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,14 +31,14 @@ public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, An
 
     @Transactional
     @Override
-    public void addElement(@NonNull AnswerCreateDto element) {
-        answerRepository.create(answerMapper.toEntity(element));
+    public AnswerResponseDto addElement(@NonNull AnswerCreateDto element) {
+        return answerMapper.toResponseDto(answerRepository.create(answerMapper.toEntity(element)));
     }
 
     @Transactional
     @Override
-    public void updateElement(@NonNull UUID id, @NonNull AnswerCreateDto updatedElement) {
-        answerRepository.update(answerMapper.toEntity(id, updatedElement));
+    public AnswerResponseDto updateElement(@NonNull UUID id, @NonNull AnswerCreateDto updatedElement) {
+        return answerMapper.toResponseDto(answerRepository.update(answerMapper.toEntity(id, updatedElement)));
     }
 
     @Transactional
@@ -45,23 +47,25 @@ public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, An
         answerRepository.deleteById(id);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
-    public List<AnswerResponseDto> getAllElements() {
-        return answerMapper.toDtoList(answerRepository.findAll());
+    public List<AnswerResponseDto> getAllElements() throws EntityNotFoundException {
+        var elements = answerMapper.toDtoList(answerRepository.findAll());
+        if (elements.isEmpty()) throw new EntityNotFoundException("Answers not found");
+        return elements;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
-    public Optional<AnswerResponseDto> findElementById(@NonNull UUID id) {
+    public AnswerResponseDto findElementById(@NonNull UUID id) throws EntityNotFoundException {
         return answerRepository.findById(id)
-                .map(answerMapper::toResponseDto);
+                .map(answerMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Answer not found"));
     }
 
-    @Transactional
-    public Optional<AnswerResponseDto> findAnswer(String authorName, UUID questionId, String body) {
+    @Transactional(readOnly = true)
+    public AnswerResponseDto findAnswerByParams(@NonNull String authorName, @NonNull UUID questionId, @NonNull String body) throws EntityNotFoundException {
         return answerRepository.findAnswer(authorName, questionId, body)
-                .map(answerMapper::toResponseDto);
+                .map(answerMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Answer not found"));
     }
 
 }

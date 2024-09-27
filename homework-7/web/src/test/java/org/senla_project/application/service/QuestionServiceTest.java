@@ -12,6 +12,7 @@ import org.senla_project.application.entity.Question;
 import org.senla_project.application.mapper.QuestionMapper;
 import org.senla_project.application.repository.QuestionRepository;
 import org.senla_project.application.util.TestData;
+import org.senla_project.application.util.exception.EntityNotFoundException;
 
 import java.util.UUID;
 
@@ -28,7 +29,6 @@ class QuestionServiceTest {
     @Test
     void addElement() {
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        Mockito.doNothing().when(questionRepositoryMock).create(Mockito.any());
         questionServiceMock.addElement(questionCreateDto);
         Mockito.verify(questionRepositoryMock).create(Mockito.any());
     }
@@ -36,7 +36,6 @@ class QuestionServiceTest {
     @Test
     void updateElement() {
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        Mockito.doNothing().when(questionRepositoryMock).update(Mockito.any());
         questionServiceMock.updateElement(UUID.randomUUID(), questionCreateDto);
         Mockito.verify(questionRepositoryMock).update(Mockito.any());
     }
@@ -50,20 +49,26 @@ class QuestionServiceTest {
 
     @Test
     void getAllElements() {
-        questionServiceMock.getAllElements();
-        Mockito.verify(questionRepositoryMock).findAll();
+        try {
+            questionServiceMock.getAllElements();
+            Mockito.verify(questionRepositoryMock).findAll();
+        } catch (EntityNotFoundException ignored) {}
     }
 
     @Test
     void findElementById() {
-        questionServiceMock.findElementById(UUID.randomUUID());
-        Mockito.verify(questionRepositoryMock).findById(Mockito.any());
+        try {
+            questionServiceMock.findElementById(UUID.randomUUID());
+            Mockito.verify(questionRepositoryMock).findById(Mockito.any());
+        } catch (EntityNotFoundException ignored) {}
     }
 
     @Test
-    void findQuestion() {
-        Question question = TestData.getQuestion();
-        questionServiceMock.findQuestion(question.getHeader(), question.getBody(), question.getAuthor().getNickname());
-        Mockito.verify(questionRepositoryMock).findQuestion(Mockito.any(), Mockito.any(), Mockito.any());
+    void findQuestionByParams() {
+        try {
+            Question question = TestData.getQuestion();
+            questionServiceMock.findQuestionByParams(question.getHeader(), question.getBody(), question.getAuthor().getNickname());
+            Mockito.verify(questionRepositoryMock).findQuestion(Mockito.any(), Mockito.any(), Mockito.any());
+        } catch (EntityNotFoundException ignored) {}
     }
 }

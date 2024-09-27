@@ -14,8 +14,11 @@ public abstract class AbstractDao<K, T> implements DefaultDao<K, T>{
 
     protected abstract Class<T> getEntityClass();
 
-    public void create(T entity) {
+    public T create(T entity) {
         entityManager.persist(entity);
+        entityManager.flush();
+
+        return entity;
     }
 
     public Optional<T> findById(K id) {
@@ -28,8 +31,8 @@ public abstract class AbstractDao<K, T> implements DefaultDao<K, T>{
         return entityManager.createQuery(query).getResultList();
     }
 
-    public void update(T updatedEntity) {
-        entityManager.merge(updatedEntity);
+    public T update(T updatedEntity) {
+        return entityManager.merge(updatedEntity);
     }
 
     public void deleteById(K id) {

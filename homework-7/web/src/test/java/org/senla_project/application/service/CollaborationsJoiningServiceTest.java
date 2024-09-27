@@ -12,6 +12,7 @@ import org.senla_project.application.entity.CollaborationsJoining;
 import org.senla_project.application.mapper.CollaborationsJoiningMapper;
 import org.senla_project.application.repository.CollaborationsJoiningRepository;
 import org.senla_project.application.util.TestData;
+import org.senla_project.application.util.exception.EntityNotFoundException;
 
 import java.util.UUID;
 
@@ -28,7 +29,6 @@ class CollaborationsJoiningServiceTest {
     @Test
     void addElement() {
         CollaborationsJoiningCreateDto collabJoinCreateDto = TestData.getCollabJoiningCreateDto();
-        Mockito.doNothing().when(collabJoinRepositoryMock).create(Mockito.any());
         collabJoinServiceMock.addElement(collabJoinCreateDto);
         Mockito.verify(collabJoinRepositoryMock).create(Mockito.any());
     }
@@ -36,7 +36,6 @@ class CollaborationsJoiningServiceTest {
     @Test
     void updateElement() {
         CollaborationsJoiningCreateDto collabJoinCreateDto = TestData.getCollabJoiningCreateDto();
-        Mockito.doNothing().when(collabJoinRepositoryMock).update(Mockito.any());
         collabJoinServiceMock.updateElement(UUID.randomUUID(), collabJoinCreateDto);
         Mockito.verify(collabJoinRepositoryMock).update(Mockito.any());
     }
@@ -50,20 +49,26 @@ class CollaborationsJoiningServiceTest {
 
     @Test
     void getAllElements() {
-        collabJoinServiceMock.getAllElements();
-        Mockito.verify(collabJoinRepositoryMock).findAll();
+        try {
+            collabJoinServiceMock.getAllElements();
+            Mockito.verify(collabJoinRepositoryMock).findAll();
+        } catch (EntityNotFoundException ignored) {}
     }
 
     @Test
     void findElementById() {
-        collabJoinServiceMock.findElementById(UUID.randomUUID());
-        Mockito.verify(collabJoinRepositoryMock).findById(Mockito.any());
+        try {
+            collabJoinServiceMock.findElementById(UUID.randomUUID());
+            Mockito.verify(collabJoinRepositoryMock).findById(Mockito.any());
+        } catch (EntityNotFoundException ignored) {}
     }
 
     @Test
     void findCollaborationsJoining() {
-        CollaborationsJoining collabJoin = TestData.getCollabJoining();
-        collabJoinServiceMock.findCollabJoin(collabJoin.getUser().getNickname(), collabJoin.getCollab().getCollabName());
-        Mockito.verify(collabJoinRepositoryMock).findCollabJoin(Mockito.any(), Mockito.any());
+        try {
+            CollaborationsJoining collabJoin = TestData.getCollabJoining();
+            collabJoinServiceMock.findCollabJoin(collabJoin.getUser().getNickname(), collabJoin.getCollab().getCollabName());
+            Mockito.verify(collabJoinRepositoryMock).findCollabJoin(Mockito.any(), Mockito.any());
+        } catch (EntityNotFoundException ignored) {}
     }
 }

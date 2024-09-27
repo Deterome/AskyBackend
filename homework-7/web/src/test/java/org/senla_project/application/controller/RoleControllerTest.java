@@ -63,20 +63,19 @@ class RoleControllerTest {
 
     @Test
     void findElementById() throws Exception {
-        mockMvc.perform(get("/roles?id={id}", UUID.randomUUID())
+        mockMvc.perform(get("/roles/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
         RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
-        roleController.addElement(roleCreateDto);
-        String roleIdString = roleController.findRoleByName(roleCreateDto.getRoleName()).getRoleId();
-        mockMvc.perform(get("/roles?id={id}", roleIdString)
+        RoleResponseDto createdRole = roleController.addElement(roleCreateDto);
+        mockMvc.perform(get("/roles/{id}", createdRole.getRoleId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(roleController.findElementById(UUID.fromString(roleIdString)).getRoleId(),
-                roleIdString);
+        Assertions.assertEquals(createdRole.getRoleName(),
+                roleCreateDto.getRoleName());
     }
 
     @Test
@@ -96,17 +95,16 @@ class RoleControllerTest {
     @Test
     void updateElement() throws Exception {
         RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
-        mockMvc.perform(put("/roles/update?id={id}", UUID.randomUUID())
+        mockMvc.perform(put("/roles/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(roleCreateDto)))
                 .andDo(print())
                 .andExpect(status().isPreconditionFailed());
 
-        roleController.addElement(roleCreateDto);
-        RoleResponseDto roleResponseDto = roleController.findRoleByName(roleCreateDto.getRoleName());
+        RoleResponseDto roleResponseDto = roleController.addElement(roleCreateDto);
         RoleCreateDto updatedRoleCreateDto = TestData.getUpdatedRoleCreateDto();
 
-        mockMvc.perform(put("/roles/update?id={id}", roleResponseDto.getRoleId())
+        mockMvc.perform(put("/roles/update/{id}", roleResponseDto.getRoleId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(updatedRoleCreateDto)))
                 .andDo(print())
@@ -120,63 +118,36 @@ class RoleControllerTest {
 
     @Test
     void deleteElement() throws Exception {
-        mockMvc.perform(delete("/roles/delete?id={id}", UUID.randomUUID())
+        mockMvc.perform(delete("/roles/delete/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
-        roleController.addElement(roleCreateDto);
-        String roleIdString = roleController.findRoleByName(roleCreateDto.getRoleName()).getRoleId();
-        mockMvc.perform(delete("/roles/delete?id={id}", roleIdString)
+        RoleResponseDto roleResponseDto = roleController.addElement(roleCreateDto);
+        mockMvc.perform(delete("/roles/delete/{id}", roleResponseDto.getRoleId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertThrows(EntityNotFoundException.class, () -> roleController.findElementById(UUID.fromString(roleIdString)));
+                .andExpect(status().isNoContent());
+        Assertions.assertThrows(EntityNotFoundException.class, () -> roleController.getElementById(UUID.fromString(roleResponseDto.getRoleId())));
     }
 
     @Test
     void findRoleByName() throws Exception {
-        mockMvc.perform(get("/roles?role-name={name}", "Alex")
+        mockMvc.perform(get("/roles?role_name={name}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
         RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
         roleController.addElement(roleCreateDto);
-        mockMvc.perform(get("/roles?role-name={name}", roleCreateDto.getRoleName())
+        mockMvc.perform(get("/roles?role_name={name}", roleCreateDto.getRoleName())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(roleController.findRoleByName(roleCreateDto.getRoleName()).getRoleName(),
+        RoleResponseDto roleResponseDto = roleController.findRoleByName(roleCreateDto.getRoleName());
+        Assertions.assertEquals(roleResponseDto.getRoleName(),
                 roleCreateDto.getRoleName());
     }
 
-    @Test
-    void findRole() throws Exception {
-        mockMvc.perform(get("/roles?role-name={name}&id={id}", "Alex", UUID.randomUUID())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
-        roleController.addElement(roleCreateDto);
-        String roleIdString = roleController.findRoleByName(roleCreateDto.getRoleName()).getRoleId();
-        mockMvc.perform(get("/roles?role-name={name}&id={id}", roleCreateDto.getRoleName(), roleIdString)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertEquals(roleController.findRoleByName(roleCreateDto.getRoleName()).getRoleName(),
-                roleCreateDto.getRoleName());
-
-        mockMvc.perform(get("/roles?role-name={name}&id={id}", roleCreateDto.getRoleName(), UUID.randomUUID())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        mockMvc.perform(get("/roles?role-name={name}&id={id}", "Nick", roleIdString)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-    }
 }

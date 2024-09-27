@@ -5,10 +5,10 @@ import java.util.Optional;
 
 public interface DefaultDao<K, T> {
 
-    void create(T entity);
+    T create(T entity);
     Optional<T> findById(K id);
     List<T> findAll();
-    void update(T updatedEntity);
+    T update(T updatedEntity);
     void deleteById(K id);
 
 }
