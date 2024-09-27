@@ -10,7 +10,7 @@ public class WebInitializer extends AbstractAnnotationConfigDispatcherServletIni
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return new Class[] {ApplicationConfig.class, DataSourceConfig.class, HibernateConfig.class, LiquibaseConfig.class};
+        return null;
     }
 
     @Override
