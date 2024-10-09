@@ -1,6 +1,5 @@
 package org.senla_project.application.mapper;
 
-import lombok.AllArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -27,13 +26,13 @@ public abstract class CollaborationsJoiningMapper {
     }
     @Mappings({
         @Mapping(source = "joinDate", target = "joinDate", dateFormat = "yyyy-MM-dd"),
-        @Mapping(target = "userName", expression = "java(entity.getUser().getNickname())"),
+        @Mapping(target = "userName", expression = "java(entity.getUser().getUsername())"),
         @Mapping(target = "collabName", expression = "java(entity.getCollab().getCollabName())")
     })
     public abstract CollaborationsJoiningCreateDto toCreateDto(CollaborationsJoining entity);
     @Mappings({
         @Mapping(source = "joinDate", target = "joinDate", dateFormat = "yyyy-MM-dd"),
-        @Mapping(target = "userName", expression = "java(entity.getUser().getNickname())"),
+        @Mapping(target = "userName", expression = "java(entity.getUser().getUsername())"),
         @Mapping(target = "collabName", expression = "java(entity.getCollab().getCollabName())")
     })
     public abstract CollaborationsJoiningResponseDto toResponseDto(CollaborationsJoining entity);

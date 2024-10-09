@@ -21,9 +21,10 @@ public class Question {
 
     String body;
 
-    @EqualsAndHashCode.Exclude
     @JoinColumn(name = "author")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     User author;
 
     int interesting;
@@ -32,6 +33,8 @@ public class Question {
     LocalDate createTime;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     Set<Answer> answers;
 
 }

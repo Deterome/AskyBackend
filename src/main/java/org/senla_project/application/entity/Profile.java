@@ -22,9 +22,10 @@ public class Profile {
     @GeneratedValue
     UUID profileId;
 
-    @EqualsAndHashCode.Exclude
     @JoinColumn(name = "user_id")
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     User user;
 
     String bio;

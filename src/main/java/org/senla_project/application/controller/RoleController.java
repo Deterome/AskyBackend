@@ -22,7 +22,7 @@ public class RoleController implements ControllerInterface<UUID, RoleCreateDto, 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<RoleResponseDto> getAllElements() {
-        return service.getAllElements();
+        return service.findAllElements();
     }
 
     @Override

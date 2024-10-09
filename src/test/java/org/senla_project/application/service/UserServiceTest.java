@@ -45,9 +45,9 @@ class UserServiceTest {
     }
 
     @Test
-    void getAllElements() {
+    void findAllElements() {
         try {
-            userServiceMock.getAllElements();
+            userServiceMock.findAllElements();
             Mockito.verify(userRepositoryMock).findAll();
         } catch (EntityNotFoundException ignored) {
         }
@@ -63,11 +63,11 @@ class UserServiceTest {
     }
 
     @Test
-    void findUserByName() {
+    void findUserByUsername() {
         try {
             User user = TestData.getUser();
-            userServiceMock.findUserByName(user.getNickname());
-            Mockito.verify(userRepositoryMock).findUserByNickname(Mockito.any());
+            userServiceMock.findUserByUsername(user.getUsername());
+            Mockito.verify(userRepositoryMock).findUserByUsername(Mockito.any());
         } catch (EntityNotFoundException ignored) {
         }
     }

@@ -48,9 +48,9 @@ class CollaborationsJoiningServiceTest {
     }
 
     @Test
-    void getAllElements() {
+    void findAllElements() {
         try {
-            collabJoinServiceMock.getAllElements();
+            collabJoinServiceMock.findAllElements();
             Mockito.verify(collabJoinRepositoryMock).findAll();
         } catch (EntityNotFoundException ignored) {}
     }
@@ -67,7 +67,7 @@ class CollaborationsJoiningServiceTest {
     void findCollaborationsJoining() {
         try {
             CollaborationsJoining collabJoin = TestData.getCollabJoining();
-            collabJoinServiceMock.findCollabJoin(collabJoin.getUser().getNickname(), collabJoin.getCollab().getCollabName());
+            collabJoinServiceMock.findCollabJoin(collabJoin.getUser().getUsername(), collabJoin.getCollab().getCollabName());
             Mockito.verify(collabJoinRepositoryMock).findCollabJoin(Mockito.any(), Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }

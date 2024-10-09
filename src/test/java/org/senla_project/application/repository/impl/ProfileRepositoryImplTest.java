@@ -80,7 +80,7 @@ class ProfileRepositoryImplTest {
     void findProfileByNickname() {
         Profile expectedProfile = TestData.getProfile();
         profileRepository.create(expectedProfile);
-        Profile actual = profileRepository.findProfileByNickname(expectedProfile.getUser().getNickname()).get();
+        Profile actual = profileRepository.findProfileByNickname(expectedProfile.getUser().getUsername()).get();
         Assertions.assertEquals(expectedProfile, actual);
     }
 }

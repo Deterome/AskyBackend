@@ -37,7 +37,7 @@ class QuestionControllerTest {
     @Autowired
     QuestionController questionController;
     @Autowired
-    UserController userController;
+    AuthController authController;
 
     MockMvc mockMvc;
 
@@ -53,7 +53,7 @@ class QuestionControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         questionController.addElement(TestData.getQuestionCreateDto());
         mockMvc.perform(get("/questions/all")
                         .accept(MediaType.APPLICATION_JSON))
@@ -70,7 +70,7 @@ class QuestionControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
         QuestionResponseDto createdQuestion = questionController.addElement(questionCreateDto);
         mockMvc.perform(get("/questions/{id}", createdQuestion.getQuestionId())
@@ -83,7 +83,7 @@ class QuestionControllerTest {
 
     @Test
     void addElement() throws Exception {
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
         mockMvc.perform(post("/questions/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -100,7 +100,7 @@ class QuestionControllerTest {
 
     @Test
     void updateElement() throws Exception {
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
         mockMvc.perform(put("/questions/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -134,7 +134,7 @@ class QuestionControllerTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
         QuestionResponseDto questionResponseDto = questionController.addElement(questionCreateDto);
         mockMvc.perform(delete("/questions/delete/{id}", questionResponseDto.getQuestionId())
@@ -152,7 +152,7 @@ class QuestionControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
         questionController.addElement(questionCreateDto);
         mockMvc.perform(get("/questions?header={header}&body={body}&author={author}", questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName())

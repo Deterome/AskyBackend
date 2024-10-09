@@ -1,8 +1,5 @@
 package org.senla_project.application.mapper;
 
-
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -27,12 +24,12 @@ public abstract class ProfileMapper {
     }
     @Mappings({
         @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-        @Mapping(target = "userName", expression = "java(entity.getUser().getNickname())")
+        @Mapping(target = "userName", expression = "java(entity.getUser().getUsername())")
     })
     public abstract ProfileCreateDto toCreateDto(Profile entity);
     @Mappings({
         @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-        @Mapping(target = "userName", expression = "java(entity.getUser().getNickname())")
+        @Mapping(target = "userName", expression = "java(entity.getUser().getUsername())")
     })
     public abstract ProfileResponseDto toResponseDto(Profile entity);
     public abstract List<Profile> toEntityList(List<ProfileResponseDto> dtoList);

@@ -79,7 +79,7 @@ class QuestionRepositoryImplTest {
         questionRepository.create(expectedQuestion);
         Question actual = questionRepository.findQuestion(expectedQuestion.getHeader(),
                 expectedQuestion.getBody(),
-                expectedQuestion.getAuthor().getNickname()).get();
+                expectedQuestion.getAuthor().getUsername()).get();
         Assertions.assertEquals(expectedQuestion, actual);
     }
 }

@@ -22,7 +22,7 @@ public class AnswerController implements ControllerInterface<UUID, AnswerCreateD
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<AnswerResponseDto> getAllElements() {
-        return service.getAllElements();
+        return service.findAllElements();
     }
 
     @Override

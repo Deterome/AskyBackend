@@ -25,7 +25,7 @@ public class CollaborationsJoiningRepositoryImpl extends AbstractDao<UUID, Colla
         Join<CollaborationsJoining, User> userJoin = root.join(CollaborationsJoining_.user, JoinType.LEFT);
         Join<CollaborationsJoining, Collaboration> collabJoin = root.join(CollaborationsJoining_.collab, JoinType.LEFT);
 
-        Predicate equalsUsername = builder.equal(userJoin.get(User_.nickname), username);
+        Predicate equalsUsername = builder.equal(userJoin.get(User_.username), username);
         Predicate equalsCollabName = builder.equal(collabJoin.get(Collaboration_.collabName), collabName);
 
         query.select(root).where(builder.and(equalsUsername, equalsCollabName));

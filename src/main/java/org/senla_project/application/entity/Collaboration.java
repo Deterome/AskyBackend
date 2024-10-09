@@ -24,6 +24,8 @@ public class Collaboration {
     LocalDate createTime;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "collab", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     Set<CollaborationsJoining> users;
 
 }

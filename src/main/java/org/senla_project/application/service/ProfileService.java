@@ -3,6 +3,8 @@ package org.senla_project.application.service;
 import lombok.NonNull;
 import org.senla_project.application.dto.ProfileCreateDto;
 import org.senla_project.application.dto.ProfileResponseDto;
+import org.senla_project.application.entity.Profile;
+import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.ProfileRepository;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.mapper.ProfileMapper;
@@ -22,20 +24,26 @@ public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, 
     @Autowired
     private ProfileRepository profileRepository;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private ProfileMapper profileMapper;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserMapper userMapper;
 
     @Transactional
     @Override
     public ProfileResponseDto addElement(@NonNull ProfileCreateDto element) {
-        return profileMapper.toResponseDto(profileRepository.create(profileMapper.toEntity(element)));
+        return profileMapper.toResponseDto(profileRepository.create(
+                addDependenciesProfile(profileMapper.toEntity(element))
+        ));
     }
 
     @Transactional
     @Override
     public ProfileResponseDto updateElement(@NonNull UUID id, @NonNull ProfileCreateDto updatedElement) {
-        return profileMapper.toResponseDto(profileRepository.update(profileMapper.toEntity(id, updatedElement)));
+        return profileMapper.toResponseDto(profileRepository.update(
+                addDependenciesProfile(profileMapper.toEntity(id, updatedElement))
+        ));
     }
 
     @Transactional
@@ -46,7 +54,7 @@ public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, 
 
     @Transactional(readOnly = true)
     @Override
-    public List<ProfileResponseDto> getAllElements() throws EntityNotFoundException {
+    public List<ProfileResponseDto> findAllElements() throws EntityNotFoundException {
         var elements = profileMapper.toDtoList(profileRepository.findAll());
         if (elements.isEmpty()) throw new EntityNotFoundException("Profiles not found");
         return elements;
@@ -65,4 +73,12 @@ public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, 
                 .map(profileMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Profile not found"));
     }
 
+    @Transactional(readOnly = true)
+    public Profile addDependenciesProfile(Profile profile) {
+        profile.setUser(userMapper.toUser(
+                userService.findUserByUsername(profile.getUser().getUsername())
+        ));
+
+        return profile;
+    }
 }
