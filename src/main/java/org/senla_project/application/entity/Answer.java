@@ -18,14 +18,16 @@ public class Answer {
 
     String body;
 
-    @EqualsAndHashCode.Exclude
     @JoinColumn(name = "author")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     User author;
 
-    @EqualsAndHashCode.Exclude
     @JoinColumn(name = "question_id")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     Question question;
 
     int usefulness;

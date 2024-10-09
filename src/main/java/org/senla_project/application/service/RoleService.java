@@ -6,11 +6,9 @@ import org.senla_project.application.dto.RoleResponseDto;
 import org.senla_project.application.repository.RoleRepository;
 import org.senla_project.application.mapper.RoleMapper;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.senla_project.application.util.exception.InvalidRequestParametersException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,13 +24,13 @@ public class RoleService implements ServiceInterface<UUID, RoleCreateDto, RoleRe
     @Transactional
     @Override
     public RoleResponseDto addElement(@NonNull RoleCreateDto element) {
-        return roleMapper.toResponseDto(roleRepository.create(roleMapper.toEntity(element)));
+        return roleMapper.toRoleResponseDto(roleRepository.create(roleMapper.toRole(element)));
     }
 
     @Transactional
     @Override
     public RoleResponseDto updateElement(@NonNull UUID id, @NonNull RoleCreateDto updatedElement) {
-        return roleMapper.toResponseDto(roleRepository.update(roleMapper.toEntity(id, updatedElement)));
+        return roleMapper.toRoleResponseDto(roleRepository.update(roleMapper.toRole(id, updatedElement)));
     }
 
     @Transactional
@@ -43,8 +41,8 @@ public class RoleService implements ServiceInterface<UUID, RoleCreateDto, RoleRe
 
     @Transactional(readOnly = true)
     @Override
-    public List<RoleResponseDto> getAllElements() throws EntityNotFoundException {
-        var elements = roleMapper.toDtoList(roleRepository.findAll());
+    public List<RoleResponseDto> findAllElements() throws EntityNotFoundException {
+        var elements = roleMapper.toRoleDtoList(roleRepository.findAll());
         if (elements.isEmpty()) throw new EntityNotFoundException("Roles not found");
         return elements;
     }
@@ -53,14 +51,14 @@ public class RoleService implements ServiceInterface<UUID, RoleCreateDto, RoleRe
     @Override
     public RoleResponseDto findElementById(@NonNull UUID id) throws EntityNotFoundException {
         return roleRepository.findById(id)
-                .map(roleMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Role not found"));
+                .map(roleMapper::toRoleResponseDto).orElseThrow(() -> new EntityNotFoundException("Role not found"));
     }
 
     @Transactional(readOnly = true)
     public RoleResponseDto findRoleByName(String roleName) throws EntityNotFoundException {
         return roleRepository
                 .findRoleByName(roleName)
-                .map(roleMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Role not found"));
+                .map(roleMapper::toRoleResponseDto).orElseThrow(() -> new EntityNotFoundException("Role not found"));
     }
 
 }

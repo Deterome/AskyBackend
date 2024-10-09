@@ -77,7 +77,7 @@ class CollaborationsJoiningRepositoryImplTest {
     void findCollabJoin() {
         CollaborationsJoining expectedCollaborationsJoining = TestData.getCollabJoining();
         collabJoiningRepository.create(expectedCollaborationsJoining);
-        CollaborationsJoining actual = collabJoiningRepository.findCollabJoin(expectedCollaborationsJoining.getUser().getNickname(),
+        CollaborationsJoining actual = collabJoiningRepository.findCollabJoin(expectedCollaborationsJoining.getUser().getUsername(),
                 expectedCollaborationsJoining.getCollab().getCollabName()).get();
         Assertions.assertEquals(expectedCollaborationsJoining, actual);
     }

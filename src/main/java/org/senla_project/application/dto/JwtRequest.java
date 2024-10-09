@@ -5,13 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
-public class UserResponseDto {
+public class JwtRequest {
 
-    private String userId;
     private String username;
-    private List<String> roles;
+    private String password;
 
 }

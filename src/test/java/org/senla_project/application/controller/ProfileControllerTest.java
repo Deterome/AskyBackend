@@ -37,7 +37,7 @@ class ProfileControllerTest {
     @Autowired
     ProfileController profileController;
     @Autowired
-    UserController userController;
+    AuthController authController;
 
     MockMvc mockMvc;
 
@@ -53,7 +53,7 @@ class ProfileControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         profileController.addElement(TestData.getProfileCreateDto());
         mockMvc.perform(get("/profiles/all")
                         .accept(MediaType.APPLICATION_JSON))
@@ -70,7 +70,7 @@ class ProfileControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         ProfileResponseDto createdProfile = profileController.addElement(profileCreateDto);
         mockMvc.perform(get("/profiles/{id}", createdProfile.getProfileId())
@@ -83,7 +83,7 @@ class ProfileControllerTest {
 
     @Test
     void addElement() throws Exception {
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         mockMvc.perform(post("/profiles/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -98,7 +98,7 @@ class ProfileControllerTest {
 
     @Test
     void updateElement() throws Exception {
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         mockMvc.perform(put("/profiles/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -128,7 +128,7 @@ class ProfileControllerTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         ProfileResponseDto profileResponseDto = profileController.addElement(profileCreateDto);
         mockMvc.perform(delete("/profiles/delete/{id}", profileResponseDto.getProfileId())
@@ -145,7 +145,7 @@ class ProfileControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         profileController.addElement(profileCreateDto);
         mockMvc.perform(get("/profiles?username={name}", profileCreateDto.getUserName())

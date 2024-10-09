@@ -22,7 +22,7 @@ public class ProfileController implements ControllerInterface<UUID, ProfileCreat
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<ProfileResponseDto> getAllElements() {
-        return service.getAllElements();
+        return service.findAllElements();
     }
 
     @Override

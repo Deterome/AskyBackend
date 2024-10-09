@@ -23,9 +23,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,7 +39,7 @@ class AnswerControllerTest {
     @Autowired
     QuestionController questionController;
     @Autowired
-    UserController userController;
+    AuthController authController;
 
     MockMvc mockMvc;
 
@@ -57,7 +55,7 @@ class AnswerControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
         answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
@@ -77,7 +75,7 @@ class AnswerControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
         answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
@@ -92,7 +90,7 @@ class AnswerControllerTest {
 
     @Test
     void addElement() throws Exception {
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
         answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
@@ -113,7 +111,7 @@ class AnswerControllerTest {
 
     @Test
     void updateElement() throws Exception {
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
         answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
@@ -154,7 +152,7 @@ class AnswerControllerTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
         answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));
@@ -173,7 +171,7 @@ class AnswerControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        userController.addElement(TestData.getUserCreateDto());
+        authController.createNewUser(TestData.getUserCreateDto());
         QuestionResponseDto questionResponseDto = questionController.addElement(TestData.getQuestionCreateDto());
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
         answerCreateDto.setQuestionId(UUID.fromString(questionResponseDto.getQuestionId()));

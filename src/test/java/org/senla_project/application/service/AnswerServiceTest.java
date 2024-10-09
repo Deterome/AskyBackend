@@ -48,9 +48,9 @@ class AnswerServiceTest {
     }
 
     @Test
-    void getAllElements() {
+    void findAllElements() {
         try {
-            answerServiceMock.getAllElements();
+            answerServiceMock.findAllElements();
             Mockito.verify(answerRepositoryMock).findAll();
         } catch (EntityNotFoundException ignored) {}
     }
@@ -67,7 +67,7 @@ class AnswerServiceTest {
     void findAnswerByParams() {
         try {
             Answer answer = TestData.getAnswer();
-            answerServiceMock.findAnswerByParams(answer.getAuthor().getNickname(), UUID.randomUUID(), answer.getBody());
+            answerServiceMock.findAnswerByParams(answer.getAuthor().getUsername(), UUID.randomUUID(), answer.getBody());
             Mockito.verify(answerRepositoryMock).findAnswer(Mockito.any(), Mockito.any(), Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }

@@ -34,4 +34,20 @@ public class RestExceptionHandler {
                 .status(HttpStatus.PRECONDITION_FAILED)
                 .body(exception.getMessage());
     }
+
+    @ExceptionHandler({AuthenticationException.class})
+    public ResponseEntity<?> onAuthenticationException(AuthenticationException exception) {
+        log.error(exception.getMessage(), exception);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({RegistrationException.class})
+    public ResponseEntity<?> onRegistrationException(RegistrationException exception) {
+        log.error(exception.getMessage(), exception);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(exception.getMessage());
+    }
 }

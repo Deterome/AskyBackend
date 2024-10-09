@@ -48,9 +48,9 @@ class QuestionServiceTest {
     }
 
     @Test
-    void getAllElements() {
+    void findAllElements() {
         try {
-            questionServiceMock.getAllElements();
+            questionServiceMock.findAllElements();
             Mockito.verify(questionRepositoryMock).findAll();
         } catch (EntityNotFoundException ignored) {}
     }
@@ -67,7 +67,7 @@ class QuestionServiceTest {
     void findQuestionByParams() {
         try {
             Question question = TestData.getQuestion();
-            questionServiceMock.findQuestionByParams(question.getHeader(), question.getBody(), question.getAuthor().getNickname());
+            questionServiceMock.findQuestionByParams(question.getHeader(), question.getBody(), question.getAuthor().getUsername());
             Mockito.verify(questionRepositoryMock).findQuestion(Mockito.any(), Mockito.any(), Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }

@@ -22,7 +22,7 @@ public class CollaborationController implements ControllerInterface<UUID, Collab
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<CollaborationResponseDto> getAllElements() {
-        return service.getAllElements();
+        return service.findAllElements();
     }
 
     @Override

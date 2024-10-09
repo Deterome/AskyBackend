@@ -48,9 +48,9 @@ class CollaborationServiceTest {
     }
 
     @Test
-    void getAllElements() {
+    void findAllElements() {
         try {
-            collabServiceMock.getAllElements();
+            collabServiceMock.findAllElements();
             Mockito.verify(collabRepositoryMock).findAll();
         } catch (EntityNotFoundException ignored) {}
     }

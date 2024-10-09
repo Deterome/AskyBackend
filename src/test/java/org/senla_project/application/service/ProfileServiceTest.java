@@ -48,9 +48,9 @@ class ProfileServiceTest {
     }
 
     @Test
-    void getAllElements() {
+    void findAllElements() {
         try {
-            profileServiceMock.getAllElements();
+            profileServiceMock.findAllElements();
             Mockito.verify(profileRepositoryMock).findAll();
         } catch (EntityNotFoundException ignored) {}
     }
@@ -67,7 +67,7 @@ class ProfileServiceTest {
     void findProfileByUsername() {
         try {
             Profile profile = TestData.getProfile();
-            profileServiceMock.findProfileByUsername(profile.getUser().getNickname());
+            profileServiceMock.findProfileByUsername(profile.getUser().getUsername());
             Mockito.verify(profileRepositoryMock).findProfileByNickname(Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }

@@ -1,6 +1,10 @@
 package org.senla_project.application.repository.impl;
 
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.senla_project.application.entity.*;
 import org.senla_project.application.repository.AbstractDao;
 import org.senla_project.application.repository.RoleRepository;

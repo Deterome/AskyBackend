@@ -1,6 +1,5 @@
 package org.senla_project.application.mapper;
 
-import lombok.AllArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -27,13 +26,13 @@ public abstract class AnswerMapper {
     }
     @Mappings({
             @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-            @Mapping(target = "authorName", expression = "java(entity.getAuthor().getNickname())"),
+            @Mapping(target = "authorName", expression = "java(entity.getAuthor().getUsername())"),
             @Mapping(target = "questionId", expression = "java(entity.getQuestion().getQuestionId())")
     })
     public abstract AnswerCreateDto toCreateDto(Answer entity);
     @Mappings({
             @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-            @Mapping(target = "authorName", expression = "java(entity.getAuthor().getNickname())"),
+            @Mapping(target = "authorName", expression = "java(entity.getAuthor().getUsername())"),
             @Mapping(target = "questionId", expression = "java(entity.getQuestion().getQuestionId())")
     })
     public abstract AnswerResponseDto toResponseDto(Answer entity);

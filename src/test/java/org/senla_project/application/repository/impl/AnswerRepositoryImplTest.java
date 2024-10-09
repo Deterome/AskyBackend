@@ -77,7 +77,7 @@ class AnswerRepositoryImplTest {
     void findAnswer() {
         Answer expectedAnswer = TestData.getAnswer();
         answerRepository.create(expectedAnswer);
-        Answer actual = answerRepository.findAnswer(expectedAnswer.getAuthor().getNickname(),
+        Answer actual = answerRepository.findAnswer(expectedAnswer.getAuthor().getUsername(),
                 expectedAnswer.getQuestion().getQuestionId(),
                 expectedAnswer.getBody()).get();
         Assertions.assertEquals(expectedAnswer, actual);
