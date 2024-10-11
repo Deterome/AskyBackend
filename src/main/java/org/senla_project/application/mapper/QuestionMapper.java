@@ -18,7 +18,6 @@ public abstract class QuestionMapper {
                 .questionId(id)
                 .build();
     }
-
     @Mappings({
         @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
         @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"}),

@@ -16,7 +16,11 @@ import java.util.UUID;
 public abstract class CollaborationMapper {
 
     @Named("toCollabFromName")
-    public abstract Collaboration toCollabFromName(String collabName);
+    public Collaboration toCollabFromName(String collabName) {
+        return Collaboration.builder()
+                .collabName(collabName)
+                .build();
+    }
 
     @Mappings({
             @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),

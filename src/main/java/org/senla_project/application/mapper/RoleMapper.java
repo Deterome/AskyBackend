@@ -17,8 +17,11 @@ import java.util.stream.Collectors;
 public abstract class RoleMapper {
 
     @Named("toRoleEntityFromName")
-    public abstract Role toRoleEntityFromRoleName(String roleName);
-
+    public Role toRoleEntityFromRoleName(String roleName) {
+        return Role.builder()
+                .roleName(roleName)
+                .build();
+    }
     @Mapping(source = "id", target = "roleId")
     public abstract Role toRole(UUID id, RoleCreateDto dto);
     public Role toRole(RoleCreateDto dto) {
