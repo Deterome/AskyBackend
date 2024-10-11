@@ -3,6 +3,7 @@ package org.senla_project.application.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -42,7 +43,7 @@ public class User {
     @EqualsAndHashCode.Exclude
     Set<CollaborationsJoining> collaborationsJoining;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),

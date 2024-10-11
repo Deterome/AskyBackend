@@ -13,7 +13,11 @@ import java.util.UUID;
 public abstract class QuestionMapper {
 
     @Named("toQuestionFromId")
-    public abstract Question toQuestionFromId(UUID id);
+    public Question toQuestionFromId(UUID id) {
+        return Question.builder()
+                .questionId(id)
+                .build();
+    }
 
     @Mappings({
         @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
@@ -24,6 +28,10 @@ public abstract class QuestionMapper {
     public Question toQuestion(QuestionCreateDto dto) {
         return toQuestion(null, dto);
     }
+    @Mappings({
+            @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
+            @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"}),
+    })
     public abstract Question toQuestion(QuestionResponseDto dto);
     @Mappings({
         @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),

@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/profiles")
-public class ProfileController implements ControllerInterface<UUID, ProfileCreateDto, ProfileResponseDto> {
+public class ProfileController implements DefaultControllerInterface<UUID, ProfileCreateDto, ProfileResponseDto> {
 
     @Autowired
     private ProfileService service;

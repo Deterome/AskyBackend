@@ -11,10 +11,10 @@
     
     <changeSet id="create-users_roles-relation" author="Rodion Vorobev">
         <insert tableName="roles">
-            <column name="role_name" value="user"/>
+            <column name="role_name" value="USER"/>
         </insert>
         <insert tableName="roles">
-            <column name="role_name" value="admin"/>
+            <column name="role_name" value="ADMIN"/>
         </insert>
     </changeSet>
     

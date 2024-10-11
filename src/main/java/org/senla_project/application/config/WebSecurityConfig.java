@@ -1,14 +1,13 @@
 package org.senla_project.application.config;
 
 import org.senla_project.application.service.UserService;
+import org.senla_project.application.util.enums.RolesEnum;
 import org.senla_project.application.util.securityUtil.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,6 +40,11 @@ public class WebSecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/answers/**").hasAuthority(RolesEnum.USER.toString())
+                        .requestMatchers("/questions/**").hasAuthority(RolesEnum.USER.toString())
+                        .requestMatchers("/collabs/**").hasAuthority(RolesEnum.USER.toString())
+                        .requestMatchers("/profiles/**").hasAuthority(RolesEnum.USER.toString())
+                        .requestMatchers("/**").hasAuthority(RolesEnum.ADMIN.toString())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
@@ -48,8 +52,6 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-//                .formLogin(withDefaults())
-//                .httpBasic(withDefaults());
         return http.build();
     }
 

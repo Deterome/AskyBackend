@@ -23,7 +23,7 @@ public class Collaboration {
     @Column(name = "create_time")
     LocalDate createTime;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "collab", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "collab", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     Set<CollaborationsJoining> users;

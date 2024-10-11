@@ -15,24 +15,24 @@ import java.util.UUID;
 public abstract class ProfileMapper {
     @Mappings({
         @Mapping(source = "dto.birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-        @Mapping(source = "dto.userName", target = "user", qualifiedByName = {"UserMapper", "toUserFromName"}),
+        @Mapping(source = "dto.username", target = "user", qualifiedByName = {"UserMapper", "toUserFromName"}),
         @Mapping(source = "id", target = "profileId")
     })
-    public abstract Profile toEntity(UUID id, ProfileCreateDto dto);
-    public Profile toEntity(ProfileCreateDto dto) {
-        return toEntity(null, dto);
+    public abstract Profile toProfile(UUID id, ProfileCreateDto dto);
+    public Profile toProfile(ProfileCreateDto dto) {
+        return toProfile(null, dto);
     }
     @Mappings({
         @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-        @Mapping(target = "userName", expression = "java(entity.getUser().getUsername())")
+        @Mapping(target = "username", expression = "java(entity.getUser().getUsername())")
     })
-    public abstract ProfileCreateDto toCreateDto(Profile entity);
+    public abstract ProfileCreateDto toProfileCreateDto(Profile entity);
     @Mappings({
         @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-        @Mapping(target = "userName", expression = "java(entity.getUser().getUsername())")
+        @Mapping(target = "username", expression = "java(entity.getUser().getUsername())")
     })
-    public abstract ProfileResponseDto toResponseDto(Profile entity);
-    public abstract List<Profile> toEntityList(List<ProfileResponseDto> dtoList);
-    public abstract List<ProfileResponseDto> toDtoList(List<Profile> entityList);
+    public abstract ProfileResponseDto toProfileResponseDto(Profile entity);
+    public abstract List<Profile> toProfileList(List<ProfileResponseDto> dtoList);
+    public abstract List<ProfileResponseDto> toProfileDtoList(List<Profile> entityList);
 
 }

@@ -4,7 +4,7 @@ import lombok.NonNull;
 
 import java.util.List;
 
-public interface ControllerInterface<K, T, R> {
+public interface DefaultControllerInterface<K, T, R> {
     List<R> getAllElements();
     R getElementById(K id);
     R addElement(@NonNull T element);

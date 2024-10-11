@@ -16,13 +16,13 @@ public class CollaborationsJoining {
     @GeneratedValue
     UUID joinId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "collab_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     Collaboration collab;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

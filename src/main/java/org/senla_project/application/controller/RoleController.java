@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/roles")
-public class RoleController implements ControllerInterface<UUID, RoleCreateDto, RoleResponseDto> {
+public class RoleController implements DefaultControllerInterface<UUID, RoleCreateDto, RoleResponseDto> {
 
     @Autowired
     private RoleService service;
@@ -55,7 +55,7 @@ public class RoleController implements ControllerInterface<UUID, RoleCreateDto, 
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public RoleResponseDto findRoleByName(@NonNull @RequestParam(name = "role_name", required = false) String roleName) {
+    public RoleResponseDto findRoleByName(@NonNull @RequestParam(name = "role_name") String roleName) {
         return service.findRoleByName(roleName);
     }
 }

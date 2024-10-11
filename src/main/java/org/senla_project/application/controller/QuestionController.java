@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/questions")
-public class QuestionController implements ControllerInterface<UUID, QuestionCreateDto, QuestionResponseDto> {
+public class QuestionController implements DefaultControllerInterface<UUID, QuestionCreateDto, QuestionResponseDto> {
 
     @Autowired
     private QuestionService service;

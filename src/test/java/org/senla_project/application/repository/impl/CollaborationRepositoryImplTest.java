@@ -9,7 +9,6 @@ import org.senla_project.application.entity.Collaboration;
 import org.senla_project.application.repository.CollaborationRepository;
 import org.senla_project.application.util.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +17,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@SpringJUnitWebConfig({DataSourceConfigTest.class, HibernateConfigTest.class, CollaborationRepositoryImpl.class})
+@SpringJUnitWebConfig({
+        DataSourceConfigTest.class,
+        HibernateConfigTest.class,
+        CollaborationRepositoryImpl.class
+})
 @Transactional
 class CollaborationRepositoryImplTest {
 

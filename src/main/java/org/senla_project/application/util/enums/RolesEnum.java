@@ -2,8 +2,8 @@ package org.senla_project.application.util.enums;
 
 public enum RolesEnum {
 
-    USER("user"),
-    ADMIN("admin");
+    USER("USER"),
+    ADMIN("ADMIN");
 
     final String roleName;
 

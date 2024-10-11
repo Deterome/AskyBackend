@@ -8,5 +8,5 @@ import java.util.UUID;
 
 @Component
 public interface ProfileRepository extends DefaultDao<UUID, Profile> {
-    Optional<Profile> findProfileByNickname(String nickname);
+    Optional<Profile> findProfileByUsername(String username);
 }

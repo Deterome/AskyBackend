@@ -6,14 +6,11 @@ import org.senla_project.application.dto.ProfileResponseDto;
 import org.senla_project.application.entity.Profile;
 import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.ProfileRepository;
-import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.mapper.ProfileMapper;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.senla_project.application.util.exception.InvalidRequestParametersException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,16 +30,16 @@ public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, 
     @Transactional
     @Override
     public ProfileResponseDto addElement(@NonNull ProfileCreateDto element) {
-        return profileMapper.toResponseDto(profileRepository.create(
-                addDependenciesProfile(profileMapper.toEntity(element))
+        return profileMapper.toProfileResponseDto(profileRepository.create(
+                addDependenciesProfile(profileMapper.toProfile(element))
         ));
     }
 
     @Transactional
     @Override
     public ProfileResponseDto updateElement(@NonNull UUID id, @NonNull ProfileCreateDto updatedElement) {
-        return profileMapper.toResponseDto(profileRepository.update(
-                addDependenciesProfile(profileMapper.toEntity(id, updatedElement))
+        return profileMapper.toProfileResponseDto(profileRepository.update(
+                addDependenciesProfile(profileMapper.toProfile(id, updatedElement))
         ));
     }
 
@@ -55,7 +52,7 @@ public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, 
     @Transactional(readOnly = true)
     @Override
     public List<ProfileResponseDto> findAllElements() throws EntityNotFoundException {
-        var elements = profileMapper.toDtoList(profileRepository.findAll());
+        var elements = profileMapper.toProfileDtoList(profileRepository.findAll());
         if (elements.isEmpty()) throw new EntityNotFoundException("Profiles not found");
         return elements;
     }
@@ -64,13 +61,13 @@ public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, 
     @Override
     public ProfileResponseDto findElementById(@NonNull UUID id) throws EntityNotFoundException {
         return profileRepository.findById(id)
-                .map(profileMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Profile not found"));
+                .map(profileMapper::toProfileResponseDto).orElseThrow(() -> new EntityNotFoundException("Profile not found"));
     }
 
     @Transactional(readOnly = true)
     public ProfileResponseDto findProfileByUsername(String nickname) throws EntityNotFoundException {
-        return profileRepository.findProfileByNickname(nickname)
-                .map(profileMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Profile not found"));
+        return profileRepository.findProfileByUsername(nickname)
+                .map(profileMapper::toProfileResponseDto).orElseThrow(() -> new EntityNotFoundException("Profile not found"));
     }
 
     @Transactional(readOnly = true)

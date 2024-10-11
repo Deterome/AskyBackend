@@ -3,6 +3,7 @@ package org.senla_project.application.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,5 +23,6 @@ public class Role {
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    Set<User> users;
+    @Builder.Default
+    Set<User> users = new HashSet<>();
 }

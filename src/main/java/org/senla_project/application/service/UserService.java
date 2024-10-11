@@ -1,14 +1,13 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import org.senla_project.application.dto.UserCreateDto;
+import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.entity.Role;
 import org.senla_project.application.entity.User;
 import org.senla_project.application.mapper.RoleMapper;
-import org.senla_project.application.repository.UserRepository;
-import org.senla_project.application.dto.UserCreateDto;
-import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.mapper.UserMapper;
+import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.util.enums.RolesEnum;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
@@ -28,7 +26,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class UserService implements ServiceInterface<UUID, UserCreateDto, UserResponseDto>, UserDetailsService {
 
     @Autowired
@@ -51,7 +48,7 @@ public class UserService implements ServiceInterface<UUID, UserCreateDto, UserRe
     @Override
     public UserResponseDto addElement(@NonNull UserCreateDto element) {
         User user = userMapper.toUser(element);
-        user.setRoles(getDefaultRolesSet());
+        user.getRoles().addAll(getDefaultRolesSet());
         user.setPassword(passwordEncoder.encode(element.getPassword()));
         return userMapper.toUserResponseDto(userRepository.create(
                 addDependenciesToUser(user)
@@ -102,13 +99,8 @@ public class UserService implements ServiceInterface<UUID, UserCreateDto, UserRe
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.debug(username);
-        log.debug("finding user");
         User user = userRepository.findUserByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        log.debug(user.toString());
-        log.debug(user.getRoles().toString());
-        log.debug("returning user details");
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
@@ -127,7 +119,6 @@ public class UserService implements ServiceInterface<UUID, UserCreateDto, UserRe
             ));
         }
         user.setRoles(roleSet);
-        log.debug(user.getRoles().toString());
         return user;
     }
 

@@ -23,7 +23,7 @@ public class Profile {
     UUID profileId;
 
     @JoinColumn(name = "user_id")
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     User user;

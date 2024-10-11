@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class ProfileCreateDto {
 
-    private String userName;
+    private String username;
     private String bio;
     private String firstname;
     private String surname;

@@ -35,16 +35,16 @@ public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, An
     @Transactional
     @Override
     public AnswerResponseDto addElement(@NonNull AnswerCreateDto element) {
-        return answerMapper.toResponseDto(answerRepository.create(
-                addDependenciesToAnswer(answerMapper.toEntity(element))
+        return answerMapper.toAnswerResponseDto(answerRepository.create(
+                addDependenciesToAnswer(answerMapper.toAnswer(element))
         ));
     }
 
     @Transactional
     @Override
     public AnswerResponseDto updateElement(@NonNull UUID id, @NonNull AnswerCreateDto updatedElement) {
-        return answerMapper.toResponseDto(answerRepository.update(
-                addDependenciesToAnswer(answerMapper.toEntity(id, updatedElement))
+        return answerMapper.toAnswerResponseDto(answerRepository.update(
+                addDependenciesToAnswer(answerMapper.toAnswer(id, updatedElement))
         ));
     }
 
@@ -57,7 +57,7 @@ public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, An
     @Transactional(readOnly = true)
     @Override
     public List<AnswerResponseDto> findAllElements() throws EntityNotFoundException {
-        var elements = answerMapper.toDtoList(answerRepository.findAll());
+        var elements = answerMapper.toAnswerDtoList(answerRepository.findAll());
         if (elements.isEmpty()) throw new EntityNotFoundException("Answers not found");
         return elements;
     }
@@ -66,13 +66,13 @@ public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, An
     @Override
     public AnswerResponseDto findElementById(@NonNull UUID id) throws EntityNotFoundException {
         return answerRepository.findById(id)
-                .map(answerMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Answer not found"));
+                .map(answerMapper::toAnswerResponseDto).orElseThrow(() -> new EntityNotFoundException("Answer not found"));
     }
 
     @Transactional(readOnly = true)
     public AnswerResponseDto findAnswerByParams(@NonNull String authorName, @NonNull UUID questionId, @NonNull String body) throws EntityNotFoundException {
         return answerRepository.findAnswer(authorName, questionId, body)
-                .map(answerMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Answer not found"));
+                .map(answerMapper::toAnswerResponseDto).orElseThrow(() -> new EntityNotFoundException("Answer not found"));
     }
 
     @Transactional(readOnly = true)
@@ -81,10 +81,8 @@ public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, An
                 userService.findUserByUsername(answer.getAuthor().getUsername())
         ));
         answer.setQuestion(questionMapper.toQuestion(
-                questionService.findQuestionByParams(
-                        answer.getQuestion().getHeader(),
-                        answer.getQuestion().getBody(),
-                        answer.getQuestion().getAuthor().getUsername()
+                questionService.findElementById(
+                        answer.getQuestion().getQuestionId()
                     )
         ));
 
