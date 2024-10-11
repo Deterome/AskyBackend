@@ -20,24 +20,24 @@ public abstract class AnswerMapper {
         @Mapping(source = "dto.questionId", target = "question", qualifiedByName = {"QuestionMapper", "toQuestionFromId"}),
         @Mapping(source = "id", target = "answerId")
     })
-    public abstract Answer toEntity(UUID id, AnswerCreateDto dto);
-    public Answer toEntity(AnswerCreateDto dto) {
-        return toEntity(null, dto);
+    public abstract Answer toAnswer(UUID id, AnswerCreateDto dto);
+    public Answer toAnswer(AnswerCreateDto dto) {
+        return toAnswer(null, dto);
     }
     @Mappings({
             @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
             @Mapping(target = "authorName", expression = "java(entity.getAuthor().getUsername())"),
             @Mapping(target = "questionId", expression = "java(entity.getQuestion().getQuestionId())")
     })
-    public abstract AnswerCreateDto toCreateDto(Answer entity);
+    public abstract AnswerCreateDto toAnswerCreateDto(Answer entity);
     @Mappings({
             @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
             @Mapping(target = "authorName", expression = "java(entity.getAuthor().getUsername())"),
             @Mapping(target = "questionId", expression = "java(entity.getQuestion().getQuestionId())")
     })
-    public abstract AnswerResponseDto toResponseDto(Answer entity);
-    public abstract List<Answer> toEntityList(List<AnswerResponseDto> dtoList);
-    public abstract List<AnswerResponseDto> toDtoList(List<Answer> entityList);
+    public abstract AnswerResponseDto toAnswerResponseDto(Answer entity);
+    public abstract List<Answer> toAnswerList(List<AnswerResponseDto> dtoList);
+    public abstract List<AnswerResponseDto> toAnswerDtoList(List<Answer> entityList);
 
 }
 

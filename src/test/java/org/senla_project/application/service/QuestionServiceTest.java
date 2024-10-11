@@ -8,8 +8,10 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.senla_project.application.dto.QuestionCreateDto;
+import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.entity.Question;
 import org.senla_project.application.mapper.QuestionMapper;
+import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.QuestionRepository;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
@@ -21,14 +23,20 @@ class QuestionServiceTest {
 
     @Mock
     QuestionRepository questionRepositoryMock;
+    @Mock
+    QuestionMapper questionMapperMock;
     @Spy
-    QuestionMapper questionMapperSpy;
+    UserMapper userMapper;
+    @Mock
+    UserService userService;
     @InjectMocks
     QuestionService questionServiceMock;
 
     @Test
     void addElement() {
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
+        Mockito.when(questionMapperMock.toQuestion(questionCreateDto)).thenReturn(TestData.getQuestion());
+        Mockito.when(userMapper.toUser((UserResponseDto) Mockito.any())).thenReturn(TestData.getAuthenticatedUser());
         questionServiceMock.addElement(questionCreateDto);
         Mockito.verify(questionRepositoryMock).create(Mockito.any());
     }
@@ -36,7 +44,10 @@ class QuestionServiceTest {
     @Test
     void updateElement() {
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        questionServiceMock.updateElement(UUID.randomUUID(), questionCreateDto);
+        UUID id = UUID.randomUUID();
+        Mockito.when(questionMapperMock.toQuestion(id, questionCreateDto)).thenReturn(TestData.getQuestion());
+        Mockito.when(userMapper.toUser((UserResponseDto) Mockito.any())).thenReturn(TestData.getAuthenticatedUser());
+        questionServiceMock.updateElement(id, questionCreateDto);
         Mockito.verify(questionRepositoryMock).update(Mockito.any());
     }
 

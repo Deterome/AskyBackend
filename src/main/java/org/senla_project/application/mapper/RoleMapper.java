@@ -1,6 +1,5 @@
 package org.senla_project.application.mapper;
 
-import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -8,12 +7,13 @@ import org.senla_project.application.dto.RoleCreateDto;
 import org.senla_project.application.dto.RoleResponseDto;
 import org.senla_project.application.entity.Role;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Named("RoleMapper")
-@Mapper(componentModel = "spring", uses = {UuidMapper.class})
-@Slf4j
+@Mapper(componentModel = "spring", uses = {UuidMapper.class, UserMapper.class})
 public abstract class RoleMapper {
 
     @Named("toRoleEntityFromName")
@@ -24,8 +24,10 @@ public abstract class RoleMapper {
     public Role toRole(RoleCreateDto dto) {
         return toRole(null, dto);
     }
+    @Mapping(source = "users", target = "users", qualifiedByName = {"UserMapper", "toUserSetFromStringList"})
     public abstract Role toRole(RoleResponseDto roleResponseDto);
     public abstract RoleCreateDto toRoleCreateDto(Role entity);
+    @Mapping(source = "users", target = "users", qualifiedByName = {"UserMapper", "toStringListFromUserSet"})
     public abstract RoleResponseDto toRoleResponseDto(Role entity);
     public abstract List<Role> toRoleList(List<RoleResponseDto> dtoList);
     public abstract List<RoleResponseDto> toRoleDtoList(List<Role> entityList);

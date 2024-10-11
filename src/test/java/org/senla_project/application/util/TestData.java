@@ -5,19 +5,24 @@ import org.senla_project.application.dto.*;
 import org.senla_project.application.entity.*;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
 
 @UtilityClass
 public class TestData {
 
+    public final String AUTHORIZED_USER_NAME = "Alex";
+    public final String USER_ROLE = "USER";
+    public final String ADMIN_ROLE = "ADMIN";
+
     public Role getRole() {
         return Role.builder()
-                .roleName("user")
+                .roleName(USER_ROLE)
                 .build();
     }
     public Role getUpdatedRole() {
         Role role = getRole();
-        role.setRoleName("client");
+        role.setRoleName(ADMIN_ROLE);
         return role;
     }
     public RoleCreateDto getRoleCreateDto() {
@@ -33,11 +38,20 @@ public class TestData {
                 .build();
     }
 
+    public User getAuthenticatedUser() {
+        User user = getUser();
+        user.setRoles(new HashSet<>(List.of(getRole())));
+        return user;
+    }
+    public User getUpdatedAuthenticatedUser() {
+        User user = getAuthenticatedUser();
+        user.setPassword("123456789");
+        return user;
+    }
     public User getUser() {
         return User.builder()
                 .username("Alex")
                 .password("1q2w3e")
-                .roles(Set.of(getRole()))
                 .build();
     }
     public User getUpdatedUser() {
@@ -53,7 +67,7 @@ public class TestData {
                 .build();
     }
     public UserCreateDto getUpdatedUserCreateDto() {
-        User updatedUser = getUpdatedUser();
+        User updatedUser = getUpdatedAuthenticatedUser();
         return UserCreateDto.builder()
                 .username(updatedUser.getUsername())
                 .password(updatedUser.getPassword())
@@ -79,7 +93,7 @@ public class TestData {
     public ProfileCreateDto getProfileCreateDto() {
         Profile profile = getProfile();
         return ProfileCreateDto.builder()
-                .userName(profile.getUser().getUsername())
+                .username(profile.getUser().getUsername())
                 .bio(profile.getBio())
                 .avatarUrl(profile.getAvatarUrl())
                 .firstname(profile.getFirstname())
@@ -90,7 +104,7 @@ public class TestData {
     public ProfileCreateDto getUpdatedProfileCreateDto() {
         Profile updatedProfile = getUpdatedProfile();
         return ProfileCreateDto.builder()
-                .userName(updatedProfile.getUser().getUsername())
+                .username(updatedProfile.getUser().getUsername())
                 .bio(updatedProfile.getBio())
                 .avatarUrl(updatedProfile.getAvatarUrl())
                 .firstname(updatedProfile.getFirstname())

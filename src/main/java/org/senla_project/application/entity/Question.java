@@ -22,7 +22,7 @@ public class Question {
     String body;
 
     @JoinColumn(name = "author")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     User author;

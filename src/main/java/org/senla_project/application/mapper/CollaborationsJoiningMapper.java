@@ -20,22 +20,22 @@ public abstract class CollaborationsJoiningMapper {
         @Mapping(source = "dto.collabName", target = "collab", qualifiedByName = {"CollaborationMapper", "toCollabFromName"}),
         @Mapping(source = "id", target = "joinId")
     })
-    public abstract CollaborationsJoining toEntity(UUID id, CollaborationsJoiningCreateDto dto);
-    public CollaborationsJoining toEntity(CollaborationsJoiningCreateDto dto) {
-        return toEntity(null, dto);
+    public abstract CollaborationsJoining toCollabJoin(UUID id, CollaborationsJoiningCreateDto dto);
+    public CollaborationsJoining toCollabJoin(CollaborationsJoiningCreateDto dto) {
+        return toCollabJoin(null, dto);
     }
     @Mappings({
         @Mapping(source = "joinDate", target = "joinDate", dateFormat = "yyyy-MM-dd"),
         @Mapping(target = "userName", expression = "java(entity.getUser().getUsername())"),
         @Mapping(target = "collabName", expression = "java(entity.getCollab().getCollabName())")
     })
-    public abstract CollaborationsJoiningCreateDto toCreateDto(CollaborationsJoining entity);
+    public abstract CollaborationsJoiningCreateDto toCollabJoinCreateDto(CollaborationsJoining entity);
     @Mappings({
         @Mapping(source = "joinDate", target = "joinDate", dateFormat = "yyyy-MM-dd"),
         @Mapping(target = "userName", expression = "java(entity.getUser().getUsername())"),
         @Mapping(target = "collabName", expression = "java(entity.getCollab().getCollabName())")
     })
-    public abstract CollaborationsJoiningResponseDto toResponseDto(CollaborationsJoining entity);
-    public abstract List<CollaborationsJoining> toEntityList(List<CollaborationsJoiningResponseDto> dtoList);
-    public abstract List<CollaborationsJoiningResponseDto> toDtoList(List<CollaborationsJoining> entityList);
+    public abstract CollaborationsJoiningResponseDto toCollabJoinResponseDto(CollaborationsJoining entity);
+    public abstract List<CollaborationsJoining> toCollabJoinList(List<CollaborationsJoiningResponseDto> dtoList);
+    public abstract List<CollaborationsJoiningResponseDto> toCollabJoinDtoList(List<CollaborationsJoining> entityList);
 }

@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/collabs")
-public class CollaborationController implements ControllerInterface<UUID, CollaborationCreateDto, CollaborationResponseDto> {
+public class CollaborationController implements DefaultControllerInterface<UUID, CollaborationCreateDto, CollaborationResponseDto> {
 
     @Autowired
     private CollaborationService service;

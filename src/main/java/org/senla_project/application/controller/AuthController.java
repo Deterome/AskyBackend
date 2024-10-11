@@ -18,7 +18,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    public String createAuthToken(@NonNull @RequestBody JwtRequest authRequest) {
+    public String authorizeAndGetAuthToken(@NonNull @RequestBody JwtRequest authRequest) {
         return authService.createAuthToken(authRequest);
     }
 

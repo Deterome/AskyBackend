@@ -17,7 +17,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@SpringJUnitWebConfig({DataSourceConfigTest.class, HibernateConfigTest.class, RoleRepositoryImpl.class})
+@SpringJUnitWebConfig({
+        DataSourceConfigTest.class,
+        HibernateConfigTest.class,
+        RoleRepositoryImpl.class
+})
 @Transactional
 class RoleRepositoryImplTest {
 

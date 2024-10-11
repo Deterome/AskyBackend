@@ -7,9 +7,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.senla_project.application.dto.CollaborationResponseDto;
 import org.senla_project.application.dto.CollaborationsJoiningCreateDto;
+import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.entity.CollaborationsJoining;
+import org.senla_project.application.mapper.CollaborationMapper;
 import org.senla_project.application.mapper.CollaborationsJoiningMapper;
+import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.CollaborationsJoiningRepository;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
@@ -21,14 +25,25 @@ class CollaborationsJoiningServiceTest {
 
     @Mock
     CollaborationsJoiningRepository collabJoinRepositoryMock;
+    @Mock
+    CollaborationsJoiningMapper collabJoinMapperMock;
     @Spy
-    CollaborationsJoiningMapper collabJoinMapperSpy;
+    UserMapper userMapperSpy;
+    @Mock
+    UserService userServiceMock;
+    @Spy
+    CollaborationMapper collabMapperSpy;
+    @Mock
+    CollaborationService collabServiceMock;
     @InjectMocks
     CollaborationsJoiningService collabJoinServiceMock;
 
     @Test
     void addElement() {
         CollaborationsJoiningCreateDto collabJoinCreateDto = TestData.getCollabJoiningCreateDto();
+        Mockito.when(collabJoinMapperMock.toCollabJoin(collabJoinCreateDto)).thenReturn(TestData.getCollabJoining());
+        Mockito.when(userMapperSpy.toUser((UserResponseDto) Mockito.any())).thenReturn(TestData.getAuthenticatedUser());
+        Mockito.when(collabMapperSpy.toCollab((CollaborationResponseDto) Mockito.any())).thenReturn(TestData.getCollaboration());
         collabJoinServiceMock.addElement(collabJoinCreateDto);
         Mockito.verify(collabJoinRepositoryMock).create(Mockito.any());
     }
@@ -36,7 +51,11 @@ class CollaborationsJoiningServiceTest {
     @Test
     void updateElement() {
         CollaborationsJoiningCreateDto collabJoinCreateDto = TestData.getCollabJoiningCreateDto();
-        collabJoinServiceMock.updateElement(UUID.randomUUID(), collabJoinCreateDto);
+        UUID id = UUID.randomUUID();
+        Mockito.when(collabJoinMapperMock.toCollabJoin(id, collabJoinCreateDto)).thenReturn(TestData.getCollabJoining());
+        Mockito.when(userMapperSpy.toUser((UserResponseDto) Mockito.any())).thenReturn(TestData.getAuthenticatedUser());
+        Mockito.when(collabMapperSpy.toCollab((CollaborationResponseDto) Mockito.any())).thenReturn(TestData.getCollaboration());
+        collabJoinServiceMock.updateElement(id, collabJoinCreateDto);
         Mockito.verify(collabJoinRepositoryMock).update(Mockito.any());
     }
 
