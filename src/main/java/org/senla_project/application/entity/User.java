@@ -43,7 +43,7 @@ public class User {
     @EqualsAndHashCode.Exclude
     Set<CollaborationsJoining> collaborationsJoining;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
