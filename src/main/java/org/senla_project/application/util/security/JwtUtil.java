@@ -1,4 +1,4 @@
-package org.senla_project.application.util.securityUtil;
+package org.senla_project.application.util.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

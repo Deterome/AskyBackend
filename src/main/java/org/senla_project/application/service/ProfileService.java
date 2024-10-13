@@ -1,14 +1,14 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.ProfileCreateDto;
 import org.senla_project.application.dto.ProfileResponseDto;
 import org.senla_project.application.entity.Profile;
+import org.senla_project.application.mapper.ProfileMapper;
 import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.ProfileRepository;
-import org.senla_project.application.mapper.ProfileMapper;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,16 +16,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, ProfileResponseDto> {
 
-    @Autowired
-    private ProfileRepository profileRepository;
-    @Autowired
-    private ProfileMapper profileMapper;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserMapper userMapper;
+    final private ProfileRepository profileRepository;
+    final private ProfileMapper profileMapper;
+    final private UserService userService;
+    final private UserMapper userMapper;
 
     @Transactional
     @Override

@@ -23,25 +23,35 @@ public abstract class UserMapper {
                 .username(username)
                 .build();
     }
+
     @Mapping(source = "id", target = "userId")
     @Mapping(source = "dto.roles", target = "roles", qualifiedByName = {"RoleMapper", "toRoleSetFromStringList"})
     public abstract User toUser(UUID id, UserCreateDto dto);
-    public User toUser(UserCreateDto dto) {
-        return toUser(null, dto);
-    }
+
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(source = "dto.roles", target = "roles", qualifiedByName = {"RoleMapper", "toRoleSetFromStringList"})
+    public abstract User toUser(UserCreateDto dto);
+
     @Mapping(source = "roles", target = "roles", qualifiedByName = {"RoleMapper", "toRoleSetFromStringList"})
     public abstract User toUser(UserResponseDto userResponseDto);
+
     @Mapping(source = "roles", target = "roles", qualifiedByName = {"RoleMapper", "toStringListFromRoleSet"})
     public abstract UserCreateDto toUserCreateDto(User entity);
+
     @Mapping(source = "roles", target = "roles", qualifiedByName = {"RoleMapper", "toStringListFromRoleSet"})
     public abstract UserResponseDto toUserResponseDto(User entity);
+
     public abstract List<User> toUserList(List<UserResponseDto> dtoList);
+
     public abstract List<UserResponseDto> toUserResponseDtoList(List<User> entityList);
+
     public String toStringFromUser(User user) {
         return user.getUsername();
     }
+
     @Named("toStringListFromUserSet")
     public abstract List<String> toStringListFromUserSet(Set<User> usersSet);
+
     @Named("toUserSetFromStringList")
     public Set<User> toUserSetFromStringList(List<String> usersList) {
         return usersList.stream().map(this::toUserFromName).collect(Collectors.toSet());

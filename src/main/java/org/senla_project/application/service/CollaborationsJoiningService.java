@@ -1,6 +1,7 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.CollaborationsJoiningCreateDto;
 import org.senla_project.application.dto.CollaborationsJoiningResponseDto;
 import org.senla_project.application.entity.CollaborationsJoining;
@@ -9,7 +10,6 @@ import org.senla_project.application.mapper.CollaborationsJoiningMapper;
 import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.CollaborationsJoiningRepository;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,20 +17,15 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class CollaborationsJoiningService implements ServiceInterface<UUID, CollaborationsJoiningCreateDto, CollaborationsJoiningResponseDto> {
 
-    @Autowired
-    private CollaborationsJoiningRepository collaborationsJoiningRepository;
-    @Autowired
-    private CollaborationsJoiningMapper collaborationsJoiningMapper;
-    @Autowired
-    private CollaborationService collaborationService;
-    @Autowired
-    private CollaborationMapper collaborationMapper;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserMapper userMapper;
+    final private CollaborationsJoiningRepository collaborationsJoiningRepository;
+    final private CollaborationsJoiningMapper collaborationsJoiningMapper;
+    final private CollaborationService collaborationService;
+    final private CollaborationMapper collaborationMapper;
+    final private UserService userService;
+    final private UserMapper userMapper;
 
     @Transactional
     @Override

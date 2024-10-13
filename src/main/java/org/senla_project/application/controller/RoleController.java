@@ -1,10 +1,10 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.RoleCreateDto;
 import org.senla_project.application.dto.RoleResponseDto;
 import org.senla_project.application.service.RoleService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +13,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/roles")
+@RequiredArgsConstructor
 public class RoleController implements DefaultControllerInterface<UUID, RoleCreateDto, RoleResponseDto> {
 
-    @Autowired
-    private RoleService service;
+    final private RoleService service;
 
     @Override
     @GetMapping("/all")

@@ -1,10 +1,10 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.AnswerCreateDto;
 import org.senla_project.application.dto.AnswerResponseDto;
 import org.senla_project.application.service.AnswerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +13,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/answers")
+@RequiredArgsConstructor
 public class AnswerController implements DefaultControllerInterface<UUID, AnswerCreateDto, AnswerResponseDto> {
 
-    @Autowired
-    private AnswerService service;
+    final private AnswerService service;
 
     @Override
     @GetMapping("/all")

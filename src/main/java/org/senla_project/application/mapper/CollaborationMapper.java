@@ -27,15 +27,23 @@ public abstract class CollaborationMapper {
             @Mapping(source = "id", target = "collabId")
     })
     public abstract Collaboration toCollab(UUID id, CollaborationCreateDto dto);
-    public Collaboration toCollab(CollaborationCreateDto dto) {
-        return toCollab(null, dto);
-    }
+
+    @Mappings({
+            @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
+            @Mapping(target = "collabId", ignore = true)
+    })
+    public abstract Collaboration toCollab(CollaborationCreateDto dto);
+
     public abstract Collaboration toCollab(CollaborationResponseDto collaborationResponseDto);
+
     @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd")
     public abstract CollaborationCreateDto toCollabCreateDto(Collaboration entity);
+
     @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd")
     public abstract CollaborationResponseDto toCollabResponseDto(Collaboration entity);
+
     public abstract List<Collaboration> toCollabList(List<CollaborationResponseDto> dtoList);
+
     public abstract List<CollaborationResponseDto> toCollabDtoList(List<Collaboration> entityList);
 
 }

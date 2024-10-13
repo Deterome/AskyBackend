@@ -1,10 +1,10 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.CollaborationCreateDto;
 import org.senla_project.application.dto.CollaborationResponseDto;
 import org.senla_project.application.service.CollaborationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +13,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/collabs")
+@RequiredArgsConstructor
 public class CollaborationController implements DefaultControllerInterface<UUID, CollaborationCreateDto, CollaborationResponseDto> {
 
-    @Autowired
-    private CollaborationService service;
+    final private CollaborationService service;
 
     @Override
     @GetMapping("/all")

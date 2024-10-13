@@ -18,31 +18,41 @@ public abstract class QuestionMapper {
                 .questionId(id)
                 .build();
     }
+
     @Mappings({
-        @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-        @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"}),
-        @Mapping(source = "id", target = "questionId")
+            @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
+            @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"}),
+            @Mapping(source = "id", target = "questionId")
     })
     public abstract Question toQuestion(UUID id, QuestionCreateDto dto);
-    public Question toQuestion(QuestionCreateDto dto) {
-        return toQuestion(null, dto);
-    }
+
+    @Mappings({
+            @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
+            @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"}),
+            @Mapping(target = "questionId", ignore = true)
+    })
+    public abstract Question toQuestion(QuestionCreateDto dto);
+
     @Mappings({
             @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
             @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"}),
     })
     public abstract Question toQuestion(QuestionResponseDto dto);
+
     @Mappings({
-        @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-        @Mapping(target = "authorName", expression = "java(entity.getAuthor().getUsername())")
+            @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
+            @Mapping(target = "authorName", expression = "java(entity.getAuthor().getUsername())")
     })
     public abstract QuestionCreateDto toQuestionCreateDto(Question entity);
+
     @Mappings({
-        @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-        @Mapping(target = "authorName", expression = "java(entity.getAuthor().getUsername())")
+            @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
+            @Mapping(target = "authorName", expression = "java(entity.getAuthor().getUsername())")
     })
     public abstract QuestionResponseDto toQuestionResponseDto(Question entity);
+
     public abstract List<Question> toQuestionList(List<QuestionResponseDto> dtoList);
+
     public abstract List<QuestionResponseDto> toQuestionDtoList(List<Question> entityList);
 
 }

@@ -1,6 +1,7 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.UserCreateDto;
 import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.entity.Role;
@@ -10,7 +11,6 @@ import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.util.enums.RolesEnum;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,18 +26,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService implements ServiceInterface<UUID, UserCreateDto, UserResponseDto>, UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleService roleService;
-    @Autowired
-    private RoleMapper roleMapper;
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    final private UserRepository userRepository;
+    final private RoleService roleService;
+    final private RoleMapper roleMapper;
+    final private UserMapper userMapper;
+    final private PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     private Set<Role> getDefaultRolesSet() {
@@ -113,7 +109,7 @@ public class UserService implements ServiceInterface<UUID, UserCreateDto, UserRe
         List<String> roleNameList = user.getRoles().stream()
                 .map(Role::getRoleName).toList();
         Set<Role> roleSet = new HashSet<>();
-        for (var roleName: roleNameList) {
+        for (var roleName : roleNameList) {
             roleSet.add(roleMapper.toRole(
                     roleService.findRoleByName(roleName)
             ));

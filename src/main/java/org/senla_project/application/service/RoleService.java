@@ -1,12 +1,12 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.RoleCreateDto;
 import org.senla_project.application.dto.RoleResponseDto;
-import org.senla_project.application.repository.RoleRepository;
 import org.senla_project.application.mapper.RoleMapper;
+import org.senla_project.application.repository.RoleRepository;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +14,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class RoleService implements ServiceInterface<UUID, RoleCreateDto, RoleResponseDto> {
 
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private RoleMapper roleMapper;
+    final private RoleRepository roleRepository;
+    final private RoleMapper roleMapper;
 
     @Transactional
     @Override

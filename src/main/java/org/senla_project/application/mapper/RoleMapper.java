@@ -22,25 +22,34 @@ public abstract class RoleMapper {
                 .roleName(roleName)
                 .build();
     }
+
     @Mapping(source = "id", target = "roleId")
     public abstract Role toRole(UUID id, RoleCreateDto dto);
-    public Role toRole(RoleCreateDto dto) {
-        return toRole(null, dto);
-    }
+
+    @Mapping(target = "roleId", ignore = true)
+    public abstract Role toRole(RoleCreateDto dto);
+
     @Mapping(source = "users", target = "users", qualifiedByName = {"UserMapper", "toUserSetFromStringList"})
     public abstract Role toRole(RoleResponseDto roleResponseDto);
+
     public abstract RoleCreateDto toRoleCreateDto(Role entity);
+
     @Mapping(source = "users", target = "users", qualifiedByName = {"UserMapper", "toStringListFromUserSet"})
     public abstract RoleResponseDto toRoleResponseDto(Role entity);
+
     public abstract List<Role> toRoleList(List<RoleResponseDto> dtoList);
+
     public abstract List<RoleResponseDto> toRoleDtoList(List<Role> entityList);
+
     public List<Role> toRoleListFromStringList(List<String> rolesStringList) {
         return rolesStringList.stream().map(this::toRoleEntityFromRoleName).collect(Collectors.toList());
     }
+
     @Named("toRoleSetFromStringList")
     public Set<Role> toRoleSetFromStringList(List<String> rolesStringList) {
         return rolesStringList.stream().map(this::toRoleEntityFromRoleName).collect(Collectors.toSet());
     }
+
     @Named("toStringListFromRoleSet")
     public List<String> toStringListFromRoleSet(Set<Role> rolesSet) {
         return rolesSet.stream().map(Role::getRoleName).collect(Collectors.toList());

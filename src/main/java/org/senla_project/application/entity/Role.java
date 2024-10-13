@@ -9,20 +9,23 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "roles")
-@NoArgsConstructor @AllArgsConstructor @Data @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
 public class Role {
 
     @Column(name = "role_id")
     @Id
     @GeneratedValue
-    UUID roleId;
+    private UUID roleId;
 
     @Column(name = "role_name")
-    String roleName;
+    private String roleName;
 
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @Builder.Default
-    Set<User> users = new HashSet<>();
+    private Set<User> users = new HashSet<>();
 }

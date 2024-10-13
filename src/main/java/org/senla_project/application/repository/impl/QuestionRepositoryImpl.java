@@ -1,7 +1,10 @@
 package org.senla_project.application.repository.impl;
 
 import jakarta.persistence.criteria.*;
-import org.senla_project.application.entity.*;
+import org.senla_project.application.entity.Question;
+import org.senla_project.application.entity.Question_;
+import org.senla_project.application.entity.User;
+import org.senla_project.application.entity.User_;
 import org.senla_project.application.repository.AbstractDao;
 import org.senla_project.application.repository.QuestionRepository;
 import org.springframework.stereotype.Repository;

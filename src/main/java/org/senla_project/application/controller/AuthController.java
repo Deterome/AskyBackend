@@ -1,20 +1,20 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.JwtRequest;
 import org.senla_project.application.dto.UserCreateDto;
 import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    final private AuthService authService;
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)

@@ -1,6 +1,6 @@
 package org.senla_project.application.repository.impl;
 
-import org.senla_project.application.entity.*;
+import org.senla_project.application.entity.Profile;
 import org.senla_project.application.repository.AbstractDao;
 import org.senla_project.application.repository.ProfileRepository;
 import org.springframework.stereotype.Repository;
