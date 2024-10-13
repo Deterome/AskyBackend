@@ -1,8 +1,10 @@
 package org.senla_project.application.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
@@ -10,6 +12,7 @@ import org.senla_project.application.config.WebSecurityConfig;
 import org.senla_project.application.dto.JwtRequest;
 import org.senla_project.application.dto.UserCreateDto;
 import org.senla_project.application.util.JsonParser;
+import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,14 +30,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 @SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, DataSourceConfigTest.class, HibernateConfigTest.class})
 @Transactional
+@ExtendWith(SpringParameterResolver.class)
+@RequiredArgsConstructor
 class AuthControllerTest {
 
-    @Autowired
-    JsonParser jsonParser;
-    @Autowired
-    RoleController roleController;
-    @Autowired
-    AuthController authController;
+    final JsonParser jsonParser;
+    final RoleController roleController;
+    final AuthController authController;
 
     MockMvc mockMvc;
 

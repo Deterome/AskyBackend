@@ -1,9 +1,11 @@
 package org.senla_project.application.repository.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.entity.Answer;
@@ -12,6 +14,7 @@ import org.senla_project.application.entity.User;
 import org.senla_project.application.repository.AnswerRepository;
 import org.senla_project.application.repository.QuestionRepository;
 import org.senla_project.application.repository.UserRepository;
+import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
@@ -30,14 +33,13 @@ import java.util.Optional;
         UserRepositoryImpl.class
 })
 @Transactional
+@ExtendWith(SpringParameterResolver.class)
+@RequiredArgsConstructor
 class AnswerRepositoryImplTest {
 
-    @Autowired
-    AnswerRepository answerRepository;
-    @Autowired
-    QuestionRepository questionRepository;
-    @Autowired
-    UserRepository userRepository;
+    final AnswerRepository answerRepository;
+    final QuestionRepository questionRepository;
+    final UserRepository userRepository;
 
     @BeforeEach
     void initDataBaseWithData() {

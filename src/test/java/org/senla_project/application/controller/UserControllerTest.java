@@ -1,9 +1,11 @@
 package org.senla_project.application.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
@@ -12,6 +14,7 @@ import org.senla_project.application.dto.*;
 import org.senla_project.application.dto.UserCreateDto;
 import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.util.JsonParser;
+import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,16 +37,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 @SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, DataSourceConfigTest.class, HibernateConfigTest.class})
 @Transactional
+@ExtendWith(SpringParameterResolver.class)
+@RequiredArgsConstructor
 class UserControllerTest {
 
-    @Autowired
-    JsonParser jsonParser;
-    @Autowired
-    UserController userController;
-    @Autowired
-    AuthController authController;
-    @Autowired
-    RoleController roleController;
+    final JsonParser jsonParser;
+    final UserController userController;
+    final AuthController authController;
+    final RoleController roleController;
 
     MockMvc mockMvc;
 

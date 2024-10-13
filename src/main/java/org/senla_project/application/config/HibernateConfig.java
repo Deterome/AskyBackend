@@ -1,6 +1,6 @@
 package org.senla_project.application.config;
 
-import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +22,7 @@ public class HibernateConfig {
 
     @Autowired
     private DataSource dataSource;
+
     @Value("${hibernate.dialect}")
     private String hibernateDialect;
     @Value("${hibernate.show_sql}")

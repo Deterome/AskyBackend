@@ -3,45 +3,47 @@ package org.senla_project.application.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-@NoArgsConstructor @AllArgsConstructor @Data @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
 public class User {
 
     @Column(name = "user_id")
     @Id
     @GeneratedValue
-    UUID userId;
+    private UUID userId;
 
     @Column(name = "username")
-    String username;
+    private String username;
 
     @Column(name = "hashed_password")
-    String password;
+    private String password;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    Profile profile;
+    private Profile profile;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "author", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    Set<Question> questions;
+    private Set<Question> questions;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "author", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    Set<Answer> answers;
+    private Set<Answer> answers;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    Set<CollaborationsJoining> collaborationsJoining;
+    private Set<CollaborationsJoining> collaborationsJoining;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -51,6 +53,6 @@ public class User {
     )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    Set<Role> roles;
+    private Set<Role> roles;
 
 }

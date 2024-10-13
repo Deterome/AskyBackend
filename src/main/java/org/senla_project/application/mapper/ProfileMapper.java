@@ -14,25 +14,33 @@ import java.util.UUID;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UserMapper.class, UuidMapper.class})
 public abstract class ProfileMapper {
     @Mappings({
-        @Mapping(source = "dto.birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-        @Mapping(source = "dto.username", target = "user", qualifiedByName = {"UserMapper", "toUserFromName"}),
-        @Mapping(source = "id", target = "profileId")
+            @Mapping(source = "dto.birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
+            @Mapping(source = "dto.username", target = "user", qualifiedByName = {"UserMapper", "toUserFromName"}),
+            @Mapping(source = "id", target = "profileId")
     })
     public abstract Profile toProfile(UUID id, ProfileCreateDto dto);
-    public Profile toProfile(ProfileCreateDto dto) {
-        return toProfile(null, dto);
-    }
+
     @Mappings({
-        @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-        @Mapping(target = "username", expression = "java(entity.getUser().getUsername())")
+            @Mapping(source = "dto.birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
+            @Mapping(source = "dto.username", target = "user", qualifiedByName = {"UserMapper", "toUserFromName"}),
+            @Mapping(target = "profileId", ignore = true)
+    })
+    public abstract Profile toProfile(ProfileCreateDto dto);
+
+    @Mappings({
+            @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
+            @Mapping(target = "username", expression = "java(entity.getUser().getUsername())")
     })
     public abstract ProfileCreateDto toProfileCreateDto(Profile entity);
+
     @Mappings({
-        @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-        @Mapping(target = "username", expression = "java(entity.getUser().getUsername())")
+            @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
+            @Mapping(target = "username", expression = "java(entity.getUser().getUsername())")
     })
     public abstract ProfileResponseDto toProfileResponseDto(Profile entity);
+
     public abstract List<Profile> toProfileList(List<ProfileResponseDto> dtoList);
+
     public abstract List<ProfileResponseDto> toProfileDtoList(List<Profile> entityList);
 
 }

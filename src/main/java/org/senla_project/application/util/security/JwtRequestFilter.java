@@ -1,4 +1,4 @@
-package org.senla_project.application.util.securityUtil;
+package org.senla_project.application.util.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -6,8 +6,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.senla_project.application.util.exception.SecurityTokenExpiredException;
+import org.senla_project.application.util.exception.SecurityTokenVerificationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,10 +20,10 @@ import java.io.IOException;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    final private JwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -33,8 +35,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             jwt = authHeader.split(" ")[1].trim();
             try {
                 username = jwtUtil.getUsername(jwt);
-            } catch (ExpiredJwtException | SignatureException e) {
+            } catch (ExpiredJwtException e) {
                 log.debug(e.getMessage());
+                throw new SecurityTokenExpiredException(e.getMessage());
+            } catch (SignatureException e) {
+                log.debug(e.getMessage());
+                throw new SecurityTokenVerificationException(e.getMessage());
             }
         }
 

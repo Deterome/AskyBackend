@@ -1,15 +1,15 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.AnswerCreateDto;
 import org.senla_project.application.dto.AnswerResponseDto;
 import org.senla_project.application.entity.Answer;
+import org.senla_project.application.mapper.AnswerMapper;
 import org.senla_project.application.mapper.QuestionMapper;
 import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.AnswerRepository;
-import org.senla_project.application.mapper.AnswerMapper;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,20 +17,15 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, AnswerResponseDto> {
 
-    @Autowired
-    private AnswerRepository answerRepository;
-    @Autowired
-    private AnswerMapper answerMapper;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
-    private QuestionService questionService;
-    @Autowired
-    private QuestionMapper questionMapper;
+    final private AnswerRepository answerRepository;
+    final private AnswerMapper answerMapper;
+    final private UserService userService;
+    final private UserMapper userMapper;
+    final private QuestionService questionService;
+    final private QuestionMapper questionMapper;
 
     @Transactional
     @Override
@@ -83,7 +78,7 @@ public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, An
         answer.setQuestion(questionMapper.toQuestion(
                 questionService.findElementById(
                         answer.getQuestion().getQuestionId()
-                    )
+                )
         ));
 
         return answer;

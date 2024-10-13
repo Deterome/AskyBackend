@@ -7,7 +7,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class AbstractDao<K, T> implements DefaultDao<K, T>{
+public abstract class AbstractDao<K, T> implements DefaultDao<K, T> {
 
     @PersistenceContext
     protected EntityManager entityManager;
@@ -26,7 +26,7 @@ public abstract class AbstractDao<K, T> implements DefaultDao<K, T>{
     }
 
     public List<T> findAll() {
-        CriteriaQuery<T>  query = entityManager.getCriteriaBuilder().createQuery(getEntityClass());
+        CriteriaQuery<T> query = entityManager.getCriteriaBuilder().createQuery(getEntityClass());
         query.from(getEntityClass());
         return entityManager.createQuery(query).getResultList();
     }

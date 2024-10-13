@@ -1,6 +1,7 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.QuestionCreateDto;
 import org.senla_project.application.dto.QuestionResponseDto;
 import org.senla_project.application.entity.Question;
@@ -8,7 +9,6 @@ import org.senla_project.application.mapper.QuestionMapper;
 import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.QuestionRepository;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,16 +16,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class QuestionService implements ServiceInterface<UUID, QuestionCreateDto, QuestionResponseDto> {
 
-    @Autowired
-    private QuestionRepository questionRepository;
-    @Autowired
-    private QuestionMapper questionMapper;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserMapper userMapper;
+    final private QuestionRepository questionRepository;
+    final private QuestionMapper questionMapper;
+    final private UserService userService;
+    final private UserMapper userMapper;
 
     @Transactional
     @Override

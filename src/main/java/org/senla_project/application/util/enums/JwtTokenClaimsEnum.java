@@ -5,6 +5,7 @@ public enum JwtTokenClaimsEnum {
     ROLES("roles");
 
     final String claimName;
+
     JwtTokenClaimsEnum(String claimName) {
         this.claimName = claimName;
     }

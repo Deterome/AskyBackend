@@ -2,14 +2,14 @@ package org.senla_project.application.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class JsonParser {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    final private ObjectMapper objectMapper;
 
     public <T> T parseJsonToObject(String json, Class<T> objectClass) {
         try {

@@ -1,12 +1,12 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.CollaborationCreateDto;
 import org.senla_project.application.dto.CollaborationResponseDto;
-import org.senla_project.application.repository.CollaborationRepository;
 import org.senla_project.application.mapper.CollaborationMapper;
+import org.senla_project.application.repository.CollaborationRepository;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +14,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class CollaborationService implements ServiceInterface<UUID, CollaborationCreateDto, CollaborationResponseDto> {
 
-    @Autowired
-    private CollaborationRepository collaborationRepository;
-    @Autowired
-    private CollaborationMapper collaborationMapper;
+    final private CollaborationRepository collaborationRepository;
+    final private CollaborationMapper collaborationMapper;
 
     @Transactional
     @Override
