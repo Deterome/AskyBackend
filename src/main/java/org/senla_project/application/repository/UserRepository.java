@@ -8,5 +8,5 @@ import java.util.UUID;
 
 @Component
 public interface UserRepository extends DefaultDao<UUID, User> {
-    Optional<User> findUserByNickname(String nickname);
+    Optional<User> findUserByUsername(String nickname);
 }

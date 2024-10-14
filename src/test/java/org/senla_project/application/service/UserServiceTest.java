@@ -2,14 +2,19 @@ package org.senla_project.application.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.senla_project.application.dto.UserCreateDto;
 import org.senla_project.application.entity.User;
+import org.senla_project.application.mapper.RoleMapperImpl;
 import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.UUID;
 
@@ -18,14 +23,22 @@ class UserServiceTest {
 
     @Mock
     UserRepository userRepositoryMock;
-    @Spy
+    @Mock
     UserMapper userMapperSpy;
+    @Spy
+    RoleMapperImpl roleMapper;
+    @Spy
+    PasswordEncoder passwordEncoder;
+    @Mock
+    RoleService roleService;
     @InjectMocks
     UserService userServiceMock;
 
     @Test
     void addElement() {
         UserCreateDto userCreateDto = TestData.getUserCreateDto();
+        Mockito.when(roleService.findRoleByName(Mockito.any())).thenReturn(Mockito.any());
+        Mockito.when(userMapperSpy.toUser(userCreateDto)).thenReturn(TestData.getAuthenticatedUser());
         userServiceMock.addElement(userCreateDto);
         Mockito.verify(userRepositoryMock).create(Mockito.any());
     }
@@ -33,7 +46,9 @@ class UserServiceTest {
     @Test
     void updateElement() {
         UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        userServiceMock.updateElement(UUID.randomUUID(), userCreateDto);
+        UUID id = UUID.randomUUID();
+        Mockito.when(userMapperSpy.toUser(id, userCreateDto)).thenReturn(TestData.getAuthenticatedUser());
+        userServiceMock.updateElement(id, userCreateDto);
         Mockito.verify(userRepositoryMock).update(Mockito.any());
     }
 
@@ -45,10 +60,10 @@ class UserServiceTest {
     }
 
     @Test
-    void getAllElements() {
+    void findAllElements() {
         try {
-            userServiceMock.getAllElements();
-            Mockito.verify(userRepositoryMock).findAll();
+            userServiceMock.findAllElements(1);
+            Mockito.verify(userRepositoryMock).findAll(1);
         } catch (EntityNotFoundException ignored) {
         }
     }
@@ -63,11 +78,11 @@ class UserServiceTest {
     }
 
     @Test
-    void findUserByName() {
+    void findUserByUsername() {
         try {
-            User user = TestData.getUser();
-            userServiceMock.findUserByName(user.getNickname());
-            Mockito.verify(userRepositoryMock).findUserByNickname(Mockito.any());
+            User user = TestData.getAuthenticatedUser();
+            userServiceMock.findUserByUsername(user.getUsername());
+            Mockito.verify(userRepositoryMock).findUserByUsername(Mockito.any());
         } catch (EntityNotFoundException ignored) {
         }
     }

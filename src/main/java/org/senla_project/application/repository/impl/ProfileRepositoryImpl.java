@@ -1,6 +1,6 @@
 package org.senla_project.application.repository.impl;
 
-import org.senla_project.application.entity.*;
+import org.senla_project.application.entity.Profile;
 import org.senla_project.application.repository.AbstractDao;
 import org.senla_project.application.repository.ProfileRepository;
 import org.springframework.stereotype.Repository;
@@ -16,10 +16,10 @@ public class ProfileRepositoryImpl extends AbstractDao<UUID, Profile> implements
     }
 
     @Override
-    public Optional<Profile> findProfileByNickname(String nickname) {
+    public Optional<Profile> findProfileByUsername(String username) {
         return entityManager
-                .createQuery("SELECT p FROM Profile AS p JOIN p.user AS u WHERE u.nickname = :nickname", Profile.class)
-                .setParameter("nickname", nickname)
+                .createQuery("SELECT p FROM Profile AS p JOIN p.user AS u WHERE u.username = :username", Profile.class)
+                .setParameter("username", username)
                 .setHint("javax.persistence.fetchgraph", entityManager.getEntityGraph("profile-entity-graph"))
                 .getResultList()
                 .stream()

@@ -6,7 +6,7 @@ import lombok.*;
 public class ProfileResponseDto {
 
     private String profileId;
-    private String userName;
+    private String username;
     private String bio;
     private String firstname;
     private String surname;

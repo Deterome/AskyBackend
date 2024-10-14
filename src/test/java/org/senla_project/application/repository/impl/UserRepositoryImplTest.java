@@ -1,17 +1,17 @@
 package org.senla_project.application.repository.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.entity.User;
-import org.senla_project.application.entity.User;
-import org.senla_project.application.entity.User;
 import org.senla_project.application.repository.UserRepository;
+import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,15 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @Slf4j
-@SpringJUnitWebConfig({DataSourceConfigTest.class, HibernateConfigTest.class, UserRepositoryImpl.class})
+@SpringJUnitWebConfig({
+        DataSourceConfigTest.class,
+        HibernateConfigTest.class,
+        UserRepositoryImpl.class
+})
 @Transactional
+@ExtendWith(SpringParameterResolver.class)
+@RequiredArgsConstructor
 class UserRepositoryImplTest {
 
-    @Autowired
-    UserRepository userRepository;
+    final UserRepository userRepository;
 
     @Test
     void create() {
@@ -51,7 +54,7 @@ class UserRepositoryImplTest {
         List<User> expectedUserList = new ArrayList<>();
         expectedUserList.add(user);
         userRepository.create(user);
-        List<User> actualUserList = userRepository.findAll();
+        List<User> actualUserList = userRepository.findAll(1);
         Assertions.assertEquals(expectedUserList, actualUserList);
     }
 
@@ -78,10 +81,10 @@ class UserRepositoryImplTest {
     }
 
     @Test
-    void findUserByNickname() {
+    void findUserByUsername() {
         User expectedUser = TestData.getUser();
         userRepository.create(expectedUser);
-        User actual = userRepository.findUserByNickname(expectedUser.getNickname()).get();
+        User actual = userRepository.findUserByUsername(expectedUser.getUsername()).get();
         Assertions.assertEquals(expectedUser, actual);
     }
 }

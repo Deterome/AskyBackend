@@ -1,45 +1,48 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.CollaborationsJoiningCreateDto;
 import org.senla_project.application.dto.CollaborationsJoiningResponseDto;
-import org.senla_project.application.repository.CollaborationRepository;
-import org.senla_project.application.repository.CollaborationsJoiningRepository;
-import org.senla_project.application.repository.UserRepository;
+import org.senla_project.application.entity.CollaborationsJoining;
+import org.senla_project.application.mapper.CollaborationMapper;
 import org.senla_project.application.mapper.CollaborationsJoiningMapper;
+import org.senla_project.application.mapper.UserMapper;
+import org.senla_project.application.repository.CollaborationsJoiningRepository;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class CollaborationsJoiningService implements ServiceInterface<UUID, CollaborationsJoiningCreateDto, CollaborationsJoiningResponseDto> {
 
-    @Autowired
-    private CollaborationsJoiningRepository collaborationsJoiningRepository;
-    @Autowired
-    private CollaborationRepository collaborationRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private CollaborationsJoiningMapper collaborationsJoiningMapper;
+    final private CollaborationsJoiningRepository collaborationsJoiningRepository;
+    final private CollaborationsJoiningMapper collaborationsJoiningMapper;
+    final private CollaborationService collaborationService;
+    final private CollaborationMapper collaborationMapper;
+    final private UserService userService;
+    final private UserMapper userMapper;
 
     @Transactional
     @Override
     public CollaborationsJoiningResponseDto addElement(@NonNull CollaborationsJoiningCreateDto element) {
         return collaborationsJoiningMapper
-                .toResponseDto(collaborationsJoiningRepository.create(collaborationsJoiningMapper.toEntity(element)));
+                .toCollabJoinResponseDto(collaborationsJoiningRepository.create(
+                        addDependenciesCollabJoin(collaborationsJoiningMapper.toCollabJoin(element))
+                ));
     }
 
     @Transactional
     @Override
     public CollaborationsJoiningResponseDto updateElement(@NonNull UUID id, @NonNull CollaborationsJoiningCreateDto updatedElement) {
         return collaborationsJoiningMapper
-                .toResponseDto(collaborationsJoiningRepository.update(collaborationsJoiningMapper.toEntity(id, updatedElement)));
+                .toCollabJoinResponseDto(collaborationsJoiningRepository.update(
+                        addDependenciesCollabJoin(collaborationsJoiningMapper.toCollabJoin(id, updatedElement))
+                ));
     }
 
     @Transactional
@@ -50,8 +53,8 @@ public class CollaborationsJoiningService implements ServiceInterface<UUID, Coll
 
     @Transactional(readOnly = true)
     @Override
-    public List<CollaborationsJoiningResponseDto> getAllElements() throws EntityNotFoundException {
-        var elements = collaborationsJoiningMapper.toDtoList(collaborationsJoiningRepository.findAll());
+    public List<CollaborationsJoiningResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
+        var elements = collaborationsJoiningMapper.toCollabJoinDtoList(collaborationsJoiningRepository.findAll(pageNumber));
         if (elements.isEmpty()) throw new EntityNotFoundException("Collaborations joining not found");
         return elements;
     }
@@ -60,13 +63,26 @@ public class CollaborationsJoiningService implements ServiceInterface<UUID, Coll
     @Override
     public CollaborationsJoiningResponseDto findElementById(@NonNull UUID id) throws EntityNotFoundException {
         return collaborationsJoiningRepository.findById(id)
-                .map(collaborationsJoiningMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Collaboration joining not found"));
+                .map(collaborationsJoiningMapper::toCollabJoinResponseDto).orElseThrow(() -> new EntityNotFoundException("Collaboration joining not found"));
     }
 
     @Transactional(readOnly = true)
     public CollaborationsJoiningResponseDto findCollabJoin(String username, String collaboration) throws EntityNotFoundException {
         return collaborationsJoiningRepository.findCollabJoin(username, collaboration)
-                .map(collaborationsJoiningMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Collaboration joining not found"));
+                .map(collaborationsJoiningMapper::toCollabJoinResponseDto).orElseThrow(() -> new EntityNotFoundException("Collaboration joining not found"));
     }
+
+    @Transactional(readOnly = true)
+    private CollaborationsJoining addDependenciesCollabJoin(CollaborationsJoining collaborationsJoining) {
+        collaborationsJoining.setCollab(collaborationMapper.toCollab(
+                collaborationService.findCollabByName(collaborationsJoining.getCollab().getCollabName())
+        ));
+        collaborationsJoining.setUser(userMapper.toUser(
+                userService.findUserByUsername(collaborationsJoining.getUser().getUsername())
+        ));
+
+        return collaborationsJoining;
+    }
+
 
 }

@@ -1,10 +1,10 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.ProfileCreateDto;
 import org.senla_project.application.dto.ProfileResponseDto;
 import org.senla_project.application.service.ProfileService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,16 +13,16 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/profiles")
-public class ProfileController implements ControllerInterface<UUID, ProfileCreateDto, ProfileResponseDto> {
+@RequiredArgsConstructor
+public class ProfileController implements DefaultControllerInterface<UUID, ProfileCreateDto, ProfileResponseDto> {
 
-    @Autowired
-    private ProfileService service;
+    final private ProfileService service;
 
     @Override
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<ProfileResponseDto> getAllElements() {
-        return service.getAllElements();
+    public List<ProfileResponseDto> getAllElements(@RequestParam(name="page") int pageNumber) {
+        return service.findAllElements(pageNumber);
     }
 
     @Override

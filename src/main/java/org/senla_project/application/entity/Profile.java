@@ -14,30 +14,34 @@ import java.util.UUID;
                 @NamedAttributeNode("user")
         }
 )
-@NoArgsConstructor @AllArgsConstructor @Data @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
 public class Profile {
 
     @Column(name = "profile_id")
     @Id
     @GeneratedValue
-    UUID profileId;
+    private UUID profileId;
 
-    @EqualsAndHashCode.Exclude
     @JoinColumn(name = "user_id")
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    User user;
+    @OneToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private User user;
 
-    String bio;
+    private String bio;
 
-    String firstname;
+    private String firstname;
 
-    String surname;
+    private String surname;
 
-    LocalDate birthday;
+    private LocalDate birthday;
 
     @Column(name = "avatar_url")
-    String avatarUrl;
+    private String avatarUrl;
 
-    int rating;
+    private int rating;
 
 }
