@@ -1,14 +1,17 @@
 package org.senla_project.application.dto;
 
-import lombok.*;
-import org.senla_project.application.entity.Role;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.List;
 
 @NoArgsConstructor @AllArgsConstructor @Data @Builder
 public class UserResponseDto {
 
     private String userId;
-    private String nickname;
+    private String username;
+    private List<String> roles;
 
 }

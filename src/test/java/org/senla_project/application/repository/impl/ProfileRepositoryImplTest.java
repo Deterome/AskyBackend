@@ -1,16 +1,19 @@
 package org.senla_project.application.repository.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.entity.Profile;
-import org.senla_project.application.entity.Profile;
 import org.senla_project.application.repository.ProfileRepository;
+import org.senla_project.application.repository.UserRepository;
+import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,19 +21,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @Slf4j
-@SpringJUnitWebConfig({DataSourceConfigTest.class, HibernateConfigTest.class, ProfileRepositoryImpl.class})
+@SpringJUnitWebConfig({
+        DataSourceConfigTest.class,
+        HibernateConfigTest.class,
+        ProfileRepositoryImpl.class,
+        UserRepositoryImpl.class
+})
 @Transactional
+@ExtendWith(SpringParameterResolver.class)
+@RequiredArgsConstructor
 class ProfileRepositoryImplTest {
 
-    @Autowired
-    ProfileRepository profileRepository;
+    final ProfileRepository profileRepository;
+    final UserRepository userRepository;
+
+    @BeforeEach
+    void initDataBaseWithData() {
+        userRepository.create(TestData.getUser());
+    }
+
+    Profile addDependenciesToProfile(Profile profile) {
+        profile.setUser(userRepository.findUserByUsername(profile.getUser().getUsername()).get());
+        return profile;
+    }
 
     @Test
     void create() {
-        Profile expectedProfile = TestData.getProfile();
+        Profile expectedProfile = addDependenciesToProfile(TestData.getProfile());
         profileRepository.create(expectedProfile);
         Profile actual = profileRepository.findById(expectedProfile.getProfileId()).get();
         Assertions.assertEquals(expectedProfile, actual);
@@ -38,7 +56,7 @@ class ProfileRepositoryImplTest {
 
     @Test
     void findById() {
-        Profile expectedProfile = TestData.getProfile();
+        Profile expectedProfile = addDependenciesToProfile(TestData.getProfile());
         profileRepository.create(expectedProfile);
         Profile actual = profileRepository.findById(expectedProfile.getProfileId()).get();
         Assertions.assertEquals(expectedProfile, actual);
@@ -46,19 +64,19 @@ class ProfileRepositoryImplTest {
 
     @Test
     void findAll() {
-        Profile profile = TestData.getProfile();
+        Profile profile = addDependenciesToProfile(TestData.getProfile());
         List<Profile> expectedProfileList = new ArrayList<>();
         expectedProfileList.add(profile);
         profileRepository.create(profile);
-        List<Profile> actualProfileList = profileRepository.findAll();
+        List<Profile> actualProfileList = profileRepository.findAll(1);
         Assertions.assertEquals(expectedProfileList, actualProfileList);
     }
 
     @Test
     void update() {
-        Profile profile = TestData.getProfile();
+        Profile profile = addDependenciesToProfile(TestData.getProfile());
         profileRepository.create(profile);
-        Profile expectedProfile = TestData.getUpdatedProfile();
+        Profile expectedProfile = addDependenciesToProfile(TestData.getUpdatedProfile());
         expectedProfile.setProfileId(profile.getProfileId());
         profileRepository.update(expectedProfile);
 
@@ -68,7 +86,7 @@ class ProfileRepositoryImplTest {
 
     @Test
     void deleteById() {
-        Profile profile = TestData.getProfile();
+        Profile profile = addDependenciesToProfile(TestData.getProfile());
         profileRepository.create(profile);
         var profileId = profile.getProfileId();
         profileRepository.deleteById(profileId);
@@ -77,10 +95,10 @@ class ProfileRepositoryImplTest {
     }
 
     @Test
-    void findProfileByNickname() {
-        Profile expectedProfile = TestData.getProfile();
+    void findProfileByUsername() {
+        Profile expectedProfile = addDependenciesToProfile(TestData.getProfile());
         profileRepository.create(expectedProfile);
-        Profile actual = profileRepository.findProfileByNickname(expectedProfile.getUser().getNickname()).get();
+        Profile actual = profileRepository.findProfileByUsername(expectedProfile.getUser().getUsername()).get();
         Assertions.assertEquals(expectedProfile, actual);
     }
 }

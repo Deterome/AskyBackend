@@ -2,12 +2,14 @@ package org.senla_project.application.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 import java.util.List;
 import java.util.Optional;
 
-public abstract class AbstractDao<K, T> implements DefaultDao<K, T>{
+public abstract class AbstractDao<K, T> implements DefaultDao<K, T> {
 
     @PersistenceContext
     protected EntityManager entityManager;
@@ -25,10 +27,24 @@ public abstract class AbstractDao<K, T> implements DefaultDao<K, T>{
         return Optional.ofNullable(entityManager.find(getEntityClass(), id));
     }
 
-    public List<T> findAll() {
-        CriteriaQuery<T>  query = entityManager.getCriteriaBuilder().createQuery(getEntityClass());
-        query.from(getEntityClass());
-        return entityManager.createQuery(query).getResultList();
+    public List<T> findAll(int pageNumber) {
+        int pageSize = 15;
+        CriteriaQuery<Long> countQuery = entityManager.getCriteriaBuilder()
+                .createQuery(Long.class);
+        countQuery.select(entityManager.getCriteriaBuilder()
+                .count(countQuery.from(getEntityClass())));
+        Long count = entityManager.createQuery(countQuery)
+                .getSingleResult();
+
+        CriteriaQuery<T> query = entityManager.getCriteriaBuilder().createQuery(getEntityClass());
+        Root<T> from = query.from(getEntityClass());
+        CriteriaQuery<T> select = query.select(from);
+
+        TypedQuery<T> typedQuery = entityManager.createQuery(select);
+        typedQuery.setFirstResult((pageNumber - 1) * pageSize);
+        typedQuery.setMaxResults(pageSize);
+
+        return typedQuery.getResultList();
     }
 
     public T update(T updatedEntity) {

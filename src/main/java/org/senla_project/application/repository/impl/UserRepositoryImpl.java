@@ -21,13 +21,12 @@ public class UserRepositoryImpl extends AbstractDao<UUID, User> implements UserR
     }
 
     @Override
-    public Optional<User> findUserByNickname(String nickname) {
+    public Optional<User> findUserByUsername(String nickname) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> query = builder.createQuery(User.class);
-
         Root<User> root = query.from(User.class);
 
-        Predicate equalsNickname = builder.equal(root.get(User_.nickname), nickname);
+        Predicate equalsNickname = builder.equal(root.get(User_.username), nickname);
 
         query.select(root).where(equalsNickname);
 

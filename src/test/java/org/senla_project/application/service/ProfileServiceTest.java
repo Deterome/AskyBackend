@@ -8,8 +8,10 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.senla_project.application.dto.ProfileCreateDto;
+import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.entity.Profile;
 import org.senla_project.application.mapper.ProfileMapper;
+import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.ProfileRepository;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
@@ -21,14 +23,20 @@ class ProfileServiceTest {
 
     @Mock
     ProfileRepository profileRepositoryMock;
+    @Mock
+    ProfileMapper profileMapper;
     @Spy
-    ProfileMapper profileMapperSpy;
+    UserMapper userMapper;
+    @Mock
+    UserService userService;
     @InjectMocks
     ProfileService profileServiceMock;
 
     @Test
     void addElement() {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        Mockito.when(profileMapper.toProfile(profileCreateDto)).thenReturn(TestData.getProfile());
+        Mockito.when(userMapper.toUser((UserResponseDto) Mockito.any())).thenReturn(TestData.getAuthenticatedUser());
         profileServiceMock.addElement(profileCreateDto);
         Mockito.verify(profileRepositoryMock).create(Mockito.any());
     }
@@ -36,7 +44,10 @@ class ProfileServiceTest {
     @Test
     void updateElement() {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        profileServiceMock.updateElement(UUID.randomUUID(), profileCreateDto);
+        UUID id = UUID.randomUUID();
+        Mockito.when(profileMapper.toProfile(id, profileCreateDto)).thenReturn(TestData.getProfile());
+        Mockito.when(userMapper.toUser((UserResponseDto) Mockito.any())).thenReturn(TestData.getAuthenticatedUser());
+        profileServiceMock.updateElement(id, profileCreateDto);
         Mockito.verify(profileRepositoryMock).update(Mockito.any());
     }
 
@@ -48,10 +59,10 @@ class ProfileServiceTest {
     }
 
     @Test
-    void getAllElements() {
+    void findAllElements() {
         try {
-            profileServiceMock.getAllElements();
-            Mockito.verify(profileRepositoryMock).findAll();
+            profileServiceMock.findAllElements(1);
+            Mockito.verify(profileRepositoryMock).findAll(1);
         } catch (EntityNotFoundException ignored) {}
     }
 
@@ -67,8 +78,8 @@ class ProfileServiceTest {
     void findProfileByUsername() {
         try {
             Profile profile = TestData.getProfile();
-            profileServiceMock.findProfileByUsername(profile.getUser().getNickname());
-            Mockito.verify(profileRepositoryMock).findProfileByNickname(Mockito.any());
+            profileServiceMock.findProfileByUsername(profile.getUser().getUsername());
+            Mockito.verify(profileRepositoryMock).findProfileByUsername(Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }
 }

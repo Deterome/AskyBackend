@@ -1,44 +1,46 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.AnswerCreateDto;
 import org.senla_project.application.dto.AnswerResponseDto;
-import org.senla_project.application.repository.AnswerRepository;
-import org.senla_project.application.repository.QuestionRepository;
-import org.senla_project.application.repository.UserRepository;
+import org.senla_project.application.entity.Answer;
 import org.senla_project.application.mapper.AnswerMapper;
+import org.senla_project.application.mapper.QuestionMapper;
+import org.senla_project.application.mapper.UserMapper;
+import org.senla_project.application.repository.AnswerRepository;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.senla_project.application.util.exception.InvalidRequestParametersException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, AnswerResponseDto> {
 
-    @Autowired
-    private AnswerRepository answerRepository;
-    @Autowired
-    private QuestionRepository questionRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private AnswerMapper answerMapper;
+    final private AnswerRepository answerRepository;
+    final private AnswerMapper answerMapper;
+    final private UserService userService;
+    final private UserMapper userMapper;
+    final private QuestionService questionService;
+    final private QuestionMapper questionMapper;
 
     @Transactional
     @Override
     public AnswerResponseDto addElement(@NonNull AnswerCreateDto element) {
-        return answerMapper.toResponseDto(answerRepository.create(answerMapper.toEntity(element)));
+        return answerMapper.toAnswerResponseDto(answerRepository.create(
+                addDependenciesToAnswer(answerMapper.toAnswer(element))
+        ));
     }
 
     @Transactional
     @Override
     public AnswerResponseDto updateElement(@NonNull UUID id, @NonNull AnswerCreateDto updatedElement) {
-        return answerMapper.toResponseDto(answerRepository.update(answerMapper.toEntity(id, updatedElement)));
+        return answerMapper.toAnswerResponseDto(answerRepository.update(
+                addDependenciesToAnswer(answerMapper.toAnswer(id, updatedElement))
+        ));
     }
 
     @Transactional
@@ -49,8 +51,8 @@ public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, An
 
     @Transactional(readOnly = true)
     @Override
-    public List<AnswerResponseDto> getAllElements() throws EntityNotFoundException {
-        var elements = answerMapper.toDtoList(answerRepository.findAll());
+    public List<AnswerResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
+        var elements = answerMapper.toAnswerDtoList(answerRepository.findAll(pageNumber));
         if (elements.isEmpty()) throw new EntityNotFoundException("Answers not found");
         return elements;
     }
@@ -59,13 +61,27 @@ public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, An
     @Override
     public AnswerResponseDto findElementById(@NonNull UUID id) throws EntityNotFoundException {
         return answerRepository.findById(id)
-                .map(answerMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Answer not found"));
+                .map(answerMapper::toAnswerResponseDto).orElseThrow(() -> new EntityNotFoundException("Answer not found"));
     }
 
     @Transactional(readOnly = true)
     public AnswerResponseDto findAnswerByParams(@NonNull String authorName, @NonNull UUID questionId, @NonNull String body) throws EntityNotFoundException {
         return answerRepository.findAnswer(authorName, questionId, body)
-                .map(answerMapper::toResponseDto).orElseThrow(() -> new EntityNotFoundException("Answer not found"));
+                .map(answerMapper::toAnswerResponseDto).orElseThrow(() -> new EntityNotFoundException("Answer not found"));
+    }
+
+    @Transactional(readOnly = true)
+    private Answer addDependenciesToAnswer(Answer answer) {
+        answer.setAuthor(userMapper.toUser(
+                userService.findUserByUsername(answer.getAuthor().getUsername())
+        ));
+        answer.setQuestion(questionMapper.toQuestion(
+                questionService.findElementById(
+                        answer.getQuestion().getQuestionId()
+                )
+        ));
+
+        return answer;
     }
 
 }

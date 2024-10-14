@@ -25,7 +25,7 @@ public class AnswerRepositoryImpl extends AbstractDao<UUID, Answer> implements A
         Join<Answer, User> userJoin = root.join(Answer_.author, JoinType.LEFT);
         Join<Answer, Question> questionJoin = root.join(Answer_.question, JoinType.LEFT);
 
-        Predicate equalsAuthorName = builder.equal(userJoin.get(User_.nickname), authorName);
+        Predicate equalsAuthorName = builder.equal(userJoin.get(User_.username), authorName);
         Predicate equalsQuestionId = builder.equal(questionJoin.get(Question_.questionId), questionId);
         Predicate equalsBody = builder.equal(root.get(Answer_.body), body);
 

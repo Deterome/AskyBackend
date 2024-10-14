@@ -1,6 +1,7 @@
 package org.senla_project.application.config;
 
 import liquibase.integration.spring.SpringLiquibase;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +16,7 @@ public class LiquibaseConfig {
 
     @Autowired
     private DataSource dataSource;
+
     @Value("${liquibase.driver}")
     String liquibaseDriver;
     @Value("${liquibase.changeLogFile}")

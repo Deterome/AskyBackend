@@ -8,25 +8,30 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "collaborations_users")
-@NoArgsConstructor @AllArgsConstructor @Data @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
 public class CollaborationsJoining {
 
     @Column(name = "join_id")
     @Id
     @GeneratedValue
-    UUID joinId;
+    private UUID joinId;
 
-    @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "collab_id")
-    Collaboration collab;
-
+    @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    private Collaboration collab;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    User user;
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private User user;
 
     @Column(name = "join_date")
-    LocalDate joinDate;
+    private LocalDate joinDate;
 
 }

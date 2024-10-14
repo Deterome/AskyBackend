@@ -1,19 +1,25 @@
 package org.senla_project.application.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
+import org.senla_project.application.config.WebSecurityConfig;
 import org.senla_project.application.dto.CollaborationCreateDto;
 import org.senla_project.application.dto.CollaborationResponseDto;
 import org.senla_project.application.util.JsonParser;
+import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -23,50 +29,78 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
-@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, DataSourceConfigTest.class, HibernateConfigTest.class})
+@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, DataSourceConfigTest.class, HibernateConfigTest.class})
 @Transactional
+@ExtendWith(SpringParameterResolver.class)
+@RequiredArgsConstructor
 class CollaborationControllerTest {
 
-    @Autowired
-    JsonParser jsonParser;
-    @Autowired
-    CollaborationController collabController;
+    final JsonParser jsonParser;
+    final CollaborationController collabController;
 
     MockMvc mockMvc;
 
     @BeforeEach
     void setup(WebApplicationContext wac) {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        this.mockMvc = MockMvcBuilders
+                .webAppContextSetup(wac)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .build();
     }
 
     @Test
-    void getAllElements() throws Exception {
-        mockMvc.perform(get("/collabs/all")
+    void getAllElements_thenThrowUnauthorizedException() throws Exception {
+        mockMvc.perform(get("/collabs/all?page=1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void getAllElements_thenThrowNotFoundException() throws Exception {
+        mockMvc.perform(get("/collabs/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
 
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void getAllElements_thenReturnAllElements() throws Exception {
         collabController.addElement(TestData.getCollaborationCreateDto());
-        mockMvc.perform(get("/collabs/all")
+        mockMvc.perform(get("/collabs/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(collabController.getAllElements().size(), 1);
+        Assertions.assertEquals(collabController.getAllElements(1).size(), 1);
     }
 
     @Test
-    void findElementById() throws Exception {
+    void findElementById_thenThrowUnauthorizedException() throws Exception {
+        mockMvc.perform(get("/collabs/{id}", UUID.randomUUID())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void findElementById_thenThrowNotFoundException() throws Exception {
         mockMvc.perform(get("/collabs/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
 
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void findElementById_thenReturnElement() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         CollaborationResponseDto createdCollaboration = collabController.addElement(collabCreateDto);
         mockMvc.perform(get("/collabs/{id}", createdCollaboration.getCollabId())
@@ -78,7 +112,19 @@ class CollaborationControllerTest {
     }
 
     @Test
-    void addElement() throws Exception {
+    void addElement_thenThrowUnauthorizedException() throws Exception {
+        CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
+        mockMvc.perform(post("/collabs/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(collabCreateDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void addElement_thenReturnCreatedElement() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         mockMvc.perform(post("/collabs/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -92,14 +138,30 @@ class CollaborationControllerTest {
     }
 
     @Test
-    void updateElement() throws Exception {
+    void updateElement_thenThrowUnauthorizedException() throws Exception {
+        CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
+        mockMvc.perform(put("/collabs/update/{id}", UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(collabCreateDto)))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void updateElement_thenThrowPreconditionFailedException() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         mockMvc.perform(put("/collabs/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(collabCreateDto)))
                 .andDo(print())
                 .andExpect(status().isPreconditionFailed());
+    }
 
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void updateElement_thenReturnUpdatedElement() throws Exception {
+        CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         CollaborationResponseDto collabResponseDto = collabController.addElement(collabCreateDto);
         CollaborationCreateDto updatedCollaborationCreateDto = TestData.getUpdatedCollaborationCreateDto();
 
@@ -116,7 +178,16 @@ class CollaborationControllerTest {
     }
 
     @Test
-    void deleteElement() throws Exception {
+    void deleteElement_thenThrowUnauthorizedException() throws Exception {
+        mockMvc.perform(delete("/collabs/delete/{id}", UUID.randomUUID())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void deleteElement_thenDeleteElement() throws Exception {
         mockMvc.perform(delete("/collabs/delete/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -132,12 +203,25 @@ class CollaborationControllerTest {
     }
 
     @Test
-    void findCollabByName() throws Exception {
+    void findCollabByName_thenThrowUnauthorizedException() throws Exception {
+        mockMvc.perform(get("/collabs?collab_name={name}", "Alex")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void findCollabByName_thenThrowNotFoundException() throws Exception {
         mockMvc.perform(get("/collabs?collab_name={name}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
 
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void findCollabByName_thenReturnElement() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         collabController.addElement(collabCreateDto);
         mockMvc.perform(get("/collabs?collab_name={name}", collabCreateDto.getCollabName())

@@ -1,10 +1,10 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.RoleCreateDto;
 import org.senla_project.application.dto.RoleResponseDto;
 import org.senla_project.application.service.RoleService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,16 +13,16 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/roles")
-public class RoleController implements ControllerInterface<UUID, RoleCreateDto, RoleResponseDto> {
+@RequiredArgsConstructor
+public class RoleController implements DefaultControllerInterface<UUID, RoleCreateDto, RoleResponseDto> {
 
-    @Autowired
-    private RoleService service;
+    final private RoleService service;
 
     @Override
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<RoleResponseDto> getAllElements() {
-        return service.getAllElements();
+    public List<RoleResponseDto> getAllElements(@RequestParam(name="page") int pageNumber) {
+        return service.findAllElements(pageNumber);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class RoleController implements ControllerInterface<UUID, RoleCreateDto, 
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public RoleResponseDto findRoleByName(@NonNull @RequestParam(name = "role_name", required = false) String roleName) {
+    public RoleResponseDto findRoleByName(@NonNull @RequestParam(name = "role_name") String roleName) {
         return service.findRoleByName(roleName);
     }
 }

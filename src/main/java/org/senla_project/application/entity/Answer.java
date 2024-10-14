@@ -8,30 +8,35 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "answers")
-@NoArgsConstructor @AllArgsConstructor @Data @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
 public class Answer {
 
     @Column(name = "answer_id")
     @Id
     @GeneratedValue
-    UUID answerId;
+    private UUID answerId;
 
-    String body;
+    private String body;
 
-    @EqualsAndHashCode.Exclude
     @JoinColumn(name = "author")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    User author;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @JoinColumn(name = "question_id")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    Question question;
+    private User author;
 
-    int usefulness;
+    @JoinColumn(name = "question_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Question question;
+
+    private int usefulness;
 
     @Column(name = "create_time")
-    LocalDate createTime;
+    private LocalDate createTime;
 
 }
 
