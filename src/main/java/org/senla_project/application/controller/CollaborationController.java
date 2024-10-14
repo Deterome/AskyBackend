@@ -21,8 +21,8 @@ public class CollaborationController implements DefaultControllerInterface<UUID,
     @Override
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<CollaborationResponseDto> getAllElements() {
-        return service.findAllElements();
+    public List<CollaborationResponseDto> getAllElements(@RequestParam(name="page") int pageNumber) {
+        return service.findAllElements(pageNumber);
     }
 
     @Override

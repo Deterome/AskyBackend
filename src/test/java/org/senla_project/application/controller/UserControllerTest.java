@@ -63,7 +63,7 @@ class UserControllerTest {
 
     @Test
     void getAllElements_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/users/all")
+        mockMvc.perform(get("/users/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -72,7 +72,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getAllElements_thenThrowForbiddenException() throws Exception {
-        mockMvc.perform(get("/users/all")
+        mockMvc.perform(get("/users/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -81,7 +81,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.ADMIN_ROLE})
     void getAllElements_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/users/all")
+        mockMvc.perform(get("/users/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -91,12 +91,12 @@ class UserControllerTest {
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.ADMIN_ROLE})
     void getAllElements_thenReturnAllElements() throws Exception {
         authController.createNewUser(TestData.getUserCreateDto());
-        mockMvc.perform(get("/users/all")
+        mockMvc.perform(get("/users/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(userController.getAllElements().size(), 1);
+        Assertions.assertEquals(userController.getAllElements(1).size(), 1);
     }
 
     @Test

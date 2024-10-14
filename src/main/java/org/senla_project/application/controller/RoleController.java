@@ -21,8 +21,8 @@ public class RoleController implements DefaultControllerInterface<UUID, RoleCrea
     @Override
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<RoleResponseDto> getAllElements() {
-        return service.findAllElements();
+    public List<RoleResponseDto> getAllElements(@RequestParam(name="page") int pageNumber) {
+        return service.findAllElements(pageNumber);
     }
 
     @Override

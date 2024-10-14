@@ -9,7 +9,7 @@ public interface DefaultDao<K, T> {
 
     Optional<T> findById(K id);
 
-    List<T> findAll();
+    List<T> findAll(int pageNumber);
 
     T update(T updatedEntity);
 

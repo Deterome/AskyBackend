@@ -20,8 +20,8 @@ public class UserController {
 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserResponseDto> getAllElements() {
-        return service.findAllElements();
+    public List<UserResponseDto> getAllElements(@RequestParam(name="page") int pageNumber) {
+        return service.findAllElements(pageNumber);
     }
 
     @GetMapping("/{id}")

@@ -68,7 +68,7 @@ class QuestionRepositoryImplTest {
         List<Question> expectedQuestionList = new ArrayList<>();
         expectedQuestionList.add(question);
         questionRepository.create(question);
-        List<Question> actualQuestionList = questionRepository.findAll();
+        List<Question> actualQuestionList = questionRepository.findAll(1);
         Assertions.assertEquals(expectedQuestionList, actualQuestionList);
     }
 

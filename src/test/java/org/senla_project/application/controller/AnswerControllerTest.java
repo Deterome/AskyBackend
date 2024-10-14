@@ -63,14 +63,14 @@ class AnswerControllerTest {
 
     AnswerCreateDto setQuestionIdOfAnswerCreateDto(AnswerCreateDto answerCreateDto) {
         answerCreateDto.setQuestionId(
-                UUID.fromString(questionController.getAllElements().getFirst().getQuestionId()
+                UUID.fromString(questionController.getAllElements(1).getFirst().getQuestionId()
                 ));
         return answerCreateDto;
     }
 
     @Test
     void getAllElements_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/answers/all")
+        mockMvc.perform(get("/answers/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -79,7 +79,7 @@ class AnswerControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getAllElements_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/answers/all")
+        mockMvc.perform(get("/answers/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -90,12 +90,12 @@ class AnswerControllerTest {
     void getAllElements_thenReturnAllElements() throws Exception {
         AnswerCreateDto answerCreateDto = setQuestionIdOfAnswerCreateDto(TestData.getAnswerCreateDto());
         answerController.addElement(answerCreateDto);
-        mockMvc.perform(get("/answers/all")
+        mockMvc.perform(get("/answers/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(answerController.getAllElements().size(), 1);
+        Assertions.assertEquals(answerController.getAllElements(1).size(), 1);
     }
 
     @Test

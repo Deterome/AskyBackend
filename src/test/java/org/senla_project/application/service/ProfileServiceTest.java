@@ -61,8 +61,8 @@ class ProfileServiceTest {
     @Test
     void findAllElements() {
         try {
-            profileServiceMock.findAllElements();
-            Mockito.verify(profileRepositoryMock).findAll();
+            profileServiceMock.findAllElements(1);
+            Mockito.verify(profileRepositoryMock).findAll(1);
         } catch (EntityNotFoundException ignored) {}
     }
 

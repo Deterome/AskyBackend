@@ -21,8 +21,8 @@ public class AnswerController implements DefaultControllerInterface<UUID, Answer
     @Override
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<AnswerResponseDto> getAllElements() {
-        return service.findAllElements();
+    public List<AnswerResponseDto> getAllElements(@RequestParam(name="page") int pageNumber) {
+        return service.findAllElements(pageNumber);
     }
 
     @Override

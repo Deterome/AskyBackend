@@ -54,7 +54,7 @@ class CollaborationRepositoryImplTest {
         List<Collaboration> expectedCollaborationList = new ArrayList<>();
         expectedCollaborationList.add(collaboration);
         collaborationRepository.create(collaboration);
-        List<Collaboration> actualCollaborationList = collaborationRepository.findAll();
+        List<Collaboration> actualCollaborationList = collaborationRepository.findAll(1);
         Assertions.assertEquals(expectedCollaborationList, actualCollaborationList);
     }
 

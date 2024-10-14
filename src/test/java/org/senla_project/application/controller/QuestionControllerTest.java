@@ -62,7 +62,7 @@ class QuestionControllerTest {
 
     @Test
     void getAllElements_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/questions/all")
+        mockMvc.perform(get("/questions/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -71,7 +71,7 @@ class QuestionControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getAllElements_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/questions/all")
+        mockMvc.perform(get("/questions/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -81,12 +81,12 @@ class QuestionControllerTest {
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getAllElements_thenReturnAllElements() throws Exception {
         questionController.addElement(TestData.getQuestionCreateDto());
-        mockMvc.perform(get("/questions/all")
+        mockMvc.perform(get("/questions/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(questionController.getAllElements().size(), 1);
+        Assertions.assertEquals(questionController.getAllElements(1).size(), 1);
     }
 
     @Test

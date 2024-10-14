@@ -70,8 +70,8 @@ class AnswerServiceTest {
     @Test
     void findAllElements() {
         try {
-            answerServiceMock.findAllElements();
-            Mockito.verify(answerRepositoryMock).findAll();
+            answerServiceMock.findAllElements(1);
+            Mockito.verify(answerRepositoryMock).findAll(1);
         } catch (EntityNotFoundException ignored) {}
     }
 

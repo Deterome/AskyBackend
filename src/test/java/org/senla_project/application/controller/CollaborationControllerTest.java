@@ -54,7 +54,7 @@ class CollaborationControllerTest {
 
     @Test
     void getAllElements_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/collabs/all")
+        mockMvc.perform(get("/collabs/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -63,7 +63,7 @@ class CollaborationControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getAllElements_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/collabs/all")
+        mockMvc.perform(get("/collabs/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -73,12 +73,12 @@ class CollaborationControllerTest {
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getAllElements_thenReturnAllElements() throws Exception {
         collabController.addElement(TestData.getCollaborationCreateDto());
-        mockMvc.perform(get("/collabs/all")
+        mockMvc.perform(get("/collabs/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(collabController.getAllElements().size(), 1);
+        Assertions.assertEquals(collabController.getAllElements(1).size(), 1);
     }
 
     @Test

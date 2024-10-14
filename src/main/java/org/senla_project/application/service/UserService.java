@@ -67,8 +67,8 @@ public class UserService implements ServiceInterface<UUID, UserCreateDto, UserRe
 
     @Transactional(readOnly = true)
     @Override
-    public List<UserResponseDto> findAllElements() throws EntityNotFoundException {
-        var elements = userMapper.toUserResponseDtoList(userRepository.findAll());
+    public List<UserResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
+        var elements = userMapper.toUserResponseDtoList(userRepository.findAll(pageNumber));
         if (elements.isEmpty()) throw new EntityNotFoundException("Users not found");
         return elements;
     }

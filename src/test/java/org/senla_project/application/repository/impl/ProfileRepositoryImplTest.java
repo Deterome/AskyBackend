@@ -68,7 +68,7 @@ class ProfileRepositoryImplTest {
         List<Profile> expectedProfileList = new ArrayList<>();
         expectedProfileList.add(profile);
         profileRepository.create(profile);
-        List<Profile> actualProfileList = profileRepository.findAll();
+        List<Profile> actualProfileList = profileRepository.findAll(1);
         Assertions.assertEquals(expectedProfileList, actualProfileList);
     }
 

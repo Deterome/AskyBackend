@@ -62,7 +62,7 @@ class ProfileControllerTest {
 
     @Test
     void getAllElements_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/profiles/all")
+        mockMvc.perform(get("/profiles/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -72,24 +72,24 @@ class ProfileControllerTest {
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getAllElements_thenThrowNotFoundException() throws Exception {
         profileController.addElement(TestData.getProfileCreateDto());
-        mockMvc.perform(get("/profiles/all")
+        mockMvc.perform(get("/profiles/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(profileController.getAllElements().size(), 1);
+        Assertions.assertEquals(profileController.getAllElements(1).size(), 1);
     }
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getAllElements_thenReturnAllElements() throws Exception {
         profileController.addElement(TestData.getProfileCreateDto());
-        mockMvc.perform(get("/profiles/all")
+        mockMvc.perform(get("/profiles/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(profileController.getAllElements().size(), 1);
+        Assertions.assertEquals(profileController.getAllElements(1).size(), 1);
     }
 
     @Test
