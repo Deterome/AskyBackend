@@ -11,7 +11,7 @@ public class SpringParameterResolver implements ParameterResolver {
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return parameterContext.getParameter().getType()!= WebApplicationContext.class;
+        return parameterContext.getParameter().getType() != WebApplicationContext.class;
     }
 
     @Override

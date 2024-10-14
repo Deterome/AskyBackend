@@ -5,7 +5,7 @@ import lombok.NonNull;
 import java.util.List;
 
 public interface ServiceInterface<K, T, R> {
-    List<R> findAllElements();
+    List<R> findAllElements(int pageNumber);
 
     R findElementById(@NonNull K id);
 

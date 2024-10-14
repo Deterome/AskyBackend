@@ -5,7 +5,7 @@ import lombok.NonNull;
 import java.util.List;
 
 public interface DefaultControllerInterface<K, T, R> {
-    List<R> getAllElements();
+    List<R> getAllElements(int pageNumber);
 
     R getElementById(K id);
 

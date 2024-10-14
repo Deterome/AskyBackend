@@ -54,7 +54,7 @@ class UserRepositoryImplTest {
         List<User> expectedUserList = new ArrayList<>();
         expectedUserList.add(user);
         userRepository.create(user);
-        List<User> actualUserList = userRepository.findAll();
+        List<User> actualUserList = userRepository.findAll(1);
         Assertions.assertEquals(expectedUserList, actualUserList);
     }
 

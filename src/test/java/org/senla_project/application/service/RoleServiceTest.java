@@ -50,8 +50,8 @@ class RoleServiceTest {
     @Test
     void findAllElements() {
         try {
-            roleServiceMock.findAllElements();
-            Mockito.verify(roleRepositoryMock).findAll();
+            roleServiceMock.findAllElements(1);
+            Mockito.verify(roleRepositoryMock).findAll(1);
         } catch (EntityNotFoundException ignored) {
         }
     }

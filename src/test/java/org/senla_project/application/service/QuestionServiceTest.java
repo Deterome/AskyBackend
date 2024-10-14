@@ -61,8 +61,8 @@ class QuestionServiceTest {
     @Test
     void findAllElements() {
         try {
-            questionServiceMock.findAllElements();
-            Mockito.verify(questionRepositoryMock).findAll();
+            questionServiceMock.findAllElements(1);
+            Mockito.verify(questionRepositoryMock).findAll(1);
         } catch (EntityNotFoundException ignored) {}
     }
 

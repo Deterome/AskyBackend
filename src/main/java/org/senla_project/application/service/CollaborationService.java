@@ -40,8 +40,8 @@ public class CollaborationService implements ServiceInterface<UUID, Collaboratio
 
     @Transactional(readOnly = true)
     @Override
-    public List<CollaborationResponseDto> findAllElements() throws EntityNotFoundException {
-        var elements = collaborationMapper.toCollabDtoList(collaborationRepository.findAll());
+    public List<CollaborationResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
+        var elements = collaborationMapper.toCollabDtoList(collaborationRepository.findAll(pageNumber));
         if (elements.isEmpty()) throw new EntityNotFoundException("Collaborations not found");
         return elements;
     }

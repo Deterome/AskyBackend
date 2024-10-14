@@ -62,8 +62,8 @@ class UserServiceTest {
     @Test
     void findAllElements() {
         try {
-            userServiceMock.findAllElements();
-            Mockito.verify(userRepositoryMock).findAll();
+            userServiceMock.findAllElements(1);
+            Mockito.verify(userRepositoryMock).findAll(1);
         } catch (EntityNotFoundException ignored) {
         }
     }

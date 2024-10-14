@@ -54,7 +54,7 @@ class RoleRepositoryImplTest {
         List<Role> expectedRoleList = new ArrayList<>();
         expectedRoleList.add(role);
         roleRepository.create(role);
-        List<Role> actualRoleList = roleRepository.findAll();
+        List<Role> actualRoleList = roleRepository.findAll(1);
         Assertions.assertEquals(expectedRoleList, actualRoleList);
     }
 

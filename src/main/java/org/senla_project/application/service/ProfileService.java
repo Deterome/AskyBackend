@@ -48,8 +48,8 @@ public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, 
 
     @Transactional(readOnly = true)
     @Override
-    public List<ProfileResponseDto> findAllElements() throws EntityNotFoundException {
-        var elements = profileMapper.toProfileDtoList(profileRepository.findAll());
+    public List<ProfileResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
+        var elements = profileMapper.toProfileDtoList(profileRepository.findAll(pageNumber));
         if (elements.isEmpty()) throw new EntityNotFoundException("Profiles not found");
         return elements;
     }

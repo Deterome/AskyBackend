@@ -51,8 +51,8 @@ public class AnswerService implements ServiceInterface<UUID, AnswerCreateDto, An
 
     @Transactional(readOnly = true)
     @Override
-    public List<AnswerResponseDto> findAllElements() throws EntityNotFoundException {
-        var elements = answerMapper.toAnswerDtoList(answerRepository.findAll());
+    public List<AnswerResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
+        var elements = answerMapper.toAnswerDtoList(answerRepository.findAll(pageNumber));
         if (elements.isEmpty()) throw new EntityNotFoundException("Answers not found");
         return elements;
     }

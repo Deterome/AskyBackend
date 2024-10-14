@@ -21,8 +21,8 @@ public class ProfileController implements DefaultControllerInterface<UUID, Profi
     @Override
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<ProfileResponseDto> getAllElements() {
-        return service.findAllElements();
+    public List<ProfileResponseDto> getAllElements(@RequestParam(name="page") int pageNumber) {
+        return service.findAllElements(pageNumber);
     }
 
     @Override

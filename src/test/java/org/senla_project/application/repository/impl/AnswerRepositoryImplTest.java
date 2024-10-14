@@ -53,7 +53,7 @@ class AnswerRepositoryImplTest {
 
     Answer addDependenciesToAnswer(Answer answer) {
         answer.setAuthor(userRepository.findUserByUsername(answer.getAuthor().getUsername()).get());
-        answer.setQuestion(questionRepository.findAll().getFirst());
+        answer.setQuestion(questionRepository.findAll(1).getFirst());
         return answer;
     }
 
@@ -79,7 +79,7 @@ class AnswerRepositoryImplTest {
         List<Answer> expectedAnswerList = new ArrayList<>();
         expectedAnswerList.add(answer);
         answerRepository.create(answer);
-        List<Answer> actualAnswerList = answerRepository.findAll();
+        List<Answer> actualAnswerList = answerRepository.findAll(1);
         Assertions.assertEquals(expectedAnswerList, actualAnswerList);
     }
 

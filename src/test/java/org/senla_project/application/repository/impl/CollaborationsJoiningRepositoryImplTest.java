@@ -73,7 +73,7 @@ class CollaborationsJoiningRepositoryImplTest {
         List<CollaborationsJoining> expectedCollaborationsJoiningList = new ArrayList<>();
         expectedCollaborationsJoiningList.add(collabJoining);
         collabJoiningRepository.create(collabJoining);
-        List<CollaborationsJoining> actualCollaborationsJoiningList = collabJoiningRepository.findAll();
+        List<CollaborationsJoining> actualCollaborationsJoiningList = collabJoiningRepository.findAll(1);
         Assertions.assertEquals(expectedCollaborationsJoiningList, actualCollaborationsJoiningList);
     }
 

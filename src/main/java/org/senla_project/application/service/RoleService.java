@@ -40,8 +40,8 @@ public class RoleService implements ServiceInterface<UUID, RoleCreateDto, RoleRe
 
     @Transactional(readOnly = true)
     @Override
-    public List<RoleResponseDto> findAllElements() throws EntityNotFoundException {
-        var elements = roleMapper.toRoleDtoList(roleRepository.findAll());
+    public List<RoleResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
+        var elements = roleMapper.toRoleDtoList(roleRepository.findAll(pageNumber));
         if (elements.isEmpty()) throw new EntityNotFoundException("Roles not found");
         return elements;
     }

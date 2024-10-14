@@ -54,7 +54,7 @@ class RoleControllerTest {
 
     @Test
     void getAllElements_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/roles/all")
+        mockMvc.perform(get("/roles/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -63,7 +63,7 @@ class RoleControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getAllElements_thenThrowForbiddenException() throws Exception {
-        mockMvc.perform(get("/roles/all")
+        mockMvc.perform(get("/roles/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -72,7 +72,7 @@ class RoleControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.ADMIN_ROLE})
     void getAllElements_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/roles/all")
+        mockMvc.perform(get("/roles/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -82,12 +82,12 @@ class RoleControllerTest {
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.ADMIN_ROLE})
     void getAllElements_thenReturnAllElements() throws Exception {
         roleController.addElement(TestData.getRoleCreateDto());
-        mockMvc.perform(get("/roles/all")
+        mockMvc.perform(get("/roles/all?page=1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(roleController.getAllElements().size(), 1);
+        Assertions.assertEquals(roleController.getAllElements(1).size(), 1);
     }
 
     @Test

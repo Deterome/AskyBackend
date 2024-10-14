@@ -48,8 +48,8 @@ public class QuestionService implements ServiceInterface<UUID, QuestionCreateDto
 
     @Transactional(readOnly = true)
     @Override
-    public List<QuestionResponseDto> findAllElements() throws EntityNotFoundException {
-        var elements = questionMapper.toQuestionDtoList(questionRepository.findAll());
+    public List<QuestionResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
+        var elements = questionMapper.toQuestionDtoList(questionRepository.findAll(pageNumber));
         if (elements.isEmpty()) throw new EntityNotFoundException("Questions not found");
         return elements;
     }
