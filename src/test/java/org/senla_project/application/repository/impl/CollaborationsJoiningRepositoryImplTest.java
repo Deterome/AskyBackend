@@ -14,7 +14,6 @@ import org.senla_project.application.repository.CollaborationsJoiningRepository;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,9 +25,9 @@ import java.util.Optional;
 @SpringJUnitWebConfig({
         DataSourceConfigTest.class,
         HibernateConfigTest.class,
-        CollaborationsJoiningRepositoryImpl.class,
-        CollaborationRepositoryImpl.class,
-        UserRepositoryImpl.class
+        CollaborationsJoiningRepository.class,
+        CollaborationRepository.class,
+        UserRepository.class
 })
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
@@ -41,20 +40,20 @@ class CollaborationsJoiningRepositoryImplTest {
 
     @BeforeEach
     void initDataBaseWithData() {
-        userRepository.create(TestData.getUser());
-        collabRepository.create(TestData.getCollaboration());
+        userRepository.save(TestData.getUser());
+        collabRepository.save(TestData.getCollaboration());
     }
 
     CollaborationsJoining addDependenciesToCollabJoin(CollaborationsJoining collabJoin) {
-        collabJoin.setUser(userRepository.findUserByUsername(collabJoin.getUser().getUsername()).get());
-        collabJoin.setCollab(collabRepository.findCollabByName(collabJoin.getCollab().getCollabName()).get());
+        collabJoin.setUser(userRepository.findByUsername(collabJoin.getUser().getUsername()).get());
+        collabJoin.setCollab(collabRepository.findByCollabName(collabJoin.getCollab().getCollabName()).get());
         return collabJoin;
     }
 
     @Test
     void create() {
         CollaborationsJoining expectedCollabJoining = addDependenciesToCollabJoin(TestData.getCollabJoining());
-        collabJoiningRepository.create(expectedCollabJoining);
+        collabJoiningRepository.save(expectedCollabJoining);
         CollaborationsJoining actual = collabJoiningRepository.findById(expectedCollabJoining.getJoinId()).get();
         Assertions.assertEquals(expectedCollabJoining, actual);
     }
@@ -62,7 +61,7 @@ class CollaborationsJoiningRepositoryImplTest {
     @Test
     void findById() {
         CollaborationsJoining expectedCollaborationsJoining = addDependenciesToCollabJoin(TestData.getCollabJoining());
-        collabJoiningRepository.create(expectedCollaborationsJoining);
+        collabJoiningRepository.save(expectedCollaborationsJoining);
         CollaborationsJoining actual = collabJoiningRepository.findById(expectedCollaborationsJoining.getJoinId()).get();
         Assertions.assertEquals(expectedCollaborationsJoining, actual);
     }
@@ -72,18 +71,18 @@ class CollaborationsJoiningRepositoryImplTest {
         CollaborationsJoining collabJoining = addDependenciesToCollabJoin(TestData.getCollabJoining());
         List<CollaborationsJoining> expectedCollaborationsJoiningList = new ArrayList<>();
         expectedCollaborationsJoiningList.add(collabJoining);
-        collabJoiningRepository.create(collabJoining);
-        List<CollaborationsJoining> actualCollaborationsJoiningList = collabJoiningRepository.findAll(1);
+        collabJoiningRepository.save(collabJoining);
+        List<CollaborationsJoining> actualCollaborationsJoiningList = collabJoiningRepository.findAll();
         Assertions.assertEquals(expectedCollaborationsJoiningList, actualCollaborationsJoiningList);
     }
 
     @Test
     void update() {
         CollaborationsJoining collabJoining = addDependenciesToCollabJoin(TestData.getCollabJoining());
-        collabJoiningRepository.create(collabJoining);
+        collabJoiningRepository.save(collabJoining);
         CollaborationsJoining expectedCollaborationsJoining = addDependenciesToCollabJoin(TestData.getUpdatedCollabJoining());
         expectedCollaborationsJoining.setJoinId(collabJoining.getJoinId());
-        collabJoiningRepository.update(expectedCollaborationsJoining);
+        collabJoiningRepository.save(expectedCollaborationsJoining);
 
         CollaborationsJoining actual = collabJoiningRepository.findById(expectedCollaborationsJoining.getJoinId()).get();
         Assertions.assertEquals(expectedCollaborationsJoining, actual);
@@ -92,7 +91,7 @@ class CollaborationsJoiningRepositoryImplTest {
     @Test
     void deleteById() {
         CollaborationsJoining collabJoining = addDependenciesToCollabJoin(TestData.getUpdatedCollabJoining());
-        collabJoiningRepository.create(collabJoining);
+        collabJoiningRepository.save(collabJoining);
         var collabJoiningId = collabJoining.getJoinId();
         collabJoiningRepository.deleteById(collabJoiningId);
         Optional<CollaborationsJoining> actual = collabJoiningRepository.findById(collabJoiningId);
@@ -100,10 +99,10 @@ class CollaborationsJoiningRepositoryImplTest {
     }
 
     @Test
-    void findCollabJoin() {
+    void findByUsernameAndCollaboration() {
         CollaborationsJoining expectedCollaborationsJoining = addDependenciesToCollabJoin(TestData.getCollabJoining());
-        collabJoiningRepository.create(expectedCollaborationsJoining);
-        CollaborationsJoining actual = collabJoiningRepository.findCollabJoin(expectedCollaborationsJoining.getUser().getUsername(),
+        collabJoiningRepository.save(expectedCollaborationsJoining);
+        CollaborationsJoining actual = collabJoiningRepository.findByUsernameAndCollabName(expectedCollaborationsJoining.getUser().getUsername(),
                 expectedCollaborationsJoining.getCollab().getCollabName()).get();
         Assertions.assertEquals(expectedCollaborationsJoining, actual);
     }

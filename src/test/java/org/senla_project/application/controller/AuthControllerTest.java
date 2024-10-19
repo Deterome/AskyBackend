@@ -14,7 +14,6 @@ import org.senla_project.application.dto.UserCreateDto;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
@@ -23,7 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,7 +49,7 @@ class AuthControllerTest {
 
     @BeforeEach
     void initDataBaseWithDate() {
-        roleController.addElement(TestData.getRoleCreateDto());
+        roleController.create(TestData.getRoleCreateDto());
     }
 
     @Test

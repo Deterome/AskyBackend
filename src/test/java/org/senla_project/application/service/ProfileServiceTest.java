@@ -15,7 +15,11 @@ import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.ProfileRepository;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,53 +37,59 @@ class ProfileServiceTest {
     ProfileService profileServiceMock;
 
     @Test
-    void addElement() {
+    void create() {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         Mockito.when(profileMapper.toProfile(profileCreateDto)).thenReturn(TestData.getProfile());
         Mockito.when(userMapper.toUser((UserResponseDto) Mockito.any())).thenReturn(TestData.getAuthenticatedUser());
-        profileServiceMock.addElement(profileCreateDto);
-        Mockito.verify(profileRepositoryMock).create(Mockito.any());
+        profileServiceMock.create(profileCreateDto);
+        Mockito.verify(profileRepositoryMock).save(Mockito.any());
     }
 
     @Test
-    void updateElement() {
+    void updateById() {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         UUID id = UUID.randomUUID();
         Mockito.when(profileMapper.toProfile(id, profileCreateDto)).thenReturn(TestData.getProfile());
         Mockito.when(userMapper.toUser((UserResponseDto) Mockito.any())).thenReturn(TestData.getAuthenticatedUser());
-        profileServiceMock.updateElement(id, profileCreateDto);
-        Mockito.verify(profileRepositoryMock).update(Mockito.any());
+        Mockito.when(profileRepositoryMock.existsById(id)).thenReturn(true);
+        profileServiceMock.updateById(id, profileCreateDto);
+        Mockito.verify(profileRepositoryMock).save(Mockito.any());
     }
 
     @Test
-    void deleteElement() {
+    void deleteById() {
         Mockito.doNothing().when(profileRepositoryMock).deleteById(Mockito.any());
-        profileServiceMock.deleteElement(UUID.randomUUID());
+        profileServiceMock.deleteById(UUID.randomUUID());
         Mockito.verify(profileRepositoryMock).deleteById(Mockito.any());
     }
 
     @Test
-    void findAllElements() {
+    void getAll() {
         try {
-            profileServiceMock.findAllElements(1);
-            Mockito.verify(profileRepositoryMock).findAll(1);
+            Mockito.when(profileRepositoryMock.findAll((Pageable) Mockito.any()))
+                    .thenReturn(new PageImpl<>(
+                            List.of(TestData.getProfile()),
+                            PageRequest.of(0, 5),
+                            1));
+            profileServiceMock.getAll(PageRequest.of(0, 5));
+            Mockito.verify(profileRepositoryMock).findAll((Pageable) Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }
 
     @Test
-    void findElementById() {
+    void getById() {
         try {
-            profileServiceMock.findElementById(UUID.randomUUID());
+            profileServiceMock.getById(UUID.randomUUID());
             Mockito.verify(profileRepositoryMock).findById(Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }
 
     @Test
-    void findProfileByUsername() {
+    void getByUsername() {
         try {
             Profile profile = TestData.getProfile();
-            profileServiceMock.findProfileByUsername(profile.getUser().getUsername());
-            Mockito.verify(profileRepositoryMock).findProfileByUsername(Mockito.any());
+            profileServiceMock.getByUsername(profile.getUser().getUsername());
+            Mockito.verify(profileRepositoryMock).findByUsername(Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }
 }

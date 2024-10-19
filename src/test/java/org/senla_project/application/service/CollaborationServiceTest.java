@@ -13,7 +13,11 @@ import org.senla_project.application.mapper.CollaborationMapper;
 import org.senla_project.application.repository.CollaborationRepository;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,38 +31,45 @@ class CollaborationServiceTest {
     CollaborationService collabServiceMock;
 
     @Test
-    void addElement() {
+    void create() {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        collabServiceMock.addElement(collabCreateDto);
-        Mockito.verify(collabRepositoryMock).create(Mockito.any());
+        collabServiceMock.create(collabCreateDto);
+        Mockito.verify(collabRepositoryMock).save(Mockito.any());
     }
 
     @Test
-    void updateElement() {
+    void updateById() {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        collabServiceMock.updateElement(UUID.randomUUID(), collabCreateDto);
-        Mockito.verify(collabRepositoryMock).update(Mockito.any());
+        UUID id = UUID.randomUUID();
+        Mockito.when(collabRepositoryMock.existsById(id)).thenReturn(true);
+        collabServiceMock.updateById(id, collabCreateDto);
+        Mockito.verify(collabRepositoryMock).save(Mockito.any());
     }
 
     @Test
-    void deleteElement() {
+    void deleteById() {
         Mockito.doNothing().when(collabRepositoryMock).deleteById(Mockito.any());
-        collabServiceMock.deleteElement(UUID.randomUUID());
+        collabServiceMock.deleteById(UUID.randomUUID());
         Mockito.verify(collabRepositoryMock).deleteById(Mockito.any());
     }
 
     @Test
-    void findAllElements() {
+    void getAll() {
         try {
-            collabServiceMock.findAllElements(1);
-            Mockito.verify(collabRepositoryMock).findAll(1);
+            Mockito.when(collabRepositoryMock.findAll((Pageable) Mockito.any()))
+                    .thenReturn(new PageImpl<>(
+                            List.of(TestData.getCollaboration()),
+                            PageRequest.of(0, 5),
+                            1));
+            collabServiceMock.getAll(PageRequest.of(0, 5));
+            Mockito.verify(collabRepositoryMock).findAll((Pageable) Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }
 
     @Test
-    void findElementById() {
+    void getById() {
         try {
-            collabServiceMock.findElementById(UUID.randomUUID());
+            collabServiceMock.getById(UUID.randomUUID());
             Mockito.verify(collabRepositoryMock).findById(Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }
@@ -67,8 +78,8 @@ class CollaborationServiceTest {
     void findCollaborationByName() {
         try {
             Collaboration collab = TestData.getCollaboration();
-            collabServiceMock.findCollabByName(collab.getCollabName());
-            Mockito.verify(collabRepositoryMock).findCollabByName(Mockito.any());
+            collabServiceMock.getByCollabName(collab.getCollabName());
+            Mockito.verify(collabRepositoryMock).findByCollabName(Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }
 }

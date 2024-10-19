@@ -16,7 +16,6 @@ import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -56,13 +55,13 @@ class ProfileControllerTest {
 
     @BeforeEach
     void initDataBaseWithData() {
-        roleController.addElement(TestData.getRoleCreateDto());
+        roleController.create(TestData.getRoleCreateDto());
         authController.createNewUser(TestData.getUserCreateDto());
     }
 
     @Test
-    void getAllElements_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/profiles/all?page=1")
+    void getAll_thenThrowUnauthorizedException() throws Exception {
+        mockMvc.perform(get("/profiles/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -70,30 +69,30 @@ class ProfileControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getAllElements_thenThrowNotFoundException() throws Exception {
-        profileController.addElement(TestData.getProfileCreateDto());
-        mockMvc.perform(get("/profiles/all?page=1")
+    void getAll_thenThrowNotFoundException() throws Exception {
+        profileController.create(TestData.getProfileCreateDto());
+        mockMvc.perform(get("/profiles/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(profileController.getAllElements(1).size(), 1);
+        Assertions.assertEquals(profileController.getAll(1, 5).getTotalElements(), 1);
     }
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getAllElements_thenReturnAllElements() throws Exception {
-        profileController.addElement(TestData.getProfileCreateDto());
-        mockMvc.perform(get("/profiles/all?page=1")
+    void getAll_thenReturnAllElements() throws Exception {
+        profileController.create(TestData.getProfileCreateDto());
+        mockMvc.perform(get("/profiles/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(profileController.getAllElements(1).size(), 1);
+        Assertions.assertEquals(profileController.getAll(1, 5).getTotalElements(), 1);
     }
 
     @Test
-    void findElementById_thenThrowUnauthorizedException() throws Exception {
+    void getById_thenThrowUnauthorizedException() throws Exception {
         mockMvc.perform(get("/profiles/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -102,7 +101,7 @@ class ProfileControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void findElementById_thenThrowNotFoundException() throws Exception {
+    void getById_thenThrowNotFoundException() throws Exception {
         mockMvc.perform(get("/profiles/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -111,9 +110,9 @@ class ProfileControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void findElementById_thenReturnElement() throws Exception {
+    void getById_thenReturnElement() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        ProfileResponseDto createdProfile = profileController.addElement(profileCreateDto);
+        ProfileResponseDto createdProfile = profileController.create(profileCreateDto);
         mockMvc.perform(get("/profiles/{id}", createdProfile.getProfileId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -123,7 +122,7 @@ class ProfileControllerTest {
     }
 
     @Test
-    void addElement_thenReturnUnauthorized() throws Exception {
+    void create_thenReturnUnauthorized() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         mockMvc.perform(post("/profiles/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -135,7 +134,7 @@ class ProfileControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void addElement_thenReturnCreatedElement() throws Exception {
+    void create_thenReturnCreatedElement() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         mockMvc.perform(post("/profiles/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -144,12 +143,12 @@ class ProfileControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        Assertions.assertEquals(profileController.findProfileByUsername(profileCreateDto.getUsername()).getUsername(),
+        Assertions.assertEquals(profileController.getByUsername(profileCreateDto.getUsername()).getUsername(),
                 profileCreateDto.getUsername());
     }
 
     @Test
-    void updateElement_thenThrowUnauthorizedException() throws Exception {
+    void update_thenThrowUnauthorizedException() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         mockMvc.perform(put("/profiles/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -160,20 +159,20 @@ class ProfileControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void updateElement_thenThrowPreconditionFailedException() throws Exception {
+    void update_thenThrowNotFoundException() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         mockMvc.perform(put("/profiles/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(profileCreateDto)))
                 .andDo(print())
-                .andExpect(status().isPreconditionFailed());
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void updateElement_thenReturnUpdatedElement() throws Exception {
+    void update_thenReturnUpdatedElement() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        ProfileResponseDto profileResponseDto = profileController.addElement(profileCreateDto);
+        ProfileResponseDto profileResponseDto = profileController.create(profileCreateDto);
         ProfileCreateDto updatedProfileCreateDto = TestData.getUpdatedProfileCreateDto();
 
         mockMvc.perform(put("/profiles/update/{id}", profileResponseDto.getProfileId())
@@ -182,14 +181,14 @@ class ProfileControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(profileController.findProfileByUsername(updatedProfileCreateDto.getUsername()).getUsername(),
+        Assertions.assertEquals(profileController.getByUsername(updatedProfileCreateDto.getUsername()).getUsername(),
                 updatedProfileCreateDto.getUsername());
-        Assertions.assertEquals(profileController.findProfileByUsername(updatedProfileCreateDto.getUsername()).getProfileId(),
+        Assertions.assertEquals(profileController.getByUsername(updatedProfileCreateDto.getUsername()).getProfileId(),
                 profileResponseDto.getProfileId());
     }
 
     @Test
-    void deleteElement_thenThrowUnauthorizedException() throws Exception {
+    void delete_thenThrowUnauthorizedException() throws Exception {
         mockMvc.perform(delete("/profiles/delete/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -198,23 +197,23 @@ class ProfileControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void deleteElement_thenDeleteElement() throws Exception {
+    void delete_thenDeleteElement() throws Exception {
         mockMvc.perform(delete("/profiles/delete/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        ProfileResponseDto profileResponseDto = profileController.addElement(profileCreateDto);
+        ProfileResponseDto profileResponseDto = profileController.create(profileCreateDto);
         mockMvc.perform(delete("/profiles/delete/{id}", profileResponseDto.getProfileId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-        Assertions.assertThrows(EntityNotFoundException.class, () -> profileController.getElementById(UUID.fromString(profileResponseDto.getProfileId())));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> profileController.getById(UUID.fromString(profileResponseDto.getProfileId())));
     }
 
     @Test
-    void findProfileByUsername_thenThrowUnauthorizedException() throws Exception {
+    void getByUsername_thenThrowUnauthorizedException() throws Exception {
         mockMvc.perform(get("/profiles?username={name}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -223,7 +222,7 @@ class ProfileControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void findProfileByUsername_thenThrowNotFoundException() throws Exception {
+    void getByUsername_thenThrowNotFoundException() throws Exception {
         mockMvc.perform(get("/profiles?username={name}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -232,14 +231,14 @@ class ProfileControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void findProfileByUsername_thenReturnElement() throws Exception {
+    void getByUsername_thenReturnElement() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        profileController.addElement(profileCreateDto);
+        profileController.create(profileCreateDto);
         mockMvc.perform(get("/profiles?username={name}", profileCreateDto.getUsername())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        ProfileResponseDto profileResponseDto = profileController.findProfileByUsername(profileCreateDto.getUsername());
+        ProfileResponseDto profileResponseDto = profileController.getByUsername(profileCreateDto.getUsername());
         Assertions.assertEquals(profileResponseDto.getUsername(),
                 profileCreateDto.getUsername());
     }

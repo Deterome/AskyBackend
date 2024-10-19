@@ -13,7 +13,11 @@ import org.senla_project.application.mapper.RoleMapper;
 import org.senla_project.application.repository.RoleRepository;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,50 +31,57 @@ class RoleServiceTest {
     RoleService roleServiceMock;
 
     @Test
-    void addElement() {
+    void create() {
         RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
-        roleServiceMock.addElement(roleCreateDto);
-        Mockito.verify(roleRepositoryMock).create(Mockito.any());
+        roleServiceMock.create(roleCreateDto);
+        Mockito.verify(roleRepositoryMock).save(Mockito.any());
     }
 
     @Test
-    void updateElement() {
+    void updateById() {
         RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
-        roleServiceMock.updateElement(UUID.randomUUID(), roleCreateDto);
-        Mockito.verify(roleRepositoryMock).update(Mockito.any());
+        UUID id = UUID.randomUUID();
+        Mockito.when(roleRepositoryMock.existsById(id)).thenReturn(true);
+        roleServiceMock.updateById(id, roleCreateDto);
+        Mockito.verify(roleRepositoryMock).save(Mockito.any());
     }
 
     @Test
-    void deleteElement() {
+    void deleteById() {
         Mockito.doNothing().when(roleRepositoryMock).deleteById(Mockito.any());
-        roleServiceMock.deleteElement(UUID.randomUUID());
+        roleServiceMock.deleteById(UUID.randomUUID());
         Mockito.verify(roleRepositoryMock).deleteById(Mockito.any());
     }
 
     @Test
-    void findAllElements() {
+    void getAll() {
         try {
-            roleServiceMock.findAllElements(1);
-            Mockito.verify(roleRepositoryMock).findAll(1);
+            Mockito.when(roleRepositoryMock.findAll((Pageable) Mockito.any()))
+                    .thenReturn(new PageImpl<>(
+                            List.of(TestData.getRole()),
+                            PageRequest.of(0, 5),
+                            1));
+            roleServiceMock.getAll(PageRequest.of(0, 5));
+            Mockito.verify(roleRepositoryMock).findAll((Pageable) Mockito.any());
         } catch (EntityNotFoundException ignored) {
         }
     }
 
     @Test
-    void findElementById() {
+    void getById() {
         try {
-            roleServiceMock.findElementById(UUID.randomUUID());
+            roleServiceMock.getById(UUID.randomUUID());
             Mockito.verify(roleRepositoryMock).findById(Mockito.any());
         } catch (EntityNotFoundException ignored) {
         }
     }
 
     @Test
-    void findRoleByName() {
+    void getByRoleName() {
         try {
             Role role = TestData.getRole();
-            roleServiceMock.findRoleByName(role.getRoleName());
-            Mockito.verify(roleRepositoryMock).findRoleByName(Mockito.any());
+            roleServiceMock.getByRoleName(role.getRoleName());
+            Mockito.verify(roleRepositoryMock).findByRoleName(Mockito.any());
         } catch (EntityNotFoundException ignored) {
         }
     }

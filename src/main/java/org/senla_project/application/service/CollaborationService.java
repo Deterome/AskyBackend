@@ -7,6 +7,8 @@ import org.senla_project.application.dto.CollaborationResponseDto;
 import org.senla_project.application.mapper.CollaborationMapper;
 import org.senla_project.application.repository.CollaborationRepository;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,40 +24,41 @@ public class CollaborationService implements ServiceInterface<UUID, Collaboratio
 
     @Transactional
     @Override
-    public CollaborationResponseDto addElement(@NonNull CollaborationCreateDto element) {
-        return collaborationMapper.toCollabResponseDto(collaborationRepository.create(collaborationMapper.toCollab(element)));
+    public CollaborationResponseDto create(@NonNull CollaborationCreateDto element) {
+        return collaborationMapper.toCollabResponseDto(collaborationRepository.save(collaborationMapper.toCollab(element)));
     }
 
     @Transactional
     @Override
-    public CollaborationResponseDto updateElement(@NonNull UUID id, @NonNull CollaborationCreateDto updatedElement) {
-        return collaborationMapper.toCollabResponseDto(collaborationRepository.update(collaborationMapper.toCollab(id, updatedElement)));
+    public CollaborationResponseDto updateById(@NonNull UUID id, @NonNull CollaborationCreateDto updatedElement) throws EntityNotFoundException {
+        if (!collaborationRepository.existsById(id)) throw new EntityNotFoundException("Collab not found");
+        return collaborationMapper.toCollabResponseDto(collaborationRepository.save(collaborationMapper.toCollab(id, updatedElement)));
     }
 
     @Transactional
     @Override
-    public void deleteElement(@NonNull UUID id) {
+    public void deleteById(@NonNull UUID id) {
         collaborationRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<CollaborationResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
-        var elements = collaborationMapper.toCollabDtoList(collaborationRepository.findAll(pageNumber));
-        if (elements.isEmpty()) throw new EntityNotFoundException("Collaborations not found");
-        return elements;
+    public Page<CollaborationResponseDto> getAll(Pageable pageable) throws EntityNotFoundException {
+        var elements = collaborationRepository.findAll(pageable);
+        if (elements.getTotalElements() == 0) throw new EntityNotFoundException("Collaboration not found");
+        return elements.map(collaborationMapper::toCollabResponseDto);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public CollaborationResponseDto findElementById(@NonNull UUID id) throws EntityNotFoundException {
+    public CollaborationResponseDto getById(@NonNull UUID id) throws EntityNotFoundException {
         return collaborationRepository.findById(id)
                 .map(collaborationMapper::toCollabResponseDto).orElseThrow(() -> new EntityNotFoundException("Collaboration not found"));
     }
 
     @Transactional(readOnly = true)
-    public CollaborationResponseDto findCollabByName(String collabName) throws EntityNotFoundException {
-        return collaborationRepository.findCollabByName(collabName)
+    public CollaborationResponseDto getByCollabName(String collabName) throws EntityNotFoundException {
+        return collaborationRepository.findByCollabName(collabName)
                 .map(collaborationMapper::toCollabResponseDto).orElseThrow(() -> new EntityNotFoundException("Collaboration not found"));
     }
 

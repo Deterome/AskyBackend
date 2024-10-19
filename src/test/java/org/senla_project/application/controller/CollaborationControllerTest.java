@@ -16,7 +16,6 @@ import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -53,8 +52,8 @@ class CollaborationControllerTest {
     }
 
     @Test
-    void getAllElements_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/collabs/all?page=1")
+    void getAll_thenThrowUnauthorizedException() throws Exception {
+        mockMvc.perform(get("/collabs/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -62,8 +61,8 @@ class CollaborationControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getAllElements_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/collabs/all?page=1")
+    void getAll_thenThrowNotFoundException() throws Exception {
+        mockMvc.perform(get("/collabs/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -71,18 +70,18 @@ class CollaborationControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getAllElements_thenReturnAllElements() throws Exception {
-        collabController.addElement(TestData.getCollaborationCreateDto());
-        mockMvc.perform(get("/collabs/all?page=1")
+    void getAll_thenReturnAllElements() throws Exception {
+        collabController.create(TestData.getCollaborationCreateDto());
+        mockMvc.perform(get("/collabs/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(collabController.getAllElements(1).size(), 1);
+        Assertions.assertEquals(collabController.getAll(1, 5).getTotalElements(), 1);
     }
 
     @Test
-    void findElementById_thenThrowUnauthorizedException() throws Exception {
+    void getById_thenThrowUnauthorizedException() throws Exception {
         mockMvc.perform(get("/collabs/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -91,7 +90,7 @@ class CollaborationControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void findElementById_thenThrowNotFoundException() throws Exception {
+    void getById_thenThrowNotFoundException() throws Exception {
         mockMvc.perform(get("/collabs/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -100,9 +99,9 @@ class CollaborationControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void findElementById_thenReturnElement() throws Exception {
+    void getById_thenReturnElement() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        CollaborationResponseDto createdCollaboration = collabController.addElement(collabCreateDto);
+        CollaborationResponseDto createdCollaboration = collabController.create(collabCreateDto);
         mockMvc.perform(get("/collabs/{id}", createdCollaboration.getCollabId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -112,7 +111,7 @@ class CollaborationControllerTest {
     }
 
     @Test
-    void addElement_thenThrowUnauthorizedException() throws Exception {
+    void create_thenThrowUnauthorizedException() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         mockMvc.perform(post("/collabs/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -124,7 +123,7 @@ class CollaborationControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void addElement_thenReturnCreatedElement() throws Exception {
+    void create_thenReturnCreatedElement() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         mockMvc.perform(post("/collabs/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -133,12 +132,12 @@ class CollaborationControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        Assertions.assertEquals(collabController.findCollabByName(collabCreateDto.getCollabName()).getCollabName(),
+        Assertions.assertEquals(collabController.getByCollabName(collabCreateDto.getCollabName()).getCollabName(),
                 collabCreateDto.getCollabName());
     }
 
     @Test
-    void updateElement_thenThrowUnauthorizedException() throws Exception {
+    void update_thenThrowUnauthorizedException() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         mockMvc.perform(put("/collabs/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -149,20 +148,20 @@ class CollaborationControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void updateElement_thenThrowPreconditionFailedException() throws Exception {
+    void update_thenThrowNotFoundException() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         mockMvc.perform(put("/collabs/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(collabCreateDto)))
                 .andDo(print())
-                .andExpect(status().isPreconditionFailed());
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void updateElement_thenReturnUpdatedElement() throws Exception {
+    void update_thenReturnUpdatedElement() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        CollaborationResponseDto collabResponseDto = collabController.addElement(collabCreateDto);
+        CollaborationResponseDto collabResponseDto = collabController.create(collabCreateDto);
         CollaborationCreateDto updatedCollaborationCreateDto = TestData.getUpdatedCollaborationCreateDto();
 
         mockMvc.perform(put("/collabs/update/{id}", collabResponseDto.getCollabId())
@@ -171,14 +170,14 @@ class CollaborationControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(collabController.findCollabByName(updatedCollaborationCreateDto.getCollabName()).getCollabName(),
+        Assertions.assertEquals(collabController.getByCollabName(updatedCollaborationCreateDto.getCollabName()).getCollabName(),
                 updatedCollaborationCreateDto.getCollabName());
-        Assertions.assertEquals(collabController.findCollabByName(updatedCollaborationCreateDto.getCollabName()).getCollabId(),
+        Assertions.assertEquals(collabController.getByCollabName(updatedCollaborationCreateDto.getCollabName()).getCollabId(),
                 collabResponseDto.getCollabId());
     }
 
     @Test
-    void deleteElement_thenThrowUnauthorizedException() throws Exception {
+    void delete_thenThrowUnauthorizedException() throws Exception {
         mockMvc.perform(delete("/collabs/delete/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -187,23 +186,23 @@ class CollaborationControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void deleteElement_thenDeleteElement() throws Exception {
+    void delete_thenDeleteElement() throws Exception {
         mockMvc.perform(delete("/collabs/delete/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        CollaborationResponseDto collabResponseDto = collabController.addElement(collabCreateDto);
+        CollaborationResponseDto collabResponseDto = collabController.create(collabCreateDto);
         mockMvc.perform(delete("/collabs/delete/{id}", collabResponseDto.getCollabId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-        Assertions.assertThrows(EntityNotFoundException.class, () -> collabController.getElementById(UUID.fromString(collabResponseDto.getCollabId())));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> collabController.getById(UUID.fromString(collabResponseDto.getCollabId())));
     }
 
     @Test
-    void findCollabByName_thenThrowUnauthorizedException() throws Exception {
+    void getByCollabName_thenThrowUnauthorizedException() throws Exception {
         mockMvc.perform(get("/collabs?collab_name={name}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -212,7 +211,7 @@ class CollaborationControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void findCollabByName_thenThrowNotFoundException() throws Exception {
+    void getByCollabName_thenThrowNotFoundException() throws Exception {
         mockMvc.perform(get("/collabs?collab_name={name}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -221,14 +220,14 @@ class CollaborationControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void findCollabByName_thenReturnElement() throws Exception {
+    void getByCollabName_thenReturnElement() throws Exception {
         CollaborationCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        collabController.addElement(collabCreateDto);
+        collabController.create(collabCreateDto);
         mockMvc.perform(get("/collabs?collab_name={name}", collabCreateDto.getCollabName())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        CollaborationResponseDto collabResponseDto = collabController.findCollabByName(collabCreateDto.getCollabName());
+        CollaborationResponseDto collabResponseDto = collabController.getByCollabName(collabCreateDto.getCollabName());
         Assertions.assertEquals(collabResponseDto.getCollabName(),
                 collabCreateDto.getCollabName());
     }

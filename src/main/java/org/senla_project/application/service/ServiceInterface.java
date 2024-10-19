@@ -1,18 +1,18 @@
 package org.senla_project.application.service;
 
 import lombok.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+public interface ServiceInterface<ID, T, R> {
+    Page<R> getAll(Pageable pageable);
 
-public interface ServiceInterface<K, T, R> {
-    List<R> findAllElements(int pageNumber);
+    R getById(@NonNull ID id);
 
-    R findElementById(@NonNull K id);
+    R create(@NonNull T element);
 
-    R addElement(@NonNull T element);
+    R updateById(@NonNull ID id, @NonNull T updatedElement);
 
-    R updateElement(@NonNull K id, @NonNull T updatedElement);
-
-    void deleteElement(@NonNull K id);
+    void deleteById(@NonNull ID id);
 
 }

@@ -1,24 +1,21 @@
 package org.senla_project.application.repository.impl;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
 import org.senla_project.application.entity.*;
-import org.senla_project.application.repository.AbstractDao;
-import org.senla_project.application.repository.CollaborationsJoiningRepository;
-import org.springframework.stereotype.Repository;
+import org.senla_project.application.repository.CustomizedCollaborationsJoiningRepository;
 
 import java.util.Optional;
-import java.util.UUID;
 
-@Repository
-public class CollaborationsJoiningRepositoryImpl extends AbstractDao<UUID, CollaborationsJoining> implements CollaborationsJoiningRepository {
-    @Override
-    protected Class<CollaborationsJoining> getEntityClass() {
-        return CollaborationsJoining.class;
-    }
+public class CustomizedCollaborationsJoiningRepositoryImpl implements CustomizedCollaborationsJoiningRepository {
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
-    public Optional<CollaborationsJoining> findCollabJoin(String username, String collabName) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    public Optional<CollaborationsJoining> findByUsernameAndCollabName(String username, String collabName) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<CollaborationsJoining> query = builder.createQuery(CollaborationsJoining.class);
 
         Root<CollaborationsJoining> root = query.from(CollaborationsJoining.class);
@@ -30,7 +27,7 @@ public class CollaborationsJoiningRepositoryImpl extends AbstractDao<UUID, Colla
 
         query.select(root).where(builder.and(equalsUsername, equalsCollabName));
 
-        var results = entityManager.createQuery(query).getResultList();
+        var results = em.createQuery(query).getResultList();
         if (results.isEmpty()) return Optional.empty();
         return Optional.of(results.getFirst());
     }

@@ -16,7 +16,6 @@ import org.senla_project.application.repository.QuestionRepository;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +27,9 @@ import java.util.Optional;
 @SpringJUnitWebConfig({
         DataSourceConfigTest.class,
         HibernateConfigTest.class,
-        AnswerRepositoryImpl.class,
-        QuestionRepositoryImpl.class,
-        UserRepositoryImpl.class
+        AnswerRepository.class,
+        QuestionRepository.class,
+        UserRepository.class
 })
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
@@ -43,24 +42,24 @@ class AnswerRepositoryImplTest {
 
     @BeforeEach
     void initDataBaseWithData() {
-        User user = userRepository.create(TestData.getUser());
+        User user = userRepository.save(TestData.getUser());
 
         Question question = TestData.getQuestion();
         question.setAuthor(user);
 
-        questionRepository.create(question);
+        questionRepository.save(question);
     }
 
     Answer addDependenciesToAnswer(Answer answer) {
-        answer.setAuthor(userRepository.findUserByUsername(answer.getAuthor().getUsername()).get());
-        answer.setQuestion(questionRepository.findAll(1).getFirst());
+        answer.setAuthor(userRepository.findByUsername(answer.getAuthor().getUsername()).get());
+        answer.setQuestion(questionRepository.findAll().getFirst());
         return answer;
     }
 
     @Test
     void create() {
         Answer expectedAnswer = addDependenciesToAnswer(TestData.getAnswer());
-        answerRepository.create(expectedAnswer);
+        answerRepository.save(expectedAnswer);
         Answer actual = answerRepository.findById(expectedAnswer.getAnswerId()).get();
         Assertions.assertEquals(expectedAnswer, actual);
     }
@@ -68,7 +67,7 @@ class AnswerRepositoryImplTest {
     @Test
     void findById() {
         Answer expectedAnswer = addDependenciesToAnswer(TestData.getAnswer());
-        answerRepository.create(expectedAnswer);
+        answerRepository.save(expectedAnswer);
         Answer actual = answerRepository.findById(expectedAnswer.getAnswerId()).get();
         Assertions.assertEquals(expectedAnswer, actual);
     }
@@ -78,18 +77,18 @@ class AnswerRepositoryImplTest {
         Answer answer = addDependenciesToAnswer(TestData.getAnswer());
         List<Answer> expectedAnswerList = new ArrayList<>();
         expectedAnswerList.add(answer);
-        answerRepository.create(answer);
-        List<Answer> actualAnswerList = answerRepository.findAll(1);
+        answerRepository.save(answer);
+        List<Answer> actualAnswerList = answerRepository.findAll();
         Assertions.assertEquals(expectedAnswerList, actualAnswerList);
     }
 
     @Test
     void update() {
         Answer answer = addDependenciesToAnswer(TestData.getAnswer());
-        answerRepository.create(answer);
+        answerRepository.save(answer);
         Answer expectedAnswer = addDependenciesToAnswer(TestData.getUpdatedAnswer());
         expectedAnswer.setAnswerId(answer.getAnswerId());
-        answerRepository.update(expectedAnswer);
+        answerRepository.save(expectedAnswer);
 
         Answer actual = answerRepository.findById(expectedAnswer.getAnswerId()).get();
         Assertions.assertEquals(expectedAnswer, actual);
@@ -98,7 +97,7 @@ class AnswerRepositoryImplTest {
     @Test
     void deleteById() {
         Answer answer = addDependenciesToAnswer(TestData.getAnswer());
-        answerRepository.create(answer);
+        answerRepository.save(answer);
         var answerId = answer.getAnswerId();
         answerRepository.deleteById(answerId);
         Optional<Answer> actual = answerRepository.findById(answerId);
@@ -106,10 +105,10 @@ class AnswerRepositoryImplTest {
     }
 
     @Test
-    void findAnswer() {
+    void findByAuthorNameAndQuestionIdAndBody() {
         Answer expectedAnswer = addDependenciesToAnswer(TestData.getAnswer());
-        answerRepository.create(expectedAnswer);
-        Answer actual = answerRepository.findAnswer(expectedAnswer.getAuthor().getUsername(),
+        answerRepository.save(expectedAnswer);
+        Answer actual = answerRepository.findByAuthorNameAndQuestionIdAndBody(expectedAnswer.getAuthor().getUsername(),
                 expectedAnswer.getQuestion().getQuestionId(),
                 expectedAnswer.getBody()).get();
         Assertions.assertEquals(expectedAnswer, actual);

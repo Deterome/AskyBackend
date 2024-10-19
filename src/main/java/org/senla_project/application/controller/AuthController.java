@@ -22,7 +22,7 @@ public class AuthController {
         return authService.createAuthToken(authRequest);
     }
 
-    @PostMapping("/signin")
+    @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDto createNewUser(@NonNull @RequestBody UserCreateDto userCreateDto) {
         return authService.createNewUser(userCreateDto);

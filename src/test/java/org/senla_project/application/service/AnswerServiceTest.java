@@ -1,5 +1,6 @@
 package org.senla_project.application.service;
 
+import org.hibernate.query.Page;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,7 +18,11 @@ import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.AnswerRepository;
 import org.senla_project.application.util.TestData;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,55 +45,61 @@ class AnswerServiceTest {
 
 
     @Test
-    void addElement() {
+    void create() {
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
         Mockito.when(answerMapperMock.toAnswer(answerCreateDto)).thenReturn(TestData.getAnswer());
         Mockito.when(userMapperSpy.toUser((UserResponseDto) Mockito.any())).thenReturn(TestData.getAuthenticatedUser());
         Mockito.when(questionMapperSpy.toQuestion((QuestionResponseDto) Mockito.any())).thenReturn(TestData.getQuestion());
-        answerServiceMock.addElement(answerCreateDto);
-        Mockito.verify(answerRepositoryMock).create(Mockito.any());
+        answerServiceMock.create(answerCreateDto);
+        Mockito.verify(answerRepositoryMock).save(Mockito.any());
     }
 
     @Test
-    void updateElement() {
+    void updateById() {
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
         UUID id = UUID.randomUUID();
         Mockito.when(answerMapperMock.toAnswer(id, answerCreateDto)).thenReturn(TestData.getAnswer());
         Mockito.when(userMapperSpy.toUser((UserResponseDto) Mockito.any())).thenReturn(TestData.getAuthenticatedUser());
         Mockito.when(questionMapperSpy.toQuestion((QuestionResponseDto) Mockito.any())).thenReturn(TestData.getQuestion());
-        answerServiceMock.updateElement(id, answerCreateDto);
-        Mockito.verify(answerRepositoryMock).update(Mockito.any());
+        Mockito.when(answerRepositoryMock.existsById(id)).thenReturn(true);
+        answerServiceMock.updateById(id, answerCreateDto);
+        Mockito.verify(answerRepositoryMock).save(Mockito.any());
     }
 
     @Test
-    void deleteElement() {
+    void deleteById() {
         Mockito.doNothing().when(answerRepositoryMock).deleteById(Mockito.any());
-        answerServiceMock.deleteElement(UUID.randomUUID());
+        answerServiceMock.deleteById(UUID.randomUUID());
         Mockito.verify(answerRepositoryMock).deleteById(Mockito.any());
     }
 
     @Test
-    void findAllElements() {
+    void getAll() {
         try {
-            answerServiceMock.findAllElements(1);
-            Mockito.verify(answerRepositoryMock).findAll(1);
+            Mockito.when(answerRepositoryMock.findAll((Pageable) Mockito.any()))
+                    .thenReturn(new PageImpl<>(
+                            List.of(TestData.getAnswer()),
+                            PageRequest.of(0, 5),
+                            1));
+            answerServiceMock.getAll(PageRequest.of(0, 5));
+            Mockito.verify(answerRepositoryMock).findAll((Pageable) Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }
 
     @Test
-    void findElementById() {
+    void getById() {
         try {
-            answerServiceMock.findElementById(UUID.randomUUID());
+            answerServiceMock.getById(UUID.randomUUID());
             Mockito.verify(answerRepositoryMock).findById(Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }
 
     @Test
-    void findAnswerByParams() {
+    void getByParams() {
         try {
             Answer answer = TestData.getAnswer();
-            answerServiceMock.findAnswerByParams(answer.getAuthor().getUsername(), UUID.randomUUID(), answer.getBody());
-            Mockito.verify(answerRepositoryMock).findAnswer(Mockito.any(), Mockito.any(), Mockito.any());
+            answerServiceMock.getByParams(answer.getAuthor().getUsername(), UUID.randomUUID(), answer.getBody());
+            Mockito.verify(answerRepositoryMock).findByAuthorNameAndQuestionIdAndBody(Mockito.any(), Mockito.any(), Mockito.any());
         } catch (EntityNotFoundException ignored) {}
     }
 
