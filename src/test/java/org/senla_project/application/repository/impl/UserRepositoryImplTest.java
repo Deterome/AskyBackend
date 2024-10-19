@@ -11,7 +11,6 @@ import org.senla_project.application.entity.User;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +22,7 @@ import java.util.Optional;
 @SpringJUnitWebConfig({
         DataSourceConfigTest.class,
         HibernateConfigTest.class,
-        UserRepositoryImpl.class
+        UserRepository.class
 })
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
@@ -35,7 +34,7 @@ class UserRepositoryImplTest {
     @Test
     void create() {
         User expectedUser = TestData.getUser();
-        userRepository.create(expectedUser);
+        userRepository.save(expectedUser);
         User actual = userRepository.findById(expectedUser.getUserId()).get();
         Assertions.assertEquals(expectedUser, actual);
     }
@@ -43,7 +42,7 @@ class UserRepositoryImplTest {
     @Test
     void findById() {
         User expectedUser = TestData.getUser();
-        userRepository.create(expectedUser);
+        userRepository.save(expectedUser);
         User actual = userRepository.findById(expectedUser.getUserId()).get();
         Assertions.assertEquals(expectedUser, actual);
     }
@@ -53,18 +52,18 @@ class UserRepositoryImplTest {
         User user = TestData.getUser();
         List<User> expectedUserList = new ArrayList<>();
         expectedUserList.add(user);
-        userRepository.create(user);
-        List<User> actualUserList = userRepository.findAll(1);
+        userRepository.save(user);
+        List<User> actualUserList = userRepository.findAll();
         Assertions.assertEquals(expectedUserList, actualUserList);
     }
 
     @Test
     void update() {
         User user = TestData.getUser();
-        userRepository.create(user);
+        userRepository.save(user);
         User expectedUser = TestData.getUpdatedUser();
         expectedUser.setUserId(user.getUserId());
-        userRepository.update(expectedUser);
+        userRepository.save(expectedUser);
 
         User actual = userRepository.findById(expectedUser.getUserId()).get();
         Assertions.assertEquals(expectedUser, actual);
@@ -73,7 +72,7 @@ class UserRepositoryImplTest {
     @Test
     void deleteById() {
         User user = TestData.getUser();
-        userRepository.create(user);
+        userRepository.save(user);
         var userId = user.getUserId();
         userRepository.deleteById(userId);
         Optional<User> actual = userRepository.findById(userId);
@@ -81,10 +80,10 @@ class UserRepositoryImplTest {
     }
 
     @Test
-    void findUserByUsername() {
+    void findByUsername() {
         User expectedUser = TestData.getUser();
-        userRepository.create(expectedUser);
-        User actual = userRepository.findUserByUsername(expectedUser.getUsername()).get();
+        userRepository.save(expectedUser);
+        User actual = userRepository.findByUsername(expectedUser.getUsername()).get();
         Assertions.assertEquals(expectedUser, actual);
     }
 }

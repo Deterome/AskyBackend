@@ -40,12 +40,12 @@ public class AuthService {
 
     @Transactional
     public UserResponseDto createNewUser(UserCreateDto userCreateDto) {
-        if (userService.isUserExist(userCreateDto.getUsername())) {
+        if (userService.existsByUsername(userCreateDto.getUsername())) {
             log.debug("User already exist");
             throw new RegistrationException("User with that name already exists!");
         } else {
             log.debug("Starting to create user from userService");
-            return userService.addElement(userCreateDto);
+            return userService.create(userCreateDto);
         }
     }
 

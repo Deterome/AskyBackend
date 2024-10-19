@@ -2,11 +2,14 @@ package org.senla_project.application.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.senla_project.application.dto.QuestionResponseDto;
 import org.senla_project.application.dto.RoleCreateDto;
 import org.senla_project.application.dto.RoleResponseDto;
 import org.senla_project.application.mapper.RoleMapper;
 import org.senla_project.application.repository.RoleRepository;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,41 +25,43 @@ public class RoleService implements ServiceInterface<UUID, RoleCreateDto, RoleRe
 
     @Transactional
     @Override
-    public RoleResponseDto addElement(@NonNull RoleCreateDto element) {
-        return roleMapper.toRoleResponseDto(roleRepository.create(roleMapper.toRole(element)));
+    public RoleResponseDto create(@NonNull RoleCreateDto element) {
+        return roleMapper.toRoleResponseDto(roleRepository.save(roleMapper.toRole(element)));
     }
 
     @Transactional
     @Override
-    public RoleResponseDto updateElement(@NonNull UUID id, @NonNull RoleCreateDto updatedElement) {
-        return roleMapper.toRoleResponseDto(roleRepository.update(roleMapper.toRole(id, updatedElement)));
+    public RoleResponseDto updateById(@NonNull UUID id, @NonNull RoleCreateDto updatedElement) throws EntityNotFoundException {
+        if (!roleRepository.existsById(id)) throw new EntityNotFoundException("Role not found");
+        return roleMapper.toRoleResponseDto(roleRepository.save(roleMapper.toRole(id, updatedElement)));
     }
 
     @Transactional
     @Override
-    public void deleteElement(@NonNull UUID id) {
+    public void deleteById(@NonNull UUID id) {
         roleRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<RoleResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
-        var elements = roleMapper.toRoleDtoList(roleRepository.findAll(pageNumber));
-        if (elements.isEmpty()) throw new EntityNotFoundException("Roles not found");
-        return elements;
+    public Page<RoleResponseDto> getAll(Pageable pageable) throws EntityNotFoundException {
+        var elements = roleRepository.findAll(pageable);
+        if (elements.getTotalElements() == 0) throw new EntityNotFoundException("Role not found");
+        return elements.map(roleMapper::toRoleResponseDto);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public RoleResponseDto findElementById(@NonNull UUID id) throws EntityNotFoundException {
+    public RoleResponseDto getById(@NonNull UUID id) throws EntityNotFoundException {
+        if (!roleRepository.existsById(id)) throw new EntityNotFoundException("Role not found");
         return roleRepository.findById(id)
                 .map(roleMapper::toRoleResponseDto).orElseThrow(() -> new EntityNotFoundException("Role not found"));
     }
 
     @Transactional(readOnly = true)
-    public RoleResponseDto findRoleByName(String roleName) throws EntityNotFoundException {
+    public RoleResponseDto getByRoleName(String roleName) throws EntityNotFoundException {
         return roleRepository
-                .findRoleByName(roleName)
+                .findByRoleName(roleName)
                 .map(roleMapper::toRoleResponseDto).orElseThrow(() -> new EntityNotFoundException("Role not found"));
     }
 

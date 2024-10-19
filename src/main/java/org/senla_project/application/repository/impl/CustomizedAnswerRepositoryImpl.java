@@ -1,24 +1,22 @@
 package org.senla_project.application.repository.impl;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
 import org.senla_project.application.entity.*;
-import org.senla_project.application.repository.AbstractDao;
-import org.senla_project.application.repository.AnswerRepository;
-import org.springframework.stereotype.Repository;
+import org.senla_project.application.repository.CustomizedAnswerRepository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public class AnswerRepositoryImpl extends AbstractDao<UUID, Answer> implements AnswerRepository {
-    @Override
-    protected Class<Answer> getEntityClass() {
-        return Answer.class;
-    }
+public class CustomizedAnswerRepositoryImpl implements CustomizedAnswerRepository {
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
-    public Optional<Answer> findAnswer(String authorName, UUID questionId, String body) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    public Optional<Answer> findByAuthorNameAndQuestionIdAndBody(String authorName, UUID questionId, String body) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<Answer> query = builder.createQuery(Answer.class);
 
         Root<Answer> root = query.from(Answer.class);
@@ -31,7 +29,7 @@ public class AnswerRepositoryImpl extends AbstractDao<UUID, Answer> implements A
 
         query.select(root).where(builder.and(equalsBody, equalsQuestionId, equalsAuthorName));
 
-        var results = entityManager.createQuery(query).getResultList();
+        var results = em.createQuery(query).getResultList();
         if (results.isEmpty()) return Optional.empty();
         return Optional.of(results.getFirst());
     }

@@ -2,6 +2,7 @@ package org.senla_project.application.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.senla_project.application.dto.CollaborationsJoiningResponseDto;
 import org.senla_project.application.dto.ProfileCreateDto;
 import org.senla_project.application.dto.ProfileResponseDto;
 import org.senla_project.application.entity.Profile;
@@ -9,6 +10,8 @@ import org.senla_project.application.mapper.ProfileMapper;
 import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.ProfileRepository;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,51 +29,52 @@ public class ProfileService implements ServiceInterface<UUID, ProfileCreateDto, 
 
     @Transactional
     @Override
-    public ProfileResponseDto addElement(@NonNull ProfileCreateDto element) {
-        return profileMapper.toProfileResponseDto(profileRepository.create(
+    public ProfileResponseDto create(@NonNull ProfileCreateDto element) {
+        return profileMapper.toProfileResponseDto(profileRepository.save(
                 addDependenciesProfile(profileMapper.toProfile(element))
         ));
     }
 
     @Transactional
     @Override
-    public ProfileResponseDto updateElement(@NonNull UUID id, @NonNull ProfileCreateDto updatedElement) {
-        return profileMapper.toProfileResponseDto(profileRepository.update(
+    public ProfileResponseDto updateById(@NonNull UUID id, @NonNull ProfileCreateDto updatedElement) throws EntityNotFoundException {
+        if (!profileRepository.existsById(id)) throw new EntityNotFoundException("Profile not found");
+        return profileMapper.toProfileResponseDto(profileRepository.save(
                 addDependenciesProfile(profileMapper.toProfile(id, updatedElement))
         ));
     }
 
     @Transactional
     @Override
-    public void deleteElement(@NonNull UUID id) {
+    public void deleteById(@NonNull UUID id) {
         profileRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<ProfileResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
-        var elements = profileMapper.toProfileDtoList(profileRepository.findAll(pageNumber));
-        if (elements.isEmpty()) throw new EntityNotFoundException("Profiles not found");
-        return elements;
+    public Page<ProfileResponseDto> getAll(Pageable pageable) throws EntityNotFoundException {
+        var elements = profileRepository.findAll(pageable);
+        if (elements.getTotalElements() == 0) throw new EntityNotFoundException("Profile not found");
+        return elements.map(profileMapper::toProfileResponseDto);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public ProfileResponseDto findElementById(@NonNull UUID id) throws EntityNotFoundException {
+    public ProfileResponseDto getById(@NonNull UUID id) throws EntityNotFoundException {
         return profileRepository.findById(id)
                 .map(profileMapper::toProfileResponseDto).orElseThrow(() -> new EntityNotFoundException("Profile not found"));
     }
 
     @Transactional(readOnly = true)
-    public ProfileResponseDto findProfileByUsername(String nickname) throws EntityNotFoundException {
-        return profileRepository.findProfileByUsername(nickname)
+    public ProfileResponseDto getByUsername(String nickname) throws EntityNotFoundException {
+        return profileRepository.findByUsername(nickname)
                 .map(profileMapper::toProfileResponseDto).orElseThrow(() -> new EntityNotFoundException("Profile not found"));
     }
 
     @Transactional(readOnly = true)
     public Profile addDependenciesProfile(Profile profile) {
         profile.setUser(userMapper.toUser(
-                userService.findUserByUsername(profile.getUser().getUsername())
+                userService.getByUsername(profile.getUser().getUsername())
         ));
 
         return profile;

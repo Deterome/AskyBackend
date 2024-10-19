@@ -2,6 +2,7 @@ package org.senla_project.application.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.senla_project.application.dto.RoleResponseDto;
 import org.senla_project.application.dto.UserCreateDto;
 import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.entity.Role;
@@ -11,6 +12,8 @@ import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.util.enums.RolesEnum;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -42,60 +45,61 @@ public class UserService implements ServiceInterface<UUID, UserCreateDto, UserRe
 
     @Transactional
     @Override
-    public UserResponseDto addElement(@NonNull UserCreateDto element) {
+    public UserResponseDto create(@NonNull UserCreateDto element) {
         User user = userMapper.toUser(element);
         user.getRoles().addAll(getDefaultRolesSet());
         user.setPassword(passwordEncoder.encode(element.getPassword()));
-        return userMapper.toUserResponseDto(userRepository.create(
+        return userMapper.toUserResponseDto(userRepository.save(
                 addDependenciesToUser(user)
         ));
     }
 
     @Transactional
     @Override
-    public UserResponseDto updateElement(@NonNull UUID id, @NonNull UserCreateDto updatedElement) {
-        return userMapper.toUserResponseDto(userRepository.update(
+    public UserResponseDto updateById(@NonNull UUID id, @NonNull UserCreateDto updatedElement) throws EntityNotFoundException {
+        if (!userRepository.existsById(id)) throw new EntityNotFoundException("User not found");
+        return userMapper.toUserResponseDto(userRepository.save(
                 addDependenciesToUser(userMapper.toUser(id, updatedElement))
         ));
     }
 
     @Transactional
     @Override
-    public void deleteElement(@NonNull UUID id) {
+    public void deleteById(@NonNull UUID id) {
         userRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<UserResponseDto> findAllElements(int pageNumber) throws EntityNotFoundException {
-        var elements = userMapper.toUserResponseDtoList(userRepository.findAll(pageNumber));
-        if (elements.isEmpty()) throw new EntityNotFoundException("Users not found");
-        return elements;
+    public Page<UserResponseDto> getAll(Pageable pageable) throws EntityNotFoundException {
+        var elements = userRepository.findAll(pageable);
+        if (elements.getTotalElements() == 0) throw new EntityNotFoundException("User not found");
+        return elements.map(userMapper::toUserResponseDto);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public UserResponseDto findElementById(@NonNull UUID id) throws EntityNotFoundException {
+    public UserResponseDto getById(@NonNull UUID id) throws EntityNotFoundException {
         return userRepository.findById(id)
                 .map(userMapper::toUserResponseDto).orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
     @Transactional(readOnly = true)
-    public UserResponseDto findUserByUsername(@NonNull String username) throws EntityNotFoundException {
-        return userRepository.findUserByUsername(username)
+    public UserResponseDto getByUsername(@NonNull String username) throws EntityNotFoundException {
+        return userRepository.findByUsername(username)
                 .map(userMapper::toUserResponseDto).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
     }
 
     @Transactional(readOnly = true)
-    public boolean isUserExist(String username) {
-        return userRepository.findUserByUsername(username).isPresent();
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findUserByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
@@ -111,7 +115,7 @@ public class UserService implements ServiceInterface<UUID, UserCreateDto, UserRe
         Set<Role> roleSet = new HashSet<>();
         for (var roleName : roleNameList) {
             roleSet.add(roleMapper.toRole(
-                    roleService.findRoleByName(roleName)
+                    roleService.getByRoleName(roleName)
             ));
         }
         user.setRoles(roleSet);

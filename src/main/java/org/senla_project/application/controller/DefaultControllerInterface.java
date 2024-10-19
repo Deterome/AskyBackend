@@ -1,17 +1,18 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface DefaultControllerInterface<K, T, R> {
-    List<R> getAllElements(int pageNumber);
+    Page<R> getAll(int pageNumber, int pageSize);
 
-    R getElementById(K id);
+    R getById(K id);
 
-    R addElement(@NonNull T element);
+    R create(@NonNull T element);
 
-    R updateElement(@NonNull K id, @NonNull T updatedElement);
+    R update(@NonNull K id, @NonNull T updatedElement);
 
-    void deleteElement(@NonNull K id);
+    void delete(@NonNull K id);
 }

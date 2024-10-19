@@ -1,27 +1,24 @@
 package org.senla_project.application.repository.impl;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
 import org.senla_project.application.entity.Question;
 import org.senla_project.application.entity.Question_;
 import org.senla_project.application.entity.User;
 import org.senla_project.application.entity.User_;
-import org.senla_project.application.repository.AbstractDao;
-import org.senla_project.application.repository.QuestionRepository;
-import org.springframework.stereotype.Repository;
+import org.senla_project.application.repository.CustomizedQuestionRepository;
 
 import java.util.Optional;
-import java.util.UUID;
 
-@Repository
-public class QuestionRepositoryImpl extends AbstractDao<UUID, Question> implements QuestionRepository {
-    @Override
-    protected Class<Question> getEntityClass() {
-        return Question.class;
-    }
+public class CustomizedQuestionRepositoryImpl implements CustomizedQuestionRepository {
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
-    public Optional<Question> findQuestion(String header, String body, String authorName) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    public Optional<Question> findByHeaderAndBodyAndAuthorName(String header, String body, String authorName) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<Question> query = builder.createQuery(Question.class);
 
         Root<Question> root = query.from(Question.class);
@@ -33,7 +30,7 @@ public class QuestionRepositoryImpl extends AbstractDao<UUID, Question> implemen
 
         query.select(root).where(builder.and(equalsHeader, equalsBody, equalsAuthorName));
 
-        var results = entityManager.createQuery(query).getResultList();
+        var results = em.createQuery(query).getResultList();
         if (results.isEmpty()) return Optional.empty();
         return Optional.of(results.getFirst());
     }
