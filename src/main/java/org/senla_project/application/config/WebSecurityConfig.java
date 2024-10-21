@@ -1,7 +1,5 @@
 package org.senla_project.application.config;
 
-import lombok.RequiredArgsConstructor;
-import org.senla_project.application.service.UserService;
 import org.senla_project.application.util.enums.RolesEnum;
 import org.senla_project.application.util.security.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +27,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         jsr250Enabled = true)
 public class WebSecurityConfig {
 
-    @Autowired
-    private UserService userService;
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
 

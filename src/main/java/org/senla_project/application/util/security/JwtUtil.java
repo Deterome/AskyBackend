@@ -19,9 +19,9 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    @Value("${JWT_SECURITY_KEY}")
+    @Value("${security.jwt.key}")
     private String securityKey;
-    @Value("${JWT_SECURITY_KEY_LIFETIME}")
+    @Value("${security.jwt.keyLifetime}")
     private long securityKeyLifetime;
 
     public String generateToken(UserDetails userDetails) {
