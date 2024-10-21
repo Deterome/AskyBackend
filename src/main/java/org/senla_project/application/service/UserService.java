@@ -2,7 +2,6 @@ package org.senla_project.application.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.senla_project.application.dto.RoleResponseDto;
 import org.senla_project.application.dto.UserCreateDto;
 import org.senla_project.application.dto.UserResponseDto;
 import org.senla_project.application.entity.Role;
