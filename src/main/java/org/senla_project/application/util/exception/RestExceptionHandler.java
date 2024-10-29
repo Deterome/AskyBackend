@@ -60,4 +60,20 @@ public class RestExceptionHandler {
                 .body(exception.getMessage());
     }
 
+    @ExceptionHandler({ForbiddenException.class})
+    public ResponseEntity<?> onForbiddenException(ForbiddenException exception) {
+        log.error(exception.getMessage(), exception);
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({IncorrectDataEnteredException.class})
+    public ResponseEntity<?> onIncorrectDataEnteredException(IncorrectDataEnteredException exception) {
+        log.error(exception.getMessage(), exception);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(exception.getMessage());
+    }
+
 }

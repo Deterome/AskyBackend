@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface CustomizedCollaborationsJoiningRepository {
     Optional<CollaborationsJoining> findByUsernameAndCollabName(String username, String collabName);
+    void deleteByUsernameAndCollabName(String username, String collabName);
 }

@@ -10,12 +10,13 @@ import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.config.WebSecurityConfig;
-import org.senla_project.application.dto.ProfileCreateDto;
-import org.senla_project.application.dto.ProfileResponseDto;
+import org.senla_project.application.dto.profile.ProfileCreateDto;
+import org.senla_project.application.dto.profile.ProfileDeleteDto;
+import org.senla_project.application.dto.profile.ProfileResponseDto;
+import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
-import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -93,7 +94,7 @@ class ProfileControllerTest {
 
     @Test
     void getById_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/profiles/{id}", UUID.randomUUID())
+        mockMvc.perform(get("/profiles/id/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -102,7 +103,7 @@ class ProfileControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getById_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/profiles/{id}", UUID.randomUUID())
+        mockMvc.perform(get("/profiles/id/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -113,7 +114,7 @@ class ProfileControllerTest {
     void getById_thenReturnElement() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         ProfileResponseDto createdProfile = profileController.create(profileCreateDto);
-        mockMvc.perform(get("/profiles/{id}", createdProfile.getProfileId())
+        mockMvc.perform(get("/profiles/id/{id}", createdProfile.getProfileId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -189,7 +190,12 @@ class ProfileControllerTest {
 
     @Test
     void delete_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(delete("/profiles/delete/{id}", UUID.randomUUID())
+        ProfileDeleteDto profileDeleteDto = ProfileDeleteDto.builder()
+                .username("Alex")
+                .build();
+        mockMvc.perform(delete("/profiles/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(profileDeleteDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -197,24 +203,44 @@ class ProfileControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void delete_thenDeleteElement() throws Exception {
-        mockMvc.perform(delete("/profiles/delete/{id}", UUID.randomUUID())
+    void delete_withInvalidUser_thenThrowForbiddenException() throws Exception {
+        authController.createNewUser(UserCreateDto.builder()
+                .username("Bob")
+                .password("228")
+                .build());
+        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        profileCreateDto.setUsername("Bob");
+        ProfileResponseDto profileResponseDto = profileController.create(profileCreateDto);
+        ProfileDeleteDto profileDeleteDto = ProfileDeleteDto.builder()
+                .username(profileResponseDto.getUsername())
+                .build();
+        mockMvc.perform(delete("/profiles/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(profileCreateDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isForbidden());
+    }
 
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void delete_thenDeleteElement() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         ProfileResponseDto profileResponseDto = profileController.create(profileCreateDto);
-        mockMvc.perform(delete("/profiles/delete/{id}", profileResponseDto.getProfileId())
+        ProfileDeleteDto profileDeleteDto = ProfileDeleteDto.builder()
+                .username(profileResponseDto.getUsername())
+                .build();
+        mockMvc.perform(delete("/profiles/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(profileCreateDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-        Assertions.assertThrows(EntityNotFoundException.class, () -> profileController.getById(UUID.fromString(profileResponseDto.getProfileId())));
     }
 
     @Test
     void getByUsername_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/profiles?username={name}", "Alex")
+        mockMvc.perform(get("/profiles/{username}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -223,7 +249,7 @@ class ProfileControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getByUsername_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/profiles?username={name}", "Alex")
+        mockMvc.perform(get("/profiles/{username}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -234,7 +260,7 @@ class ProfileControllerTest {
     void getByUsername_thenReturnElement() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         profileController.create(profileCreateDto);
-        mockMvc.perform(get("/profiles?username={name}", profileCreateDto.getUsername())
+        mockMvc.perform(get("/profiles/{username}", profileCreateDto.getUsername())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());

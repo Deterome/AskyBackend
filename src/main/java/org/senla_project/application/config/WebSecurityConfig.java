@@ -1,6 +1,6 @@
 package org.senla_project.application.config;
 
-import org.senla_project.application.util.enums.RolesEnum;
+import org.senla_project.application.util.enums.DefaultRoles;
 import org.senla_project.application.util.security.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -37,11 +37,12 @@ public class WebSecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/answers/**").hasAuthority(RolesEnum.USER.toString())
-                        .requestMatchers("/questions/**").hasAuthority(RolesEnum.USER.toString())
-                        .requestMatchers("/collabs/**").hasAuthority(RolesEnum.USER.toString())
-                        .requestMatchers("/profiles/**").hasAuthority(RolesEnum.USER.toString())
-                        .requestMatchers("/**").hasAuthority(RolesEnum.ADMIN.toString())
+                        .requestMatchers("/answers/**").hasAuthority(DefaultRoles.USER.toString())
+                        .requestMatchers("/questions/**").hasAuthority(DefaultRoles.USER.toString())
+                        .requestMatchers("/collabs/**").hasAuthority(DefaultRoles.USER.toString())
+                        .requestMatchers("/profiles/**").hasAuthority(DefaultRoles.USER.toString())
+                        .requestMatchers("/users/**").hasAuthority(DefaultRoles.USER.toString())
+                        .requestMatchers("/**").hasAuthority(DefaultRoles.ADMIN.toString())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

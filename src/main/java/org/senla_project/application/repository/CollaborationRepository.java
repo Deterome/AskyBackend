@@ -13,4 +13,5 @@ import java.util.UUID;
 @Repository
 public interface CollaborationRepository extends PagingAndSortingRepository<Collaboration, UUID>, ListCrudRepository<Collaboration, UUID> {
     Optional<Collaboration> findByCollabName(String collabName);
+    void deleteByCollabName(String collabName);
 }

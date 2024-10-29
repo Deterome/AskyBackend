@@ -1,0 +1,15 @@
+package org.senla_project.application.service;
+
+import org.senla_project.application.dto.collabRole.CollabRoleCreateDto;
+import org.senla_project.application.dto.collabRole.CollabRoleDeleteDto;
+import org.senla_project.application.dto.collabRole.CollabRoleResponseDto;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface CollabRoleService extends CrudService<CollabRoleCreateDto, CollabRoleResponseDto, CollabRoleDeleteDto, UUID> {
+    CollabRoleResponseDto getByCollabRoleName(String collabRoleName);
+    boolean existByCollabRoleName(String collabRoleName);
+    List<CollabRoleResponseDto> getUserRolesInCollab(String username, String collabName);
+    boolean hasCollabARole(String collabName, String collabRoleName);
+}

@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
-import org.senla_project.application.dto.ProfileCreateDto;
-import org.senla_project.application.dto.ProfileResponseDto;
+import org.senla_project.application.dto.profile.ProfileCreateDto;
+import org.senla_project.application.dto.profile.ProfileResponseDto;
 import org.senla_project.application.entity.Profile;
 
 import java.util.List;

@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
-import org.senla_project.application.dto.CollaborationsJoiningCreateDto;
-import org.senla_project.application.dto.CollaborationsJoiningResponseDto;
+import org.senla_project.application.dto.collabJoin.CollaborationsJoiningCreateDto;
+import org.senla_project.application.dto.collabJoin.CollaborationsJoiningResponseDto;
 import org.senla_project.application.entity.CollaborationsJoining;
 
 import java.util.List;
