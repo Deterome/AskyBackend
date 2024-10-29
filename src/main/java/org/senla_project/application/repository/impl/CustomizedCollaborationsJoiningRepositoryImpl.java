@@ -31,4 +31,21 @@ public class CustomizedCollaborationsJoiningRepositoryImpl implements Customized
         if (results.isEmpty()) return Optional.empty();
         return Optional.of(results.getFirst());
     }
+
+    @Override
+    public void deleteByUsernameAndCollabName(String username, String collabName) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaDelete<CollaborationsJoining> criteriaDelete = builder.createCriteriaDelete(CollaborationsJoining.class);
+
+        Root<CollaborationsJoining> root = criteriaDelete.from(CollaborationsJoining.class);
+        Join<CollaborationsJoining, User> userJoin = root.join(CollaborationsJoining_.user, JoinType.LEFT);
+        Join<CollaborationsJoining, Collaboration> collabJoin = root.join(CollaborationsJoining_.collab, JoinType.LEFT);
+
+        Predicate equalsUsername = builder.equal(userJoin.get(User_.username), username);
+        Predicate equalsCollabName = builder.equal(collabJoin.get(Collaboration_.collabName), collabName);
+
+        criteriaDelete.where(builder.and(equalsUsername, equalsCollabName));
+
+        em.createQuery(criteriaDelete).executeUpdate();
+    }
 }

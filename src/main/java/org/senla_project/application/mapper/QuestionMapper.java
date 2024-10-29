@@ -1,8 +1,8 @@
 package org.senla_project.application.mapper;
 
 import org.mapstruct.*;
-import org.senla_project.application.dto.QuestionCreateDto;
-import org.senla_project.application.dto.QuestionResponseDto;
+import org.senla_project.application.dto.question.QuestionCreateDto;
+import org.senla_project.application.dto.question.QuestionResponseDto;
 import org.senla_project.application.entity.Question;
 
 import java.util.List;

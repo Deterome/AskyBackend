@@ -11,4 +11,8 @@ import java.util.UUID;
 @Repository
 public interface RoleRepository extends PagingAndSortingRepository<Role, UUID>, ListCrudRepository<Role, UUID> {
     Optional<Role> findByRoleName(String roleName);
+
+    boolean existsByRoleName(String roleName);
+
+    void deleteByRoleName(String roleName);
 }

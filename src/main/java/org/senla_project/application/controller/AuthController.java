@@ -2,10 +2,11 @@ package org.senla_project.application.controller;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.senla_project.application.dto.JwtRequest;
-import org.senla_project.application.dto.UserCreateDto;
-import org.senla_project.application.dto.UserResponseDto;
+import org.senla_project.application.dto.jwt.JwtRequest;
+import org.senla_project.application.dto.user.UserCreateDto;
+import org.senla_project.application.dto.user.UserResponseDto;
 import org.senla_project.application.service.AuthService;
+import org.senla_project.application.service.impl.AuthServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

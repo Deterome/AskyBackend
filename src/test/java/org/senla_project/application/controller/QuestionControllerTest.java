@@ -10,12 +10,13 @@ import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.config.WebSecurityConfig;
-import org.senla_project.application.dto.QuestionCreateDto;
-import org.senla_project.application.dto.QuestionResponseDto;
+import org.senla_project.application.dto.question.QuestionCreateDto;
+import org.senla_project.application.dto.question.QuestionDeleteDto;
+import org.senla_project.application.dto.question.QuestionResponseDto;
+import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
-import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -90,7 +91,7 @@ class QuestionControllerTest {
 
     @Test
     void getById_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/questions/{id}", UUID.randomUUID())
+        mockMvc.perform(get("/questions/id/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -99,7 +100,7 @@ class QuestionControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getById_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/questions/{id}", UUID.randomUUID())
+        mockMvc.perform(get("/questions/id/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -110,7 +111,7 @@ class QuestionControllerTest {
     void getById_thenReturnElement() throws Exception {
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
         QuestionResponseDto createdQuestion = questionController.create(questionCreateDto);
-        mockMvc.perform(get("/questions/{id}", createdQuestion.getQuestionId())
+        mockMvc.perform(get("/questions/id/{id}", createdQuestion.getQuestionId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -192,7 +193,13 @@ class QuestionControllerTest {
 
     @Test
     void delete_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(delete("/questions/delete/{id}", UUID.randomUUID())
+        QuestionDeleteDto questionDeleteDto = QuestionDeleteDto.builder()
+                .questionId(UUID.randomUUID().toString())
+                .authorName("Alex")
+                .build();
+        mockMvc.perform(delete("/questions/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(questionDeleteDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -200,20 +207,41 @@ class QuestionControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void delete_thenDeleteElement() throws Exception {
-        mockMvc.perform(delete("/questions/delete/{id}", UUID.randomUUID())
+    void delete_withInvalidUser_thenThrowForbiddenException() throws Exception {
+        authController.createNewUser(UserCreateDto.builder()
+                .username("Bob")
+                .password("228")
+                .build());
+        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
+        questionCreateDto.setAuthorName("Bob");
+        QuestionResponseDto questionResponseDto = questionController.create(questionCreateDto);
+        QuestionDeleteDto questionDeleteDto = QuestionDeleteDto.builder()
+                .questionId(questionResponseDto.getQuestionId())
+                .authorName(questionResponseDto.getAuthorName())
+                .build();
+        mockMvc.perform(delete("/questions/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(questionDeleteDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isForbidden());
+    }
 
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void delete_thenDeleteElement() throws Exception {
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
         QuestionResponseDto questionResponseDto = questionController.create(questionCreateDto);
-        mockMvc.perform(delete("/questions/delete/{id}", questionResponseDto.getQuestionId())
+        QuestionDeleteDto questionDeleteDto = QuestionDeleteDto.builder()
+                .questionId(questionResponseDto.getQuestionId())
+                .authorName(questionResponseDto.getAuthorName())
+                .build();
+        mockMvc.perform(delete("/questions/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(questionDeleteDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-        Assertions.assertThrows(EntityNotFoundException.class,
-                () -> questionController.getById(UUID.fromString(questionResponseDto.getQuestionId())));
     }
 
     @Test

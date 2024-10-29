@@ -31,4 +31,19 @@ public class Collaboration {
     @EqualsAndHashCode.Exclude
     private Set<CollaborationsJoining> users;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "collab", cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<UserCollaborationCollabRole> usersRoles;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "collaborations_collabroles",
+            joinColumns = @JoinColumn(name = "collab_id"),
+            inverseJoinColumns = @JoinColumn(name = "collab_role_id")
+    )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<CollabRole> collabRoles;
+
 }

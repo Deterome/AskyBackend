@@ -1,11 +1,8 @@
 package org.senla_project.application.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.Named;
-import org.senla_project.application.dto.UserCreateDto;
-import org.senla_project.application.dto.UserResponseDto;
+import org.mapstruct.*;
+import org.senla_project.application.dto.user.UserCreateDto;
+import org.senla_project.application.dto.user.UserResponseDto;
 import org.senla_project.application.entity.User;
 
 import java.util.List;

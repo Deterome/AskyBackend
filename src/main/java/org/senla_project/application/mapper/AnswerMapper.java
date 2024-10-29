@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
-import org.senla_project.application.dto.AnswerCreateDto;
-import org.senla_project.application.dto.AnswerResponseDto;
+import org.senla_project.application.dto.answer.AnswerCreateDto;
+import org.senla_project.application.dto.answer.AnswerResponseDto;
 import org.senla_project.application.entity.Answer;
 
 import java.util.List;

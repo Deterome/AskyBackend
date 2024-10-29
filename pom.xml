@@ -28,6 +28,7 @@
         <aspectj.version>1.9.22.1</aspectj.version>
         <!--hibernate-->
         <hibernate.version>6.6.1.Final</hibernate.version>
+        <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
         <!--testing-->
         <junit.version>5.11.2</junit.version>
         <mockito.version>5.13.0</mockito.version>
@@ -141,6 +142,18 @@
             <artifactId>hibernate-jpamodelgen</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
+        <!--validator-->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate.validator.version}</version>
+        </dependency>
+        <!--EL-->
+        <dependency>
+            <groupId>org.glassfish.expressly</groupId>
+            <artifactId>expressly</artifactId>
+            <version>6.0.0-M1</version>
+        </dependency>
         <!--servlet-->
         <dependency>
             <groupId>jakarta.servlet</groupId>
@@ -228,6 +241,18 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <version>${spring-security.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <version>3.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.9.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

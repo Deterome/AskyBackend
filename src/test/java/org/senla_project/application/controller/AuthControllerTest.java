@@ -9,8 +9,8 @@ import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.config.WebSecurityConfig;
-import org.senla_project.application.dto.JwtRequest;
-import org.senla_project.application.dto.UserCreateDto;
+import org.senla_project.application.dto.jwt.JwtRequest;
+import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
@@ -55,7 +55,7 @@ class AuthControllerTest {
     @Test
     void createNewUser() throws Exception {
         UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        mockMvc.perform(post("/auth/signin")
+        mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(userCreateDto))
                         .accept(MediaType.APPLICATION_JSON))
