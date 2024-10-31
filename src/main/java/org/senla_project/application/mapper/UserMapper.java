@@ -22,17 +22,14 @@ public abstract class UserMapper {
     }
 
     @Mapping(source = "id", target = "userId")
-    @Mapping(source = "dto.roles", target = "roles", qualifiedByName = {"RoleMapper", "toRoleSetFromStringList"})
     public abstract User toUser(UUID id, UserCreateDto dto);
 
     @Mapping(target = "userId", ignore = true)
-    @Mapping(source = "dto.roles", target = "roles", qualifiedByName = {"RoleMapper", "toRoleSetFromStringList"})
     public abstract User toUser(UserCreateDto dto);
 
     @Mapping(source = "roles", target = "roles", qualifiedByName = {"RoleMapper", "toRoleSetFromStringList"})
     public abstract User toUser(UserResponseDto userResponseDto);
 
-    @Mapping(source = "roles", target = "roles", qualifiedByName = {"RoleMapper", "toStringListFromRoleSet"})
     public abstract UserCreateDto toUserCreateDto(User entity);
 
     @Mapping(source = "roles", target = "roles", qualifiedByName = {"RoleMapper", "toStringListFromRoleSet"})

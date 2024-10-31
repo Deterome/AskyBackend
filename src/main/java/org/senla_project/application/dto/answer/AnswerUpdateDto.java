@@ -5,18 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.util.UUID;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
-public class AnswerCreateDto {
+public class AnswerUpdateDto {
 
+    private String answerId;
     private String body;
-    private UUID questionId;
+    private int usefulness;
 
 }
-
-

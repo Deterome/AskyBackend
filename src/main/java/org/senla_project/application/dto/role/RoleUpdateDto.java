@@ -1,4 +1,4 @@
-package org.senla_project.application.dto.user;
+package org.senla_project.application.dto.role;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class UserCreateDto {
+public class RoleUpdateDto {
 
-    private String username;
-    private String password;
+    String roleId;
+    String roleName;
 
 }

@@ -10,6 +10,7 @@ import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.config.WebSecurityConfig;
+import org.senla_project.application.dto.answer.AnswerCreateDto;
 import org.senla_project.application.dto.collabRole.CollabRoleCreateDto;
 import org.senla_project.application.dto.collaboration.CollabCreateDto;
 import org.senla_project.application.dto.collaboration.CollabDeleteDto;
@@ -20,8 +21,8 @@ import org.senla_project.application.service.CollabRoleService;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
-import org.senla_project.application.util.enums.DefaultCollabRoles;
-import org.senla_project.application.util.enums.DefaultRoles;
+import org.senla_project.application.util.enums.DefaultCollabRole;
+import org.senla_project.application.util.enums.DefaultRole;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -32,6 +33,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -63,10 +65,10 @@ class CollaborationControllerTest {
 
     @BeforeEach
     void initDataBaseWithData() {
-        roleController.create(RoleCreateDto.builder().roleName(DefaultRoles.USER.toString()).build());
+        roleController.create(RoleCreateDto.builder().roleName(DefaultRole.USER.toString()).build());
         authController.createNewUser(UserCreateDto.builder().password("228").username("Alex").build());
-        collabRoleService.create(CollabRoleCreateDto.builder().collabRoleName(DefaultCollabRoles.CREATOR.toString()).build());
-        collabRoleService.create(CollabRoleCreateDto.builder().collabRoleName(DefaultCollabRoles.PARTICIPANT.toString()).build());
+        collabRoleService.create(CollabRoleCreateDto.builder().collabRoleName(DefaultCollabRole.CREATOR.toString()).build());
+        collabRoleService.create(CollabRoleCreateDto.builder().collabRoleName(DefaultCollabRole.PARTICIPANT.toString()).build());
     }
 
     @Test
@@ -246,6 +248,21 @@ class CollaborationControllerTest {
         CollabResponseDto collabResponseDto = collabController.getByCollabName(collabCreateDto.getCollabName());
         Assertions.assertEquals(collabResponseDto.getCollabName(),
                 collabCreateDto.getCollabName());
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void create_thenAssertCreationDate() throws Exception {
+        CollabCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
+        mockMvc.perform(post("/collabs/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(collabCreateDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        Assertions.assertEquals(LocalDate.now().toString(),
+                collabController.getByCollabName(collabCreateDto.getCollabName()).getCreateTime());
     }
 
 }

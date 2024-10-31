@@ -12,9 +12,8 @@ import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.service.UserService;
 import org.senla_project.application.service.linker.UserLinkerService;
-import org.senla_project.application.util.enums.DefaultRoles;
+import org.senla_project.application.util.enums.DefaultRole;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     private Set<Role> getDefaultRolesSet() {
-        return roleMapper.toRoleSetFromStringList(List.of(DefaultRoles.USER.toString()));
+        return roleMapper.toRoleSetFromStringList(List.of(DefaultRole.USER.toString()));
     }
 
     @Transactional

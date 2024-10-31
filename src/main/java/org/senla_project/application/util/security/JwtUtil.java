@@ -4,7 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.senla_project.application.util.enums.JwtTokenClaimsEnum;
+import org.senla_project.application.util.enums.JwtTokenClaim;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,7 +29,7 @@ public class JwtUtil {
         List<String> rolesList = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
-        claims.put(JwtTokenClaimsEnum.ROLES.toString(), rolesList);
+        claims.put(JwtTokenClaim.ROLES.toString(), rolesList);
 
         Date issuedDate = new Date();
         Date expiredDate = new Date(issuedDate.getTime() + securityKeyLifetime);
@@ -53,7 +53,7 @@ public class JwtUtil {
     }
 
     public List<String> getRolesFromToken(String token) {
-        return getAllClaimsFromToken(token).get(JwtTokenClaimsEnum.ROLES.toString(), List.class);
+        return getAllClaimsFromToken(token).get(JwtTokenClaim.ROLES.toString(), List.class);
     }
 
     private Claims getAllClaimsFromToken(String token) {

@@ -9,13 +9,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class ProfileCreateDto {
+public class ProfileUpdateDto {
 
-    private String username;
+    private String profileId;
     private String bio;
     private String firstname;
     private String surname;
     private String birthday;
     private String avatarUrl;
+    private int rating;
 
 }

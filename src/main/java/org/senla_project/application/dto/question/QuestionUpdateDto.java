@@ -1,22 +1,19 @@
-package org.senla_project.application.dto.answer;
+package org.senla_project.application.dto.question;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.util.UUID;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
-public class AnswerCreateDto {
+public class QuestionUpdateDto {
 
+    private String questionId;
+    private String header;
     private String body;
-    private UUID questionId;
+    private int interesting;
 
 }
-
-
