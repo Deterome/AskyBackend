@@ -13,10 +13,7 @@ import java.time.LocalDate;
 @Builder
 public class QuestionCreateDto {
 
-    private String authorName;
     private String header;
     private String body;
-    private int interesting;
-    private String createTime = LocalDate.now().toString();
 
 }

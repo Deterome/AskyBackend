@@ -16,10 +16,9 @@ import org.senla_project.application.service.CollaborationService;
 import org.senla_project.application.service.CollaborationsJoiningService;
 import org.senla_project.application.service.UserCollaborationCollabRoleService;
 import org.senla_project.application.service.linker.CollaborationLinkerService;
-import org.senla_project.application.util.enums.DefaultCollabRoles;
+import org.senla_project.application.util.enums.DefaultCollabRole;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.exception.ForbiddenException;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,7 +46,7 @@ public class CollaborationServiceImpl implements CollaborationService {
     final private CollaborationLinkerService collabLinkerService;
 
     private Set<CollabRole> getDefaultCollabRolesSet() {
-        return Stream.of(DefaultCollabRoles.PARTICIPANT.toString(), DefaultCollabRoles.CREATOR.toString())
+        return Stream.of(DefaultCollabRole.PARTICIPANT.toString(), DefaultCollabRole.CREATOR.toString())
                 .map(collabRoleMapper::toCollabRoleFromName)
                 .collect(Collectors.toSet());
     }
@@ -64,7 +63,7 @@ public class CollaborationServiceImpl implements CollaborationService {
         UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         collabJoinService.joinAuthenticatedUserToCollab(response.getCollabName());
-        userCollabRoleService.giveUserARoleInCollab(authenticatedUser.getUsername(), response.getCollabName(), DefaultCollabRoles.CREATOR.toString());
+        userCollabRoleService.giveUserARoleInCollab(authenticatedUser.getUsername(), response.getCollabName(), DefaultCollabRole.CREATOR.toString());
 
         return response;
     }
@@ -122,7 +121,7 @@ public class CollaborationServiceImpl implements CollaborationService {
         List<CollabRoleResponseDto> userRolesInCollab = collabRoleService.getUserRolesInCollab(username, collabName);
         return userRolesInCollab.stream()
                 .anyMatch(userRoleInCollab -> userRoleInCollab.getCollabRoleName()
-                        .equals(DefaultCollabRoles.CREATOR.toString()));
+                        .equals(DefaultCollabRole.CREATOR.toString()));
     }
 
 }

@@ -1,4 +1,4 @@
-package org.senla_project.application.dto.user;
+package org.senla_project.application.dto.collabRole;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class UserCreateDto {
+public class CollabRoleUpdateDto {
 
-    private String username;
-    private String password;
+    private String collabRoleId;
+    private String collabRoleName;
 
 }

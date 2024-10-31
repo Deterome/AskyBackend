@@ -1,12 +1,12 @@
 package org.senla_project.application.util.enums;
 
-public enum JwtTokenClaimsEnum {
+public enum JwtTokenClaim {
 
     ROLES("roles");
 
     final String claimName;
 
-    JwtTokenClaimsEnum(String claimName) {
+    JwtTokenClaim(String claimName) {
         this.claimName = claimName;
     }
 

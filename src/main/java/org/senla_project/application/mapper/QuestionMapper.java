@@ -20,15 +20,11 @@ public abstract class QuestionMapper {
     }
 
     @Mappings({
-            @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-            @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"}),
             @Mapping(source = "id", target = "questionId")
     })
     public abstract Question toQuestion(UUID id, QuestionCreateDto dto);
 
     @Mappings({
-            @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-            @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"}),
             @Mapping(target = "questionId", ignore = true)
     })
     public abstract Question toQuestion(QuestionCreateDto dto);
@@ -39,10 +35,6 @@ public abstract class QuestionMapper {
     })
     public abstract Question toQuestion(QuestionResponseDto dto);
 
-    @Mappings({
-            @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-            @Mapping(target = "authorName", expression = "java(entity.getAuthor().getUsername())")
-    })
     public abstract QuestionCreateDto toQuestionCreateDto(Question entity);
 
     @Mappings({

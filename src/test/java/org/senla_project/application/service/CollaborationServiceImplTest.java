@@ -18,7 +18,7 @@ import org.senla_project.application.repository.CollaborationRepository;
 import org.senla_project.application.service.impl.CollaborationServiceImpl;
 import org.senla_project.application.service.linker.CollaborationLinkerService;
 import org.senla_project.application.util.TestData;
-import org.senla_project.application.util.enums.DefaultCollabRoles;
+import org.senla_project.application.util.enums.DefaultCollabRole;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -84,7 +84,7 @@ class CollaborationServiceImplTest {
     @Test
     void isUserACreatorOfCollab() {
         List<CollabRoleResponseDto> collabRoleResponse = List.of(CollabRoleResponseDto.builder()
-                .collabRoleName(DefaultCollabRoles.CREATOR.toString())
+                .collabRoleName(DefaultCollabRole.CREATOR.toString())
                 .build());
 
         when(collabRoleServiceMock.getUserRolesInCollab(anyString(), anyString()))
@@ -103,7 +103,7 @@ class CollaborationServiceImplTest {
         UUID id = UUID.randomUUID();
 
         List<CollabRoleResponseDto> collabRoleResponse = List.of(CollabRoleResponseDto.builder()
-                .collabRoleName(DefaultCollabRoles.CREATOR.toString())
+                .collabRoleName(DefaultCollabRole.CREATOR.toString())
                 .build());
 
         when(collabRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getCollaboration()));
@@ -123,7 +123,7 @@ class CollaborationServiceImplTest {
                 .build();
         doNothing().when(collabRepositoryMock).deleteByCollabName(any());
         List<CollabRoleResponseDto> collabRoleResponse = List.of(CollabRoleResponseDto.builder()
-                .collabRoleName(DefaultCollabRoles.CREATOR.toString())
+                .collabRoleName(DefaultCollabRole.CREATOR.toString())
                 .build());
         when(collabRoleServiceMock.getUserRolesInCollab(anyString(), anyString()))
                 .thenReturn(collabRoleResponse);

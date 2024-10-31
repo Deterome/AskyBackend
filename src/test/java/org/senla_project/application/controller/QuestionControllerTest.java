@@ -10,6 +10,7 @@ import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.config.WebSecurityConfig;
+import org.senla_project.application.dto.answer.AnswerCreateDto;
 import org.senla_project.application.dto.question.QuestionCreateDto;
 import org.senla_project.application.dto.question.QuestionDeleteDto;
 import org.senla_project.application.dto.question.QuestionResponseDto;
@@ -26,6 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -277,6 +279,23 @@ class QuestionControllerTest {
                         questionCreateDto.getAuthorName());
         Assertions.assertEquals(questionResponseDto.getBody(),
                 questionCreateDto.getBody());
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void create_thenAssertCreationDate() throws Exception {
+        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
+        mockMvc.perform(post("/questions/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(questionCreateDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        Assertions.assertEquals(LocalDate.now().toString(),
+                questionController.getByParams(questionCreateDto.getHeader(),
+                        questionCreateDto.getBody(),
+                        questionCreateDto.getAuthorName()).getCreateTime());
     }
 
 }

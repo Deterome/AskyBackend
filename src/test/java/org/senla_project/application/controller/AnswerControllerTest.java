@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -267,6 +268,24 @@ class AnswerControllerTest {
                 answerCreateDto.getBody());
         Assertions.assertEquals(answerResponseDto.getBody(),
                 answerCreateDto.getBody());
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void create_thenAssertCreationDate() throws Exception {
+        AnswerCreateDto answerCreateDto = setQuestionIdOfAnswerCreateDto(TestData.getAnswerCreateDto());
+        mockMvc.perform(post("/answers/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(answerCreateDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        Assertions.assertEquals(LocalDate.now().toString(), answerController.getByParams(
+                answerCreateDto.getAuthorName(),
+                answerCreateDto.getQuestionId(),
+                answerCreateDto.getBody()
+        ).getCreateTime());
     }
 
 }
