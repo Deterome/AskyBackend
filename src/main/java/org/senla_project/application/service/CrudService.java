@@ -11,7 +11,7 @@ public interface CrudService<C, R, U, D, ID> {
 
     R create(@NonNull C createDto);
 
-    R updateById(U updateDto);
+    R update(U updateDto);
 
     void delete(@NonNull D deleteDto);
 

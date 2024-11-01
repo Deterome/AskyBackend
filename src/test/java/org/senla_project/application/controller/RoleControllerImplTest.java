@@ -10,6 +10,7 @@ import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.config.WebSecurityConfig;
+import org.senla_project.application.controller.impl.RoleControllerImpl;
 import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.role.RoleDeleteDto;
 import org.senla_project.application.dto.role.RoleResponseDto;
@@ -37,10 +38,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
-class RoleControllerTest {
+class RoleControllerImplTest {
 
     final JsonParser jsonParser;
-    final RoleController roleController;
+    final RoleControllerImpl roleController;
 
     MockMvc mockMvc;
 

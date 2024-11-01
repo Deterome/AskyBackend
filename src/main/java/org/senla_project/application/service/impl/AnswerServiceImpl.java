@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.answer.AnswerCreateDto;
 import org.senla_project.application.dto.answer.AnswerDeleteDto;
 import org.senla_project.application.dto.answer.AnswerResponseDto;
+import org.senla_project.application.dto.answer.AnswerUpdateDto;
 import org.senla_project.application.entity.Answer;
 import org.senla_project.application.mapper.AnswerMapper;
 import org.senla_project.application.repository.AnswerRepository;
@@ -39,10 +40,10 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Transactional
     @Override
-    public AnswerResponseDto updateById(@NonNull UUID id, @NonNull AnswerCreateDto updatedElement) throws EntityNotFoundException {
-        if (!answerRepository.existsById(id)) throw new EntityNotFoundException("Answer not found");
+    public AnswerResponseDto update(@NonNull AnswerUpdateDto answerUpdateDto) throws EntityNotFoundException {
+        if (!answerRepository.existsById(UUID.fromString(answerUpdateDto.getAnswerId()))) throw new EntityNotFoundException("Answer not found");
 
-        Answer answer = answerMapper.toAnswer(id, updatedElement);
+        Answer answer = answerMapper.toAnswer(answerUpdateDto);
         answerLinkerService.linkAnswerWithUser(answer);
         answerLinkerService.linkAnswerWithQuestion(answer);
 

@@ -6,6 +6,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
 import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.role.RoleResponseDto;
+import org.senla_project.application.dto.role.RoleUpdateDto;
 import org.senla_project.application.entity.Role;
 
 import java.util.List;
@@ -29,6 +30,8 @@ public abstract class RoleMapper {
 
     @Mapping(target = "roleId", ignore = true)
     public abstract Role toRole(RoleCreateDto dto);
+
+    public abstract Role toRole(RoleUpdateDto updateDto);
 
     @Mapping(source = "users", target = "users", qualifiedByName = {"UserMapper", "toUserSetFromStringList"})
     public abstract Role toRole(RoleResponseDto roleResponseDto);

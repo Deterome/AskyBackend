@@ -10,7 +10,9 @@ import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.config.WebSecurityConfig;
-import org.senla_project.application.dto.answer.AnswerCreateDto;
+import org.senla_project.application.controller.impl.AuthControllerImpl;
+import org.senla_project.application.controller.impl.CollaborationControllerImpl;
+import org.senla_project.application.controller.impl.RoleControllerImpl;
 import org.senla_project.application.dto.collabRole.CollabRoleCreateDto;
 import org.senla_project.application.dto.collaboration.CollabCreateDto;
 import org.senla_project.application.dto.collaboration.CollabDeleteDto;
@@ -45,13 +47,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
-class CollaborationControllerTest {
+class CollaborationControllerImplTest {
 
     final JsonParser jsonParser;
-    final CollaborationController collabController;
+    final CollaborationControllerImpl collabController;
     final CollabRoleService collabRoleService;
-    final AuthController authController;
-    final RoleController roleController;
+    final AuthControllerImpl authController;
+    final RoleControllerImpl roleController;
 
     MockMvc mockMvc;
 

@@ -3,6 +3,7 @@ package org.senla_project.application.mapper;
 import org.mapstruct.*;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.dto.user.UserResponseDto;
+import org.senla_project.application.dto.user.UserUpdateDto;
 import org.senla_project.application.entity.User;
 
 import java.util.List;
@@ -26,6 +27,9 @@ public abstract class UserMapper {
 
     @Mapping(target = "userId", ignore = true)
     public abstract User toUser(UserCreateDto dto);
+
+    @Mapping(source = "roles", target = "roles", qualifiedByName = {"RoleMapper", "toRoleSetFromStringList"})
+    public abstract User toUser(UserUpdateDto updateDto);
 
     @Mapping(source = "roles", target = "roles", qualifiedByName = {"RoleMapper", "toRoleSetFromStringList"})
     public abstract User toUser(UserResponseDto userResponseDto);

@@ -6,6 +6,7 @@ import org.senla_project.application.dto.collabRole.CollabRoleResponseDto;
 import org.senla_project.application.dto.collaboration.CollabCreateDto;
 import org.senla_project.application.dto.collaboration.CollabDeleteDto;
 import org.senla_project.application.dto.collaboration.CollabResponseDto;
+import org.senla_project.application.dto.collaboration.CollabUpdateDto;
 import org.senla_project.application.entity.CollabRole;
 import org.senla_project.application.entity.Collaboration;
 import org.senla_project.application.mapper.CollabRoleMapper;
@@ -70,14 +71,14 @@ public class CollaborationServiceImpl implements CollaborationService {
 
     @Transactional
     @Override
-    public CollabResponseDto updateById(@NonNull UUID id, @NonNull CollabCreateDto updatedElement) throws EntityNotFoundException, HttpClientErrorException.Forbidden {
+    public CollabResponseDto update(@NonNull CollabUpdateDto collabUpdateDto) throws EntityNotFoundException, HttpClientErrorException.Forbidden {
         UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        var oldCollabInfo = collaborationRepository.findById(id);
+        var oldCollabInfo = collaborationRepository.findById(UUID.fromString(collabUpdateDto.getCollabId()));
         if (oldCollabInfo.isEmpty()) throw new EntityNotFoundException("Collaboration not found");
         if (isUserACreatorOfCollab(authenticatedUser.getUsername(), oldCollabInfo.get().getCollabName())) {
-            return collaborationMapper.toCollabResponseDto(collaborationRepository.save(collaborationMapper.toCollab(id, updatedElement)));
+            return collaborationMapper.toCollabResponseDto(collaborationRepository.save(collaborationMapper.toCollab(collabUpdateDto)));
         } else {
-            throw new ForbiddenException(String.format("You are not an admin of '%s' collaboration!", updatedElement.getCollabName()));
+            throw new ForbiddenException(String.format("You are not an admin of '%s' collaboration!", collabUpdateDto.getCollabName()));
         }
 
     }

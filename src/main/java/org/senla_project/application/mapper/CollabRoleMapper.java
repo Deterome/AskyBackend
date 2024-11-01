@@ -3,6 +3,7 @@ package org.senla_project.application.mapper;
 import org.mapstruct.*;
 import org.senla_project.application.dto.collabRole.CollabRoleCreateDto;
 import org.senla_project.application.dto.collabRole.CollabRoleResponseDto;
+import org.senla_project.application.dto.collabRole.CollabRoleUpdateDto;
 import org.senla_project.application.entity.CollabRole;
 
 import java.util.List;
@@ -28,6 +29,8 @@ public abstract class CollabRoleMapper {
             @Mapping(target = "collabRoleId", ignore = true)
     })
     public abstract CollabRole toCollabRole(CollabRoleCreateDto collabRoleCreateDto);
+
+    public abstract CollabRole toCollabRole(CollabRoleUpdateDto updateDto);
 
     public abstract CollabRole toCollabRole(CollabRoleResponseDto collabRoleResponseDto);
 

@@ -6,6 +6,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
 import org.senla_project.application.dto.answer.AnswerCreateDto;
 import org.senla_project.application.dto.answer.AnswerResponseDto;
+import org.senla_project.application.dto.answer.AnswerUpdateDto;
 import org.senla_project.application.entity.Answer;
 
 import java.util.List;
@@ -25,6 +26,8 @@ public abstract class AnswerMapper {
             @Mapping(target = "answerId", ignore = true)
     })
     public abstract Answer toAnswer(AnswerCreateDto dto);
+
+    public abstract Answer toAnswer(AnswerUpdateDto updateDto);
 
     @Mappings({
             @Mapping(target = "questionId", expression = "java(entity.getQuestion().getQuestionId())")
