@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.question.QuestionCreateDto;
 import org.senla_project.application.dto.question.QuestionDeleteDto;
 import org.senla_project.application.dto.question.QuestionResponseDto;
+import org.senla_project.application.dto.question.QuestionUpdateDto;
 import org.senla_project.application.entity.Question;
 import org.senla_project.application.mapper.QuestionMapper;
 import org.senla_project.application.repository.QuestionRepository;
@@ -40,10 +41,10 @@ public class QuestionServiceImpl implements QuestionService {
     @Transactional
     @Override
     @PreAuthorize("#updatedQuestion.authorName == authentication.principal.username")
-    public QuestionResponseDto updateById(@NonNull UUID id, @NonNull @P("updatedQuestion") QuestionCreateDto updatedElement) throws EntityNotFoundException {
-        if (!questionRepository.existsById(id)) throw new EntityNotFoundException("Question join not found");
+    public QuestionResponseDto update(@NonNull @P("updatedQuestion") QuestionUpdateDto questionUpdateDto) throws EntityNotFoundException {
+        if (!questionRepository.existsById(UUID.fromString(questionUpdateDto.getQuestionId()))) throw new EntityNotFoundException("Question join not found");
 
-        Question question = questionMapper.toQuestion(id, updatedElement);
+        Question question = questionMapper.toQuestion(questionUpdateDto);
         questionLinkerService.linkQuestionWithUser(question);
         return questionMapper.toQuestionResponseDto(questionRepository.save(question));
     }

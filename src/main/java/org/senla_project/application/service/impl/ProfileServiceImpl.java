@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.profile.ProfileCreateDto;
 import org.senla_project.application.dto.profile.ProfileDeleteDto;
 import org.senla_project.application.dto.profile.ProfileResponseDto;
+import org.senla_project.application.dto.profile.ProfileUpdateDto;
 import org.senla_project.application.entity.Profile;
 import org.senla_project.application.mapper.ProfileMapper;
 import org.senla_project.application.mapper.UserMapper;
@@ -43,10 +44,10 @@ public class ProfileServiceImpl implements ProfileService {
     @Transactional
     @Override
     @PreAuthorize("#updatedProfile.username == authentication.principal.username")
-    public ProfileResponseDto updateById(@NonNull UUID id, @NonNull @P("updatedProfile") ProfileCreateDto updatedElement) throws EntityNotFoundException {
-        if (!profileRepository.existsById(id)) throw new EntityNotFoundException("Profile not found");
+    public ProfileResponseDto update(@NonNull @P("updatedProfile") ProfileUpdateDto profileUpdateDto) throws EntityNotFoundException {
+        if (!profileRepository.existsById(UUID.fromString(profileUpdateDto.getProfileId()))) throw new EntityNotFoundException("Profile not found");
 
-        Profile profile = profileMapper.toProfile(id, updatedElement);
+        Profile profile = profileMapper.toProfile(profileUpdateDto);
         profileLinkerService.linkProfileWithUser(profile);
         return profileMapper.toProfileResponseDto(profileRepository.save(profile));
     }

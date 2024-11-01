@@ -9,6 +9,8 @@ import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.config.WebSecurityConfig;
+import org.senla_project.application.controller.impl.AuthControllerImpl;
+import org.senla_project.application.controller.impl.RoleControllerImpl;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.dto.user.UserDeleteDto;
 import org.senla_project.application.dto.user.UserResponseDto;
@@ -36,11 +38,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
-class UserControllerTest {
+class UserControllerImplTest {
 
     final JsonParser jsonParser;
-    final AuthController authController;
-    final RoleController roleController;
+    final AuthControllerImpl authController;
+    final RoleControllerImpl roleController;
 
     MockMvc mockMvc;
 

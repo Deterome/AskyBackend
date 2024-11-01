@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.collabRole.CollabRoleCreateDto;
 import org.senla_project.application.dto.collabRole.CollabRoleDeleteDto;
 import org.senla_project.application.dto.collabRole.CollabRoleResponseDto;
+import org.senla_project.application.dto.collabRole.CollabRoleUpdateDto;
 import org.senla_project.application.mapper.CollabRoleMapper;
 import org.senla_project.application.repository.CollabRoleRepository;
 import org.senla_project.application.service.CollabRoleService;
@@ -32,9 +33,9 @@ public class CollabRoleServiceImpl implements CollabRoleService {
 
     @Transactional
     @Override
-    public CollabRoleResponseDto updateById(@NonNull UUID id, @NonNull CollabRoleCreateDto updatedElement) throws EntityNotFoundException {
-        if (!collabRoleRepository.existsById(id)) throw new EntityNotFoundException("Collaboration role not found");
-        return collabRoleMapper.toCollabRoleResponseDto(collabRoleRepository.save(collabRoleMapper.toCollabRole(id, updatedElement)));
+    public CollabRoleResponseDto update(@NonNull CollabRoleUpdateDto collabRoleUpdateDto) throws EntityNotFoundException {
+        if (!collabRoleRepository.existsById(UUID.fromString(collabRoleUpdateDto.getCollabRoleId()))) throw new EntityNotFoundException("Collaboration role not found");
+        return collabRoleMapper.toCollabRoleResponseDto(collabRoleRepository.save(collabRoleMapper.toCollabRole(collabRoleUpdateDto)));
     }
 
     @Transactional

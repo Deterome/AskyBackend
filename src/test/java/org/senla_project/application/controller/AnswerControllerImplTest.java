@@ -10,10 +10,13 @@ import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.config.WebSecurityConfig;
+import org.senla_project.application.controller.impl.AnswerControllerImpl;
+import org.senla_project.application.controller.impl.AuthControllerImpl;
+import org.senla_project.application.controller.impl.QuestionControllerImpl;
+import org.senla_project.application.controller.impl.RoleControllerImpl;
 import org.senla_project.application.dto.answer.AnswerCreateDto;
 import org.senla_project.application.dto.answer.AnswerDeleteDto;
 import org.senla_project.application.dto.answer.AnswerResponseDto;
-import org.senla_project.application.entity.Answer;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
@@ -39,13 +42,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
-class AnswerControllerTest {
+class AnswerControllerImplTest {
 
     final JsonParser jsonParser;
-    final AnswerController answerController;
-    final QuestionController questionController;
-    final RoleController roleController;
-    final AuthController authController;
+    final AnswerControllerImpl answerController;
+    final QuestionControllerImpl questionController;
+    final RoleControllerImpl roleController;
+    final AuthControllerImpl authController;
 
     MockMvc mockMvc;
 
@@ -153,7 +156,7 @@ class AnswerControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        Assertions.assertEquals(answerController.getByParams(
+        Assertions.assertEquals(answerController.getByAuthorNameQuestionIdAndBody(
                         answerCreateDto.getAuthorName(),
                         answerCreateDto.getQuestionId(),
                         answerCreateDto.getBody()
@@ -194,13 +197,13 @@ class AnswerControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(answerController.getByParams(
+        Assertions.assertEquals(answerController.getByAuthorNameQuestionIdAndBody(
                         updatedAnswerCreateDto.getAuthorName(),
                         updatedAnswerCreateDto.getQuestionId(),
                         updatedAnswerCreateDto.getBody()
                 ).getBody(),
                 updatedAnswerCreateDto.getBody());
-        Assertions.assertEquals(answerController.getByParams(
+        Assertions.assertEquals(answerController.getByAuthorNameQuestionIdAndBody(
                         updatedAnswerCreateDto.getAuthorName(),
                         updatedAnswerCreateDto.getQuestionId(),
                         updatedAnswerCreateDto.getBody()
@@ -235,7 +238,7 @@ class AnswerControllerTest {
     }
 
     @Test
-    void getByParams_thenThrowUnauthorizedException() throws Exception {
+    void getByAuthorNameQuestionIdAndBody_thenThrowUnauthorizedException() throws Exception {
         mockMvc.perform(get("/answers?author={author}&question_id={question_id}&body={body}", "123", UUID.randomUUID(), "123")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -244,7 +247,7 @@ class AnswerControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getByParams_thenThrowNotFoundException() throws Exception {
+    void getByAuthorNameQuestionIdAndBody_thenThrowNotFoundException() throws Exception {
         mockMvc.perform(get("/answers?author={author}&question_id={question_id}&body={body}", "123", UUID.randomUUID(), "123")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -253,7 +256,7 @@ class AnswerControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getByParams_thenReturnElement() throws Exception {
+    void getByAuthorNameQuestionIdAndBody_thenReturnElement() throws Exception {
         AnswerCreateDto answerCreateDto = setQuestionIdOfAnswerCreateDto(TestData.getAnswerCreateDto());
         answerController.create(answerCreateDto);
         mockMvc.perform(get("/answers?author={author}&question_id={question_id}&body={body}",
@@ -263,7 +266,7 @@ class AnswerControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        AnswerResponseDto answerResponseDto = answerController.getByParams(answerCreateDto.getAuthorName(),
+        AnswerResponseDto answerResponseDto = answerController.getByAuthorNameQuestionIdAndBody(answerCreateDto.getAuthorName(),
                 answerCreateDto.getQuestionId(),
                 answerCreateDto.getBody());
         Assertions.assertEquals(answerResponseDto.getBody(),
@@ -281,7 +284,7 @@ class AnswerControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        Assertions.assertEquals(LocalDate.now().toString(), answerController.getByParams(
+        Assertions.assertEquals(LocalDate.now().toString(), answerController.getByAuthorNameQuestionIdAndBody(
                 answerCreateDto.getAuthorName(),
                 answerCreateDto.getQuestionId(),
                 answerCreateDto.getBody()

@@ -3,6 +3,7 @@ package org.senla_project.application.mapper;
 import org.mapstruct.*;
 import org.senla_project.application.dto.question.QuestionCreateDto;
 import org.senla_project.application.dto.question.QuestionResponseDto;
+import org.senla_project.application.dto.question.QuestionUpdateDto;
 import org.senla_project.application.entity.Question;
 
 import java.util.List;
@@ -28,6 +29,8 @@ public abstract class QuestionMapper {
             @Mapping(target = "questionId", ignore = true)
     })
     public abstract Question toQuestion(QuestionCreateDto dto);
+
+    public abstract Question toQuestion(QuestionUpdateDto updateDto);
 
     @Mappings({
             @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),

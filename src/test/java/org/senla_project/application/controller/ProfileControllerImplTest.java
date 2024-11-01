@@ -10,10 +10,12 @@ import org.senla_project.application.config.ApplicationConfigTest;
 import org.senla_project.application.config.DataSourceConfigTest;
 import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.config.WebSecurityConfig;
-import org.senla_project.application.dto.answer.AnswerCreateDto;
-import org.senla_project.application.dto.question.QuestionCreateDto;
-import org.senla_project.application.dto.question.QuestionDeleteDto;
-import org.senla_project.application.dto.question.QuestionResponseDto;
+import org.senla_project.application.controller.impl.AuthControllerImpl;
+import org.senla_project.application.controller.impl.ProfileControllerImpl;
+import org.senla_project.application.controller.impl.RoleControllerImpl;
+import org.senla_project.application.dto.profile.ProfileCreateDto;
+import org.senla_project.application.dto.profile.ProfileDeleteDto;
+import org.senla_project.application.dto.profile.ProfileResponseDto;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
@@ -27,7 +29,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -39,12 +40,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
-class QuestionControllerTest {
+class ProfileControllerImplTest {
 
     final JsonParser jsonParser;
-    final QuestionController questionController;
-    final RoleController roleController;
-    final AuthController authController;
+    final ProfileControllerImpl profileController;
+    final RoleControllerImpl roleController;
+    final AuthControllerImpl authController;
 
     MockMvc mockMvc;
 
@@ -64,7 +65,7 @@ class QuestionControllerTest {
 
     @Test
     void getAll_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/questions/all")
+        mockMvc.perform(get("/profiles/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -73,27 +74,30 @@ class QuestionControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getAll_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/questions/all")
+        profileController.create(TestData.getProfileCreateDto());
+        mockMvc.perform(get("/profiles/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
+
+        Assertions.assertEquals(profileController.getAll(1, 5).getTotalElements(), 1);
     }
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getAll_thenReturnAllElements() throws Exception {
-        questionController.create(TestData.getQuestionCreateDto());
-        mockMvc.perform(get("/questions/all")
+        profileController.create(TestData.getProfileCreateDto());
+        mockMvc.perform(get("/profiles/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(questionController.getAll(1, 5).getTotalElements(), 1);
+        Assertions.assertEquals(profileController.getAll(1, 5).getTotalElements(), 1);
     }
 
     @Test
     void getById_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/questions/id/{id}", UUID.randomUUID())
+        mockMvc.perform(get("/profiles/id/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -102,7 +106,7 @@ class QuestionControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getById_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/questions/id/{id}", UUID.randomUUID())
+        mockMvc.perform(get("/profiles/id/{id}", UUID.randomUUID())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -111,22 +115,22 @@ class QuestionControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getById_thenReturnElement() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        QuestionResponseDto createdQuestion = questionController.create(questionCreateDto);
-        mockMvc.perform(get("/questions/id/{id}", createdQuestion.getQuestionId())
+        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        ProfileResponseDto createdProfile = profileController.create(profileCreateDto);
+        mockMvc.perform(get("/profiles/id/{id}", createdProfile.getProfileId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        Assertions.assertEquals(createdQuestion.getBody(),
-                questionCreateDto.getBody());
+        Assertions.assertEquals(createdProfile.getUsername(),
+                profileCreateDto.getUsername());
     }
 
     @Test
-    void create_thenThrowUnauthorizedException() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        mockMvc.perform(post("/questions/create")
+    void create_thenReturnUnauthorized() throws Exception {
+        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        mockMvc.perform(post("/profiles/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionCreateDto))
+                        .content(jsonParser.parseObjectToJson(profileCreateDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -135,26 +139,24 @@ class QuestionControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void create_thenReturnCreatedElement() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        mockMvc.perform(post("/questions/create")
+        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        mockMvc.perform(post("/profiles/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionCreateDto))
+                        .content(jsonParser.parseObjectToJson(profileCreateDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        Assertions.assertEquals(questionController.getByParams(questionCreateDto.getHeader(),
-                        questionCreateDto.getBody(),
-                        questionCreateDto.getAuthorName()).getBody(),
-                questionCreateDto.getBody());
+        Assertions.assertEquals(profileController.getByUsername(profileCreateDto.getUsername()).getUsername(),
+                profileCreateDto.getUsername());
     }
 
     @Test
     void update_thenThrowUnauthorizedException() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        mockMvc.perform(put("/questions/update/{id}", UUID.randomUUID())
+        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        mockMvc.perform(put("/profiles/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionCreateDto)))
+                        .content(jsonParser.parseObjectToJson(profileCreateDto)))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -162,10 +164,10 @@ class QuestionControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void update_thenThrowNotFoundException() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        mockMvc.perform(put("/questions/update/{id}", UUID.randomUUID())
+        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        mockMvc.perform(put("/profiles/update/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionCreateDto)))
+                        .content(jsonParser.parseObjectToJson(profileCreateDto)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -173,35 +175,30 @@ class QuestionControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void update_thenReturnUpdatedElement() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        QuestionResponseDto questionResponseDto = questionController.create(questionCreateDto);
-        QuestionCreateDto updatedQuestionCreateDto = TestData.getUpdatedQuestionCreateDto();
+        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        ProfileResponseDto profileResponseDto = profileController.create(profileCreateDto);
+        ProfileCreateDto updatedProfileCreateDto = TestData.getUpdatedProfileCreateDto();
 
-        mockMvc.perform(put("/questions/update/{id}", questionResponseDto.getQuestionId())
+        mockMvc.perform(put("/profiles/update/{id}", profileResponseDto.getProfileId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(updatedQuestionCreateDto)))
+                        .content(jsonParser.parseObjectToJson(updatedProfileCreateDto)))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Assertions.assertEquals(questionController.getByParams(updatedQuestionCreateDto.getHeader(),
-                        updatedQuestionCreateDto.getBody(),
-                        updatedQuestionCreateDto.getAuthorName()).getBody(),
-                updatedQuestionCreateDto.getBody());
-        Assertions.assertEquals(questionController.getByParams(updatedQuestionCreateDto.getHeader(),
-                        updatedQuestionCreateDto.getBody(),
-                        updatedQuestionCreateDto.getAuthorName()).getQuestionId(),
-                questionResponseDto.getQuestionId());
+        Assertions.assertEquals(profileController.getByUsername(updatedProfileCreateDto.getUsername()).getUsername(),
+                updatedProfileCreateDto.getUsername());
+        Assertions.assertEquals(profileController.getByUsername(updatedProfileCreateDto.getUsername()).getProfileId(),
+                profileResponseDto.getProfileId());
     }
 
     @Test
     void delete_thenThrowUnauthorizedException() throws Exception {
-        QuestionDeleteDto questionDeleteDto = QuestionDeleteDto.builder()
-                .questionId(UUID.randomUUID().toString())
-                .authorName("Alex")
+        ProfileDeleteDto profileDeleteDto = ProfileDeleteDto.builder()
+                .username("Alex")
                 .build();
-        mockMvc.perform(delete("/questions/delete")
+        mockMvc.perform(delete("/profiles/delete")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionDeleteDto))
+                        .content(jsonParser.parseObjectToJson(profileDeleteDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -214,16 +211,15 @@ class QuestionControllerTest {
                 .username("Bob")
                 .password("228")
                 .build());
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        questionCreateDto.setAuthorName("Bob");
-        QuestionResponseDto questionResponseDto = questionController.create(questionCreateDto);
-        QuestionDeleteDto questionDeleteDto = QuestionDeleteDto.builder()
-                .questionId(questionResponseDto.getQuestionId())
-                .authorName(questionResponseDto.getAuthorName())
+        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        profileCreateDto.setUsername("Bob");
+        ProfileResponseDto profileResponseDto = profileController.create(profileCreateDto);
+        ProfileDeleteDto profileDeleteDto = ProfileDeleteDto.builder()
+                .username(profileResponseDto.getUsername())
                 .build();
-        mockMvc.perform(delete("/questions/delete")
+        mockMvc.perform(delete("/profiles/delete")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionDeleteDto))
+                        .content(jsonParser.parseObjectToJson(profileCreateDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -232,23 +228,22 @@ class QuestionControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void delete_thenDeleteElement() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        QuestionResponseDto questionResponseDto = questionController.create(questionCreateDto);
-        QuestionDeleteDto questionDeleteDto = QuestionDeleteDto.builder()
-                .questionId(questionResponseDto.getQuestionId())
-                .authorName(questionResponseDto.getAuthorName())
+        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        ProfileResponseDto profileResponseDto = profileController.create(profileCreateDto);
+        ProfileDeleteDto profileDeleteDto = ProfileDeleteDto.builder()
+                .username(profileResponseDto.getUsername())
                 .build();
-        mockMvc.perform(delete("/questions/delete")
+        mockMvc.perform(delete("/profiles/delete")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionDeleteDto))
+                        .content(jsonParser.parseObjectToJson(profileCreateDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void getByParams_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(get("/questions?header={header}&body={body}&author={author}", "123", "123", "123")
+    void getByUsername_thenThrowUnauthorizedException() throws Exception {
+        mockMvc.perform(get("/profiles/{username}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -256,8 +251,8 @@ class QuestionControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getByParams_thenThrowNotFoundException() throws Exception {
-        mockMvc.perform(get("/questions?header={header}&body={body}&author={author}", "123", "123", "123")
+    void getByUsername_thenThrowNotFoundException() throws Exception {
+        mockMvc.perform(get("/profiles/{username}", "Alex")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -265,37 +260,16 @@ class QuestionControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getByParams_thenReturnElement() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        questionController.create(questionCreateDto);
-        mockMvc.perform(get("/questions?header={header}&body={body}&author={author}", questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName())
+    void getByUsername_thenReturnElement() throws Exception {
+        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+        profileController.create(profileCreateDto);
+        mockMvc.perform(get("/profiles/{username}", profileCreateDto.getUsername())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
-        QuestionResponseDto questionResponseDto =
-                questionController.getByParams(
-                        questionCreateDto.getHeader(),
-                        questionCreateDto.getBody(),
-                        questionCreateDto.getAuthorName());
-        Assertions.assertEquals(questionResponseDto.getBody(),
-                questionCreateDto.getBody());
-    }
-
-    @Test
-    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void create_thenAssertCreationDate() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        mockMvc.perform(post("/questions/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionCreateDto))
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isCreated());
-
-        Assertions.assertEquals(LocalDate.now().toString(),
-                questionController.getByParams(questionCreateDto.getHeader(),
-                        questionCreateDto.getBody(),
-                        questionCreateDto.getAuthorName()).getCreateTime());
+        ProfileResponseDto profileResponseDto = profileController.getByUsername(profileCreateDto.getUsername());
+        Assertions.assertEquals(profileResponseDto.getUsername(),
+                profileCreateDto.getUsername());
     }
 
 }

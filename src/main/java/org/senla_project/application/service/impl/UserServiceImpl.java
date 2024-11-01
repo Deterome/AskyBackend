@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.dto.user.UserDeleteDto;
 import org.senla_project.application.dto.user.UserResponseDto;
+import org.senla_project.application.dto.user.UserUpdateDto;
 import org.senla_project.application.entity.Role;
 import org.senla_project.application.entity.User;
 import org.senla_project.application.mapper.RoleMapper;
@@ -58,10 +59,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     @PreAuthorize("#updatedUser.username == authentication.principal.username")
-    public UserResponseDto updateById(@NonNull UUID id, @NonNull @P("updatedUser") UserCreateDto updatedElement) throws EntityNotFoundException {
-        if (!userRepository.existsById(id)) throw new EntityNotFoundException("User not found");
+    public UserResponseDto update(@NonNull @P("updatedUser") UserUpdateDto userUpdateDto) throws EntityNotFoundException {
+        if (!userRepository.existsById(UUID.fromString(userUpdateDto.getUserId()))) throw new EntityNotFoundException("User not found");
 
-        User user = userMapper.toUser(id, updatedElement);
+        User user = userMapper.toUser(userUpdateDto);
         userLinkerService.linkUserWithRoles(user);
         return userMapper.toUserResponseDto(userRepository.save(user));
     }

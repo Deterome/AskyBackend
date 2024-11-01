@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface UserCollaborationCollabRoleService {
+
     UserCollaborationCollabRoleResponseDto create(UserCollaborationCollabRoleCreateDto element);
 
     void delete(UserCollaborationCollabRoleDeleteDto collabJoinDeleteDto);
@@ -15,6 +16,7 @@ public interface UserCollaborationCollabRoleService {
     Page<UserCollaborationCollabRoleResponseDto> getAll(Pageable pageable);
 
     UserCollaborationCollabRoleResponseDto getById(UserCollaborationCollabRoleId id);
-    
+
     void giveUserARoleInCollab(String username, String collabName, String collabRole);
+
 }
