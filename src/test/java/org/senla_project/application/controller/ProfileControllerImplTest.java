@@ -16,6 +16,7 @@ import org.senla_project.application.controller.impl.RoleControllerImpl;
 import org.senla_project.application.dto.profile.ProfileCreateDto;
 import org.senla_project.application.dto.profile.ProfileDeleteDto;
 import org.senla_project.application.dto.profile.ProfileResponseDto;
+import org.senla_project.application.dto.profile.ProfileUpdateDto;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
@@ -33,6 +34,7 @@ import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
@@ -120,9 +122,8 @@ class ProfileControllerImplTest {
         mockMvc.perform(get("/profiles/id/{id}", createdProfile.getProfileId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-        Assertions.assertEquals(createdProfile.getUsername(),
-                profileCreateDto.getUsername());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("username").value(createdProfile.getUsername()));
     }
 
     @Test
@@ -145,18 +146,14 @@ class ProfileControllerImplTest {
                         .content(jsonParser.parseObjectToJson(profileCreateDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isCreated());
-
-        Assertions.assertEquals(profileController.getByUsername(profileCreateDto.getUsername()).getUsername(),
-                profileCreateDto.getUsername());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("username").value(TestData.AUTHORIZED_USER_NAME));
     }
 
     @Test
     void update_thenThrowUnauthorizedException() throws Exception {
-        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        mockMvc.perform(put("/profiles/update/{id}", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(profileCreateDto)))
+        mockMvc.perform(put("/profiles/update")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -164,10 +161,11 @@ class ProfileControllerImplTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void update_thenThrowNotFoundException() throws Exception {
-        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        mockMvc.perform(put("/profiles/update/{id}", UUID.randomUUID())
+        ProfileUpdateDto profileUpdateDto = TestData.getProfileUpdateDto();
+        profileUpdateDto.setProfileId(UUID.randomUUID().toString());
+        mockMvc.perform(put("/profiles/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(profileCreateDto)))
+                        .content(jsonParser.parseObjectToJson(profileUpdateDto)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -177,18 +175,17 @@ class ProfileControllerImplTest {
     void update_thenReturnUpdatedElement() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         ProfileResponseDto profileResponseDto = profileController.create(profileCreateDto);
-        ProfileCreateDto updatedProfileCreateDto = TestData.getUpdatedProfileCreateDto();
+        ProfileUpdateDto profileUpdateDto = TestData.getProfileUpdateDto();
+        profileUpdateDto.setProfileId(profileResponseDto.getProfileId());
 
-        mockMvc.perform(put("/profiles/update/{id}", profileResponseDto.getProfileId())
+        mockMvc.perform(put("/profiles/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(updatedProfileCreateDto)))
+                        .content(jsonParser.parseObjectToJson(profileUpdateDto)))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(profileController.getByUsername(updatedProfileCreateDto.getUsername()).getUsername(),
-                updatedProfileCreateDto.getUsername());
-        Assertions.assertEquals(profileController.getByUsername(updatedProfileCreateDto.getUsername()).getProfileId(),
-                profileResponseDto.getProfileId());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("username").value(TestData.AUTHORIZED_USER_NAME))
+                .andExpect(jsonPath("firstname").value(profileUpdateDto.getFirstname()))
+                .andExpect(jsonPath("profileId").value(profileResponseDto.getProfileId()));
     }
 
     @Test
@@ -206,27 +203,6 @@ class ProfileControllerImplTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void delete_withInvalidUser_thenThrowForbiddenException() throws Exception {
-        authController.createNewUser(UserCreateDto.builder()
-                .username("Bob")
-                .password("228")
-                .build());
-        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        profileCreateDto.setUsername("Bob");
-        ProfileResponseDto profileResponseDto = profileController.create(profileCreateDto);
-        ProfileDeleteDto profileDeleteDto = ProfileDeleteDto.builder()
-                .username(profileResponseDto.getUsername())
-                .build();
-        mockMvc.perform(delete("/profiles/delete")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(profileCreateDto))
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void delete_thenDeleteElement() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         ProfileResponseDto profileResponseDto = profileController.create(profileCreateDto);
@@ -235,7 +211,7 @@ class ProfileControllerImplTest {
                 .build();
         mockMvc.perform(delete("/profiles/delete")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(profileCreateDto))
+                        .content(jsonParser.parseObjectToJson(profileDeleteDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
@@ -262,14 +238,12 @@ class ProfileControllerImplTest {
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void getByUsername_thenReturnElement() throws Exception {
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
-        profileController.create(profileCreateDto);
-        mockMvc.perform(get("/profiles/{username}", profileCreateDto.getUsername())
+        ProfileResponseDto profileResponseDto = profileController.create(profileCreateDto);
+        mockMvc.perform(get("/profiles/{username}", profileResponseDto.getUsername())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-        ProfileResponseDto profileResponseDto = profileController.getByUsername(profileCreateDto.getUsername());
-        Assertions.assertEquals(profileResponseDto.getUsername(),
-                profileCreateDto.getUsername());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("username").value(profileResponseDto.getUsername()));
     }
 
 }

@@ -11,6 +11,6 @@ import org.springframework.stereotype.Service;
 public class AdminServiceImpl implements AdminService {
     @Override
     public UserResponseDto giveUserARole(UserRoleCreateDto userRoleCreateDto) {
-
+        return null;
     }
 }

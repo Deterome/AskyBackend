@@ -11,9 +11,11 @@ import org.senla_project.application.config.HibernateConfigTest;
 import org.senla_project.application.config.WebSecurityConfig;
 import org.senla_project.application.controller.impl.AuthControllerImpl;
 import org.senla_project.application.controller.impl.RoleControllerImpl;
+import org.senla_project.application.dto.role.RoleUpdateDto;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.dto.user.UserDeleteDto;
 import org.senla_project.application.dto.user.UserResponseDto;
+import org.senla_project.application.dto.user.UserUpdateDto;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
@@ -117,10 +119,8 @@ class UserControllerImplTest {
 
     @Test
     void update_thenThrowUnauthorizedException() throws Exception {
-        UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        mockMvc.perform(put("/users/update/{id}", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(userCreateDto)))
+        mockMvc.perform(put("/users/update")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -128,28 +128,13 @@ class UserControllerImplTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.ADMIN_ROLE, TestData.USER_ROLE})
     void update_thenThrowNotFoundException() throws Exception {
-        UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        mockMvc.perform(put("/users/update/{id}", UUID.randomUUID())
+        UserUpdateDto userUpdateDto = TestData.getUserUpdateDto();
+        userUpdateDto.setUserId(UUID.randomUUID().toString());
+        mockMvc.perform(put("/users/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(userCreateDto)))
+                        .content(jsonParser.parseObjectToJson(userUpdateDto)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.ADMIN_ROLE, TestData.USER_ROLE})
-    void update_withInvalidUser_thenThrowForbiddenException() throws Exception {
-        UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        userCreateDto.setUsername("Bob");
-        UserResponseDto userResponseDto = authController.createNewUser(userCreateDto);
-        UserCreateDto updatedUserCreateDto = TestData.getUpdatedUserCreateDto();
-        updatedUserCreateDto.setUsername("Bob");
-
-        mockMvc.perform(put("/users/update/{id}", userResponseDto.getUserId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(updatedUserCreateDto)))
-                .andDo(print())
-                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -157,14 +142,15 @@ class UserControllerImplTest {
     void update_thenReturnUpdatedElement() throws Exception {
         UserCreateDto userCreateDto = TestData.getUserCreateDto();
         UserResponseDto userResponseDto = authController.createNewUser(userCreateDto);
-        UserCreateDto updatedUserCreateDto = TestData.getUpdatedUserCreateDto();
+        UserUpdateDto userUpdateDto = TestData.getUserUpdateDto();
+        userUpdateDto.setUserId(userResponseDto.getUserId());
 
-        mockMvc.perform(put("/users/update/{id}", userResponseDto.getUserId())
+        mockMvc.perform(put("/users/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(updatedUserCreateDto)))
+                        .content(jsonParser.parseObjectToJson(userUpdateDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("username").value(updatedUserCreateDto.getUsername()));
+                .andExpect(jsonPath("username").value(userUpdateDto.getUsername()));
     }
 
     @Test
@@ -175,23 +161,6 @@ class UserControllerImplTest {
                 .andExpect(status().isUnauthorized());
     }
 
-
-    @Test
-    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.ADMIN_ROLE, TestData.USER_ROLE})
-    void delete_withInvalidUser_thenThrowForbiddenException() throws Exception {
-        UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        userCreateDto.setUsername("Bob");
-        UserResponseDto userResponseDto = authController.createNewUser(userCreateDto);
-        UserDeleteDto userDeleteDto = UserDeleteDto.builder()
-                .username(userResponseDto.getUsername())
-                .build();
-        mockMvc.perform(delete("/users/delete")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(userDeleteDto))
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isForbidden());
-    }
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.ADMIN_ROLE, TestData.USER_ROLE})

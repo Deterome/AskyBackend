@@ -11,6 +11,7 @@ import org.senla_project.application.dto.collabRole.CollabRoleResponseDto;
 import org.senla_project.application.dto.collaboration.CollabCreateDto;
 import org.senla_project.application.dto.collaboration.CollabDeleteDto;
 import org.senla_project.application.dto.collaboration.CollabResponseDto;
+import org.senla_project.application.dto.collaboration.CollabUpdateDto;
 import org.senla_project.application.entity.Collaboration;
 import org.senla_project.application.mapper.CollabRoleMapper;
 import org.senla_project.application.mapper.CollaborationMapper;
@@ -96,11 +97,12 @@ class CollaborationServiceImplTest {
     }
 
     @Test
-    void updateById() {
+    void update() {
         mockSecurityContext();
 
-        CollabCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
+        CollabUpdateDto collabUpdateDto = TestData.getCollaborationUpdateDto();
         UUID id = UUID.randomUUID();
+        collabUpdateDto.setCollabId(id.toString());
 
         List<CollabRoleResponseDto> collabRoleResponse = List.of(CollabRoleResponseDto.builder()
                 .collabRoleName(DefaultCollabRole.CREATOR.toString())
@@ -109,7 +111,7 @@ class CollaborationServiceImplTest {
         when(collabRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getCollaboration()));
         when(collabRoleServiceMock.getUserRolesInCollab(anyString(), anyString())).thenReturn(collabRoleResponse);
 
-        collabServiceMock.updateById(id, collabCreateDto);
+        collabServiceMock.update(collabUpdateDto);
 
         verify(collabRepositoryMock).save(any());
     }

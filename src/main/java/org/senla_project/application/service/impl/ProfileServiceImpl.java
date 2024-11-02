@@ -7,6 +7,7 @@ import org.senla_project.application.dto.profile.ProfileDeleteDto;
 import org.senla_project.application.dto.profile.ProfileResponseDto;
 import org.senla_project.application.dto.profile.ProfileUpdateDto;
 import org.senla_project.application.entity.Profile;
+import org.senla_project.application.entity.User;
 import org.senla_project.application.mapper.ProfileMapper;
 import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.ProfileRepository;
@@ -15,15 +16,21 @@ import org.senla_project.application.service.ProfileService;
 import org.senla_project.application.service.UserService;
 import org.senla_project.application.service.linker.ProfileLinkerService;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.senla_project.application.util.exception.ForbiddenException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
+
+import static org.senla_project.application.entity.User_.profile;
 
 @Service
 @RequiredArgsConstructor
@@ -36,20 +43,29 @@ public class ProfileServiceImpl implements ProfileService {
     @Transactional
     @Override
     public ProfileResponseDto create(@NonNull ProfileCreateDto element) {
+        UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         Profile profile = profileMapper.toProfile(element);
+        profile.setUser(User.builder().username(authenticatedUser.getUsername()).build());
         profileLinkerService.linkProfileWithUser(profile);
         return profileMapper.toProfileResponseDto(profileRepository.save(profile));
     }
 
     @Transactional
     @Override
-    @PreAuthorize("#updatedProfile.username == authentication.principal.username")
     public ProfileResponseDto update(@NonNull @P("updatedProfile") ProfileUpdateDto profileUpdateDto) throws EntityNotFoundException {
-        if (!profileRepository.existsById(UUID.fromString(profileUpdateDto.getProfileId()))) throw new EntityNotFoundException("Profile not found");
+        UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<Profile> oldProfile = profileRepository.findById(UUID.fromString(profileUpdateDto.getProfileId()));
+        if (oldProfile.isEmpty()) throw new EntityNotFoundException("Profile not found");
+        if (oldProfile.get().getUser().getUsername().equals(authenticatedUser.getUsername())) {
+            Profile profile = profileMapper.toProfile(profileUpdateDto);
+            profile.setUser(oldProfile.get().getUser());
 
-        Profile profile = profileMapper.toProfile(profileUpdateDto);
-        profileLinkerService.linkProfileWithUser(profile);
-        return profileMapper.toProfileResponseDto(profileRepository.save(profile));
+            return profileMapper.toProfileResponseDto(profileRepository.save(profile));
+        } else {
+            throw new ForbiddenException(String.format("Profile of user %s is not yours! You can't update this profile!", oldProfile.get().getUser().getUsername()));
+        }
+
     }
 
     @Transactional

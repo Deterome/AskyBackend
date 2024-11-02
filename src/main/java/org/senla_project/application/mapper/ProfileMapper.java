@@ -16,14 +16,12 @@ import java.util.UUID;
 public abstract class ProfileMapper {
     @Mappings({
             @Mapping(source = "dto.birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-            @Mapping(source = "dto.username", target = "user", qualifiedByName = {"UserMapper", "toUserFromName"}),
             @Mapping(source = "id", target = "profileId")
     })
     public abstract Profile toProfile(UUID id, ProfileCreateDto dto);
 
     @Mappings({
             @Mapping(source = "dto.birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-            @Mapping(source = "dto.username", target = "user", qualifiedByName = {"UserMapper", "toUserFromName"}),
             @Mapping(target = "profileId", ignore = true)
     })
     public abstract Profile toProfile(ProfileCreateDto dto);
@@ -33,7 +31,6 @@ public abstract class ProfileMapper {
 
     @Mappings({
             @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-            @Mapping(target = "username", expression = "java(entity.getUser().getUsername())")
     })
     public abstract ProfileCreateDto toProfileCreateDto(Profile entity);
 

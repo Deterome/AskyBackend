@@ -2,12 +2,16 @@ package org.senla_project.application.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "questions")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,7 +36,8 @@ public class Question {
 
     private int interesting;
 
-    @Column(name = "create_time")
+    @Column(name = "create_time", nullable = false, updatable = false)
+    @CreatedDate
     private LocalDate createTime;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = CascadeType.ALL)
