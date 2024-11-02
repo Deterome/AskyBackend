@@ -3,6 +3,7 @@ package org.senla_project.application.util.application.data;
 import org.senla_project.application.dto.collabRole.CollabRoleCreateDto;
 import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.user.UserCreateDto;
+import org.senla_project.application.dto.user.UserUpdateDto;
 import org.senla_project.application.service.CollabRoleService;
 import org.senla_project.application.service.RoleService;
 import org.senla_project.application.service.UserService;
@@ -62,9 +63,15 @@ public class DataInitializer {
             UserCreateDto adminCreateDto = UserCreateDto.builder()
                     .username(firstAdminName)
                     .password(firstAdminPassword)
-                    .roles(new ArrayList<>(List.of(DefaultRole.USER.toString(), DefaultRole.ADMIN.toString())))
                     .build();
             userService.create(adminCreateDto);
+
+            UserUpdateDto adminUpdateDto = UserUpdateDto.builder()
+                    .username(firstAdminName)
+                    .password(firstAdminPassword)
+                    .roles(new ArrayList<>(List.of(DefaultRole.USER.toString(), DefaultRole.ADMIN.toString())))
+                    .build();
+            userService.update(adminUpdateDto);
         }
     }
 

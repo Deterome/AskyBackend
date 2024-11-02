@@ -1,11 +1,11 @@
 package org.senla_project.application.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -19,6 +19,7 @@ import java.util.Properties;
 @Configuration
 @PropertySource("classpath:application.properties")
 @EnableJpaRepositories(basePackages = "org.senla_project.application.repository")
+@EnableJpaAuditing
 @EnableTransactionManagement
 public class HibernateConfig {
 

@@ -17,6 +17,7 @@ import org.senla_project.application.dto.collabRole.CollabRoleCreateDto;
 import org.senla_project.application.dto.collaboration.CollabCreateDto;
 import org.senla_project.application.dto.collaboration.CollabDeleteDto;
 import org.senla_project.application.dto.collaboration.CollabResponseDto;
+import org.senla_project.application.dto.collaboration.CollabUpdateDto;
 import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.service.CollabRoleService;
@@ -40,6 +41,7 @@ import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
@@ -160,10 +162,8 @@ class CollaborationControllerImplTest {
 
     @Test
     void update_thenThrowUnauthorizedException() throws Exception {
-        CollabCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        mockMvc.perform(put("/collabs/update/{id}", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(collabCreateDto)))
+        mockMvc.perform(put("/collabs/update")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -171,10 +171,11 @@ class CollaborationControllerImplTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void update_thenThrowNotFoundException() throws Exception {
-        CollabCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        mockMvc.perform(put("/collabs/update/{id}", UUID.randomUUID())
+        CollabUpdateDto collabUpdateDto = TestData.getCollaborationUpdateDto();
+        collabUpdateDto.setCollabId(UUID.randomUUID().toString());
+        mockMvc.perform(put("/collabs/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(collabCreateDto)))
+                        .content(jsonParser.parseObjectToJson(collabUpdateDto)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -184,23 +185,20 @@ class CollaborationControllerImplTest {
     void update_thenReturnUpdatedElement() throws Exception {
         CollabCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         CollabResponseDto collabResponseDto = collabController.create(collabCreateDto);
-        CollabCreateDto updatedCollabCreateDto = TestData.getUpdatedCollaborationCreateDto();
-
-        mockMvc.perform(put("/collabs/update/{id}", collabResponseDto.getCollabId())
+        CollabUpdateDto collabUpdateDto = TestData.getCollaborationUpdateDto();
+        collabUpdateDto.setCollabId(collabResponseDto.getCollabId());
+        mockMvc.perform(put("/collabs/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(updatedCollabCreateDto)))
+                        .content(jsonParser.parseObjectToJson(collabUpdateDto)))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(collabController.getByCollabName(updatedCollabCreateDto.getCollabName()).getCollabName(),
-                updatedCollabCreateDto.getCollabName());
-        Assertions.assertEquals(collabController.getByCollabName(updatedCollabCreateDto.getCollabName()).getCollabId(),
-                collabResponseDto.getCollabId());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("collabName").value(collabUpdateDto.getCollabName()))
+                .andExpect(jsonPath("collabId").value(collabResponseDto.getCollabId()));
     }
 
     @Test
     void delete_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(delete("/collabs/delete/{id}", UUID.randomUUID())
+        mockMvc.perform(delete("/collabs/delete")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());

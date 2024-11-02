@@ -4,18 +4,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.senla_project.application.dto.collabJoin.CollaborationsJoiningCreateDto;
 import org.senla_project.application.dto.collabJoin.CollaborationsJoiningDeleteDto;
-import org.senla_project.application.dto.collaboration.CollabResponseDto;
-import org.senla_project.application.dto.user.UserResponseDto;
 import org.senla_project.application.entity.CollaborationsJoining;
 import org.senla_project.application.mapper.CollabRoleMapper;
-import org.senla_project.application.mapper.CollaborationMapper;
 import org.senla_project.application.mapper.CollaborationsJoiningMapper;
-import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.CollaborationsJoiningRepository;
 import org.senla_project.application.service.impl.CollaborationsJoiningServiceImpl;
 import org.senla_project.application.service.linker.CollaborationsJoiningLinkerService;
@@ -54,16 +49,6 @@ class CollaborationsJoiningServiceImplTest {
         CollaborationsJoiningCreateDto collabJoinCreateDto = TestData.getCollabJoiningCreateDto();
         when(collabJoinMapperMock.toCollabJoin(collabJoinCreateDto)).thenReturn(TestData.getCollabJoining());
         collabJoinServiceMock.create(collabJoinCreateDto);
-        verify(collabJoinRepositoryMock).save(any());
-    }
-
-    @Test
-    void updateById() {
-        CollaborationsJoiningCreateDto collabJoinCreateDto = TestData.getCollabJoiningCreateDto();
-        UUID id = UUID.randomUUID();
-        when(collabJoinMapperMock.toCollabJoin(id, collabJoinCreateDto)).thenReturn(TestData.getCollabJoining());
-        when(collabJoinRepositoryMock.existsById(id)).thenReturn(true);
-        collabJoinServiceMock.updateById(id, collabJoinCreateDto);
         verify(collabJoinRepositoryMock).save(any());
     }
 

@@ -9,6 +9,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.role.RoleDeleteDto;
+import org.senla_project.application.dto.role.RoleUpdateDto;
 import org.senla_project.application.entity.Role;
 import org.senla_project.application.mapper.RoleMapper;
 import org.senla_project.application.repository.RoleRepository;
@@ -41,11 +42,15 @@ class RoleServiceImplTest {
     }
 
     @Test
-    void updateById() {
-        RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
+    void update() {
+        RoleUpdateDto roleUpdateDto = TestData.getRoleUpdateDto();
         UUID id = UUID.randomUUID();
+        roleUpdateDto.setRoleId(id.toString());
+
         Mockito.when(roleRepositoryMock.existsById(id)).thenReturn(true);
-        roleServiceMock.updateById(id, roleCreateDto);
+
+        roleServiceMock.update(roleUpdateDto);
+
         Mockito.verify(roleRepositoryMock).save(Mockito.any());
     }
 

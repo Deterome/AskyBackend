@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ProfileCreateDto {
 
-    private String username;
     private String bio;
     private String firstname;
     private String surname;

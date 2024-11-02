@@ -9,6 +9,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.dto.user.UserDeleteDto;
+import org.senla_project.application.dto.user.UserUpdateDto;
 import org.senla_project.application.entity.User;
 import org.senla_project.application.mapper.RoleMapper;
 import org.senla_project.application.mapper.UserMapper;
@@ -54,12 +55,16 @@ class UserServiceImplTest {
     }
 
     @Test
-    void updateById() {
-        UserCreateDto userCreateDto = TestData.getUserCreateDto();
+    void update() {
+        UserUpdateDto userUpdateDto = TestData.getUserUpdateDto();
         UUID id = UUID.randomUUID();
-        Mockito.when(userMapperSpy.toUser(id, userCreateDto)).thenReturn(TestData.getAuthenticatedUser());
+        userUpdateDto.setUserId(id.toString());
+
+        Mockito.when(userMapperSpy.toUser(userUpdateDto)).thenReturn(TestData.getUpdatedAuthenticatedUser());
         Mockito.when(userRepositoryMock.existsById(id)).thenReturn(true);
-        userServiceMock.updateById(id, userCreateDto);
+
+        userServiceMock.update(userUpdateDto);
+
         Mockito.verify(userRepositoryMock).save(Mockito.any());
     }
 

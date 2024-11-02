@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto create(@NonNull UserCreateDto element) {
         User user = userMapper.toUser(element);
-        user.getRoles().addAll(getDefaultRolesSet());
+        user.setRoles(getDefaultRolesSet());
         user.setPassword(passwordEncoder.encode(element.getPassword()));
         userLinkerService.linkUserWithRoles(user);
         return userMapper.toUserResponseDto(userRepository.save(user));

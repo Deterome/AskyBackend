@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.senla_project.application.dto.profile.ProfileCreateDto;
 import org.senla_project.application.dto.profile.ProfileDeleteDto;
+import org.senla_project.application.dto.profile.ProfileUpdateDto;
 import org.senla_project.application.entity.Profile;
 import org.senla_project.application.mapper.ProfileMapper;
 import org.senla_project.application.repository.ProfileRepository;
@@ -18,9 +19,17 @@ import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProfileServiceImplTest {
@@ -35,8 +44,20 @@ class ProfileServiceImplTest {
     @InjectMocks
     ProfileServiceImpl profileServiceMock;
 
+    void mockSecurityContext() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(new User("Alex", "228", List.of()));
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        SecurityContextHolder.setContext(securityContext);
+    }
+
     @Test
     void create() {
+        mockSecurityContext();
+
         ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
         Mockito.when(profileMapper.toProfile(profileCreateDto)).thenReturn(TestData.getProfile());
         profileServiceMock.create(profileCreateDto);
@@ -44,12 +65,15 @@ class ProfileServiceImplTest {
     }
 
     @Test
-    void updateById() {
-        ProfileCreateDto profileCreateDto = TestData.getProfileCreateDto();
+    void update() {
+        ProfileUpdateDto profileUpdateDto = TestData.getProfileUpdateDto();
         UUID id = UUID.randomUUID();
-        Mockito.when(profileMapper.toProfile(id, profileCreateDto)).thenReturn(TestData.getProfile());
-        Mockito.when(profileRepositoryMock.existsById(id)).thenReturn(true);
-        profileServiceMock.updateById(id, profileCreateDto);
+        profileUpdateDto.setProfileId(id.toString());
+
+        Mockito.when(profileMapper.toProfile(profileUpdateDto)).thenReturn(TestData.getUpdatedProfile());
+        Mockito.when(profileRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getProfile()));
+
+        profileServiceMock.update(profileUpdateDto);
         Mockito.verify(profileRepositoryMock).save(Mockito.any());
     }
 
