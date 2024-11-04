@@ -1,5 +1,7 @@
 package org.senla_project.application.repository;
 
+import lombok.NonNull;
+import org.senla_project.application.dto.profile.ProfileUpdateDto;
 import org.senla_project.application.entity.Profile;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.ListCrudRepository;
@@ -12,4 +14,5 @@ import java.util.UUID;
 
 @Repository
 public interface ProfileRepository extends PagingAndSortingRepository<Profile, UUID>, ListCrudRepository<Profile, UUID>, CustomizedProfileRepository {
+    boolean existsById(@NonNull UUID id);
 }

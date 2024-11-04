@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.senla_project.application.dto.question.QuestionCreateDto;
 import org.senla_project.application.dto.question.QuestionDeleteDto;
+import org.senla_project.application.dto.question.QuestionUpdateDto;
 import org.senla_project.application.entity.Question;
 import org.senla_project.application.mapper.QuestionMapper;
 import org.senla_project.application.repository.QuestionRepository;
@@ -18,9 +19,17 @@ import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class QuestionServiceImplTest {
@@ -35,8 +44,20 @@ class QuestionServiceImplTest {
     @InjectMocks
     QuestionServiceImpl questionServiceMock;
 
+    void mockSecurityContext() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("Alex");
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        SecurityContextHolder.setContext(securityContext);
+    }
+
     @Test
     void create() {
+        mockSecurityContext();
+
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
         Mockito.when(questionMapperMock.toQuestion(questionCreateDto)).thenReturn(TestData.getQuestion());
         questionServiceMock.create(questionCreateDto);
@@ -44,12 +65,16 @@ class QuestionServiceImplTest {
     }
 
     @Test
-    void updateById() {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
+    void update() {
+        QuestionUpdateDto questionUpdateDto = TestData.getQuestionUpdateDto();
         UUID id = UUID.randomUUID();
-        Mockito.when(questionMapperMock.toQuestion(id, questionCreateDto)).thenReturn(TestData.getQuestion());
-        Mockito.when(questionRepositoryMock.existsById(id)).thenReturn(true);
-        questionServiceMock.updateById(id, questionCreateDto);
+        questionUpdateDto.setQuestionId(id.toString());
+
+        Mockito.when(questionMapperMock.toQuestion(questionUpdateDto)).thenReturn(TestData.getUpdatedQuestion());
+        Mockito.when(questionRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getQuestion()));
+
+        questionServiceMock.update(questionUpdateDto);
+
         Mockito.verify(questionRepositoryMock).save(Mockito.any());
     }
 

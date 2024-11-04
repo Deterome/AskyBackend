@@ -5,18 +5,24 @@ import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.answer.AnswerCreateDto;
 import org.senla_project.application.dto.answer.AnswerDeleteDto;
 import org.senla_project.application.dto.answer.AnswerResponseDto;
+import org.senla_project.application.dto.answer.AnswerUpdateDto;
 import org.senla_project.application.entity.Answer;
+import org.senla_project.application.entity.User;
 import org.senla_project.application.mapper.AnswerMapper;
 import org.senla_project.application.repository.AnswerRepository;
 import org.senla_project.application.service.AnswerService;
 import org.senla_project.application.service.linker.AnswerLinkerService;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.context.annotation.Lazy;
+import org.senla_project.application.util.exception.ForbiddenException;
+import org.senla_project.application.util.security.AuthenticationManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,6 +37,7 @@ public class AnswerServiceImpl implements AnswerService {
     @Override
     public AnswerResponseDto create(@NonNull AnswerCreateDto element) {
         Answer answer = answerMapper.toAnswer(element);
+        answer.setAuthor(User.builder().username(AuthenticationManager.getUsernameOfAuthenticatedUser()).build());
         answerLinkerService.linkAnswerWithUser(answer);
         answerLinkerService.linkAnswerWithQuestion(answer);
 
@@ -39,19 +46,25 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Transactional
     @Override
-    public AnswerResponseDto updateById(@NonNull UUID id, @NonNull AnswerCreateDto updatedElement) throws EntityNotFoundException {
-        if (!answerRepository.existsById(id)) throw new EntityNotFoundException("Answer not found");
+    public AnswerResponseDto update(@NonNull AnswerUpdateDto answerUpdateDto) throws EntityNotFoundException {
+        Optional<Answer> oldAnswer = answerRepository.findById(UUID.fromString(answerUpdateDto.getAnswerId()));
+        if (oldAnswer.isEmpty()) throw new EntityNotFoundException("Answer not found");
+        if (AuthenticationManager.ifUsernameBelongsToAuthenticatedUser(oldAnswer.get().getAuthor().getUsername())
+                || AuthenticationManager.isAuthenticatedUserAnAdmin()) {
+            Answer answer = answerMapper.toAnswer(answerUpdateDto);
+            answer.setAuthor(oldAnswer.get().getAuthor());
+            answer.setQuestion(oldAnswer.get().getQuestion());
 
-        Answer answer = answerMapper.toAnswer(id, updatedElement);
-        answerLinkerService.linkAnswerWithUser(answer);
-        answerLinkerService.linkAnswerWithQuestion(answer);
-
-        return answerMapper.toAnswerResponseDto(answerRepository.save(answer));
+            return answerMapper.toAnswerResponseDto(answerRepository.save(answer));
+        } else {
+            throw new ForbiddenException(String.format("Answer of user %s is not yours! You can't update this answer!", oldAnswer.get().getAuthor().getUsername()));
+        }
     }
 
     @Transactional
     @Override
-    public void delete(@NonNull AnswerDeleteDto answerDeleteDto) {
+    @PreAuthorize("#deletedAnswer.authorName == authentication.principal.username || hasAuthority('admin')")
+    public void delete(@NonNull @P("deletedAnswer") AnswerDeleteDto answerDeleteDto) {
         answerRepository.deleteById(UUID.fromString(answerDeleteDto.getAnswerId()));
     }
 

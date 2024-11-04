@@ -11,7 +11,7 @@ public class WebInitializer
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return new Class[]{WebConfig.class};
+        return new Class[]{ApplicationConfig.class};
     }
 
     @Override

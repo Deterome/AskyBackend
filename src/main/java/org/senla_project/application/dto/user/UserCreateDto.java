@@ -5,9 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -16,7 +13,5 @@ public class UserCreateDto {
 
     private String username;
     private String password;
-    @Builder.Default
-    private List<String> roles = new ArrayList<>();
 
 }

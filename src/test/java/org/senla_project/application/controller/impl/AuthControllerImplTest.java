@@ -1,14 +1,11 @@
-package org.senla_project.application.controller;
+package org.senla_project.application.controller.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.senla_project.application.config.ApplicationConfigTest;
-import org.senla_project.application.config.DataSourceConfigTest;
-import org.senla_project.application.config.HibernateConfigTest;
-import org.senla_project.application.config.WebSecurityConfig;
+import org.senla_project.application.config.*;
 import org.senla_project.application.dto.jwt.JwtRequest;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.util.JsonParser;
@@ -27,15 +24,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
-@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, DataSourceConfigTest.class, HibernateConfigTest.class})
+@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, WebConfigTest.class, DataSourceConfigTest.class, HibernateConfigTest.class})
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
-class AuthControllerTest {
+class AuthControllerImplTest {
 
     final JsonParser jsonParser;
-    final RoleController roleController;
-    final AuthController authController;
+    final RoleControllerImpl roleController;
+    final AuthControllerImpl authController;
 
     MockMvc mockMvc;
 

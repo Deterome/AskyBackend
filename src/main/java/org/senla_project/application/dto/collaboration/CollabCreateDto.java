@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -14,6 +12,5 @@ import java.time.LocalDate;
 public class CollabCreateDto {
 
     private String collabName;
-    private String createTime = LocalDate.now().toString();
 
 }

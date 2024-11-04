@@ -15,10 +15,7 @@ import java.util.UUID;
 public class AnswerCreateDto {
 
     private String body;
-    private int usefulness;
     private UUID questionId;
-    private String authorName;
-    private String createTime = LocalDate.now().toString();
 
 }
 

@@ -1,13 +1,13 @@
-package org.senla_project.application.util.enums;
+package org.senla_project.application.util.data;
 
-public enum DefaultCollabRoles {
+public enum DefaultCollabRole {
 
     CREATOR("creator"),
     PARTICIPANT("participant");
 
     final String collabRoleName;
 
-    DefaultCollabRoles(String roleName) {
+    DefaultCollabRole(String roleName) {
         this.collabRoleName = roleName;
     }
 

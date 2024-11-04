@@ -1,4 +1,4 @@
-package org.senla_project.application.controller;
+package org.senla_project.application.controller.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,14 +6,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.senla_project.application.config.ApplicationConfigTest;
-import org.senla_project.application.config.DataSourceConfigTest;
-import org.senla_project.application.config.HibernateConfigTest;
-import org.senla_project.application.config.WebSecurityConfig;
+import org.senla_project.application.config.*;
 import org.senla_project.application.dto.question.QuestionCreateDto;
 import org.senla_project.application.dto.question.QuestionDeleteDto;
 import org.senla_project.application.dto.question.QuestionResponseDto;
-import org.senla_project.application.dto.user.UserCreateDto;
+import org.senla_project.application.dto.question.QuestionUpdateDto;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
@@ -26,23 +23,25 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
-@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, DataSourceConfigTest.class, HibernateConfigTest.class})
+@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, WebConfigTest.class, DataSourceConfigTest.class, HibernateConfigTest.class})
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
-class QuestionControllerTest {
+class QuestionControllerImplTest {
 
     final JsonParser jsonParser;
-    final QuestionController questionController;
-    final RoleController roleController;
-    final AuthController authController;
+    final QuestionControllerImpl questionController;
+    final RoleControllerImpl roleController;
+    final AuthControllerImpl authController;
 
     MockMvc mockMvc;
 
@@ -84,9 +83,8 @@ class QuestionControllerTest {
         mockMvc.perform(get("/questions/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(questionController.getAll(1, 5).getTotalElements(), 1);
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("totalElements").value(1));
     }
 
     @Test
@@ -139,20 +137,14 @@ class QuestionControllerTest {
                         .content(jsonParser.parseObjectToJson(questionCreateDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isCreated());
-
-        Assertions.assertEquals(questionController.getByParams(questionCreateDto.getHeader(),
-                        questionCreateDto.getBody(),
-                        questionCreateDto.getAuthorName()).getBody(),
-                questionCreateDto.getBody());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("body").value(questionCreateDto.getBody()));
     }
 
     @Test
     void update_thenThrowUnauthorizedException() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        mockMvc.perform(put("/questions/update/{id}", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionCreateDto)))
+        mockMvc.perform(put("/questions/update")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -160,10 +152,11 @@ class QuestionControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void update_thenThrowNotFoundException() throws Exception {
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        mockMvc.perform(put("/questions/update/{id}", UUID.randomUUID())
+        QuestionUpdateDto questionUpdateDto = TestData.getQuestionUpdateDto();
+        questionUpdateDto.setQuestionId(UUID.randomUUID().toString());
+        mockMvc.perform(put("/questions/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionCreateDto)))
+                        .content(jsonParser.parseObjectToJson(questionUpdateDto)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -173,22 +166,16 @@ class QuestionControllerTest {
     void update_thenReturnUpdatedElement() throws Exception {
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
         QuestionResponseDto questionResponseDto = questionController.create(questionCreateDto);
-        QuestionCreateDto updatedQuestionCreateDto = TestData.getUpdatedQuestionCreateDto();
+        QuestionUpdateDto questionUpdateDto = TestData.getQuestionUpdateDto();
+        questionUpdateDto.setQuestionId(questionResponseDto.getQuestionId());
 
-        mockMvc.perform(put("/questions/update/{id}", questionResponseDto.getQuestionId())
+        mockMvc.perform(put("/questions/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(updatedQuestionCreateDto)))
+                        .content(jsonParser.parseObjectToJson(questionUpdateDto)))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(questionController.getByParams(updatedQuestionCreateDto.getHeader(),
-                        updatedQuestionCreateDto.getBody(),
-                        updatedQuestionCreateDto.getAuthorName()).getBody(),
-                updatedQuestionCreateDto.getBody());
-        Assertions.assertEquals(questionController.getByParams(updatedQuestionCreateDto.getHeader(),
-                        updatedQuestionCreateDto.getBody(),
-                        updatedQuestionCreateDto.getAuthorName()).getQuestionId(),
-                questionResponseDto.getQuestionId());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("body").value(questionUpdateDto.getBody()))
+                .andExpect(jsonPath("questionId").value(questionResponseDto.getQuestionId()));
     }
 
     @Test
@@ -203,28 +190,6 @@ class QuestionControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void delete_withInvalidUser_thenThrowForbiddenException() throws Exception {
-        authController.createNewUser(UserCreateDto.builder()
-                .username("Bob")
-                .password("228")
-                .build());
-        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        questionCreateDto.setAuthorName("Bob");
-        QuestionResponseDto questionResponseDto = questionController.create(questionCreateDto);
-        QuestionDeleteDto questionDeleteDto = QuestionDeleteDto.builder()
-                .questionId(questionResponseDto.getQuestionId())
-                .authorName(questionResponseDto.getAuthorName())
-                .build();
-        mockMvc.perform(delete("/questions/delete")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(questionDeleteDto))
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -245,7 +210,7 @@ class QuestionControllerTest {
     }
 
     @Test
-    void getByParams_thenThrowUnauthorizedException() throws Exception {
+    void getByHeaderAndBodyAndAuthorName_thenThrowUnauthorizedException() throws Exception {
         mockMvc.perform(get("/questions?header={header}&body={body}&author={author}", "123", "123", "123")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -254,7 +219,7 @@ class QuestionControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getByParams_thenThrowNotFoundException() throws Exception {
+    void getByHeaderAndBodyAndAuthorName_thenThrowNotFoundException() throws Exception {
         mockMvc.perform(get("/questions?header={header}&body={body}&author={author}", "123", "123", "123")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -263,20 +228,30 @@ class QuestionControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getByParams_thenReturnElement() throws Exception {
+    void getByHeaderAndBodyAndAuthorName_thenReturnElement() throws Exception {
         QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
-        questionController.create(questionCreateDto);
-        mockMvc.perform(get("/questions?header={header}&body={body}&author={author}", questionCreateDto.getHeader(), questionCreateDto.getBody(), questionCreateDto.getAuthorName())
+        QuestionResponseDto questionResponseDto = questionController.create(questionCreateDto);
+        mockMvc.perform(get("/questions?header={header}&body={body}&author={author}",
+                        questionResponseDto.getHeader(),
+                        questionResponseDto.getBody(),
+                        questionResponseDto.getAuthorName())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-        QuestionResponseDto questionResponseDto =
-                questionController.getByParams(
-                        questionCreateDto.getHeader(),
-                        questionCreateDto.getBody(),
-                        questionCreateDto.getAuthorName());
-        Assertions.assertEquals(questionResponseDto.getBody(),
-                questionCreateDto.getBody());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("body").value(questionCreateDto.getBody()));
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void create_thenAssertCreationDate() throws Exception {
+        QuestionCreateDto questionCreateDto = TestData.getQuestionCreateDto();
+        mockMvc.perform(post("/questions/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(questionCreateDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("createTime").value(LocalDate.now().toString()));
     }
 
 }

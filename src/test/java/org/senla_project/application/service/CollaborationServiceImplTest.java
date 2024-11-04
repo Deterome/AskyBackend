@@ -11,6 +11,7 @@ import org.senla_project.application.dto.collabRole.CollabRoleResponseDto;
 import org.senla_project.application.dto.collaboration.CollabCreateDto;
 import org.senla_project.application.dto.collaboration.CollabDeleteDto;
 import org.senla_project.application.dto.collaboration.CollabResponseDto;
+import org.senla_project.application.dto.collaboration.CollabUpdateDto;
 import org.senla_project.application.entity.Collaboration;
 import org.senla_project.application.mapper.CollabRoleMapper;
 import org.senla_project.application.mapper.CollaborationMapper;
@@ -18,7 +19,7 @@ import org.senla_project.application.repository.CollaborationRepository;
 import org.senla_project.application.service.impl.CollaborationServiceImpl;
 import org.senla_project.application.service.linker.CollaborationLinkerService;
 import org.senla_project.application.util.TestData;
-import org.senla_project.application.util.enums.DefaultCollabRoles;
+import org.senla_project.application.util.data.DefaultCollabRole;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -60,7 +61,7 @@ class CollaborationServiceImplTest {
 
     void mockSecurityContext() {
         Authentication authentication = mock(Authentication.class);
-        when(authentication.getPrincipal()).thenReturn(new User("Alex", "228", List.of()));
+        when(authentication.getName()).thenReturn("Alex");
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -84,7 +85,7 @@ class CollaborationServiceImplTest {
     @Test
     void isUserACreatorOfCollab() {
         List<CollabRoleResponseDto> collabRoleResponse = List.of(CollabRoleResponseDto.builder()
-                .collabRoleName(DefaultCollabRoles.CREATOR.toString())
+                .collabRoleName(DefaultCollabRole.CREATOR.toString())
                 .build());
 
         when(collabRoleServiceMock.getUserRolesInCollab(anyString(), anyString()))
@@ -96,20 +97,21 @@ class CollaborationServiceImplTest {
     }
 
     @Test
-    void updateById() {
+    void update() {
         mockSecurityContext();
 
-        CollabCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
+        CollabUpdateDto collabUpdateDto = TestData.getCollaborationUpdateDto();
         UUID id = UUID.randomUUID();
+        collabUpdateDto.setCollabId(id.toString());
 
         List<CollabRoleResponseDto> collabRoleResponse = List.of(CollabRoleResponseDto.builder()
-                .collabRoleName(DefaultCollabRoles.CREATOR.toString())
+                .collabRoleName(DefaultCollabRole.CREATOR.toString())
                 .build());
 
         when(collabRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getCollaboration()));
         when(collabRoleServiceMock.getUserRolesInCollab(anyString(), anyString())).thenReturn(collabRoleResponse);
 
-        collabServiceMock.updateById(id, collabCreateDto);
+        collabServiceMock.update(collabUpdateDto);
 
         verify(collabRepositoryMock).save(any());
     }
@@ -123,7 +125,7 @@ class CollaborationServiceImplTest {
                 .build();
         doNothing().when(collabRepositoryMock).deleteByCollabName(any());
         List<CollabRoleResponseDto> collabRoleResponse = List.of(CollabRoleResponseDto.builder()
-                .collabRoleName(DefaultCollabRoles.CREATOR.toString())
+                .collabRoleName(DefaultCollabRole.CREATOR.toString())
                 .build());
         when(collabRoleServiceMock.getUserRolesInCollab(anyString(), anyString()))
                 .thenReturn(collabRoleResponse);

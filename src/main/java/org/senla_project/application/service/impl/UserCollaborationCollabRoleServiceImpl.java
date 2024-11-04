@@ -52,19 +52,6 @@ public class UserCollaborationCollabRoleServiceImpl implements UserCollaboration
         return userCollabRoleMapper.toUserCollaborationCollabRoleResponseDto(userCollabRoleRepository.save(userCollabRole));
     }
 
-    @Override
-    @Transactional
-    public UserCollaborationCollabRoleResponseDto updateById(@NonNull UserCollaborationCollabRoleId id, @NonNull UserCollaborationCollabRoleCreateDto updatedElement) {
-        if (!userCollabRoleRepository.existsById(id))
-            throw new EntityNotFoundException("User role in collab not found");
-
-        var userCollabRole = userCollabRoleMapper.toUserCollaborationCollabRole(id, updatedElement);
-        userCollabRoleLinkerService.linkUserCollabRoleWithUser(userCollabRole);
-        userCollabRoleLinkerService.linkUserCollabRoleWithCollab(userCollabRole);
-        userCollabRoleLinkerService.linkUserCollabRoleWithCollabRole(userCollabRole);
-        return userCollabRoleMapper.toUserCollaborationCollabRoleResponseDto(userCollabRoleRepository.save(userCollabRole));
-    }
-
     @Transactional
     @Override
     public void giveUserARoleInCollab(String username, String collabName, String collabRole) {

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.role.RoleDeleteDto;
 import org.senla_project.application.dto.role.RoleResponseDto;
+import org.senla_project.application.dto.role.RoleUpdateDto;
 import org.senla_project.application.mapper.RoleMapper;
 import org.senla_project.application.repository.RoleRepository;
 import org.senla_project.application.service.CrudService;
@@ -33,9 +34,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Transactional
     @Override
-    public RoleResponseDto updateById(@NonNull UUID id, @NonNull RoleCreateDto updatedElement) throws EntityNotFoundException {
-        if (!roleRepository.existsById(id)) throw new EntityNotFoundException("Role not found");
-        return roleMapper.toRoleResponseDto(roleRepository.save(roleMapper.toRole(id, updatedElement)));
+    public RoleResponseDto update(@NonNull RoleUpdateDto roleUpdateDto) throws EntityNotFoundException {
+        if (!roleRepository.existsById(UUID.fromString(roleUpdateDto.getRoleId()))) throw new EntityNotFoundException("Role not found");
+        return roleMapper.toRoleResponseDto(roleRepository.save(roleMapper.toRole(roleUpdateDto)));
     }
 
     @Transactional
@@ -69,7 +70,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Transactional(readOnly = true)
     @Override
-    public boolean existByRoleName(String roleName) {
+    public boolean existsByRoleName(String roleName) {
         return roleRepository.existsByRoleName(roleName);
     }
 
