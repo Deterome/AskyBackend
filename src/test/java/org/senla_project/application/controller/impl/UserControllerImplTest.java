@@ -1,17 +1,13 @@
-package org.senla_project.application.controller;
+package org.senla_project.application.controller.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.senla_project.application.config.ApplicationConfigTest;
-import org.senla_project.application.config.DataSourceConfigTest;
-import org.senla_project.application.config.HibernateConfigTest;
-import org.senla_project.application.config.WebSecurityConfig;
-import org.senla_project.application.controller.impl.AuthControllerImpl;
-import org.senla_project.application.controller.impl.RoleControllerImpl;
-import org.senla_project.application.dto.role.RoleUpdateDto;
+import org.senla_project.application.config.*;
+import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.dto.user.UserDeleteDto;
 import org.senla_project.application.dto.user.UserResponseDto;
@@ -19,6 +15,7 @@ import org.senla_project.application.dto.user.UserUpdateDto;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
+import org.senla_project.application.util.data.DefaultRole;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -28,6 +25,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -36,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
-@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, DataSourceConfigTest.class, HibernateConfigTest.class})
+@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, WebConfigTest.class, DataSourceConfigTest.class, HibernateConfigTest.class})
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
@@ -59,6 +57,7 @@ class UserControllerImplTest {
     @BeforeEach
     void initDataBaseWithData() {
         roleController.create(TestData.getRoleCreateDto());
+        roleController.create(RoleCreateDto.builder().roleName(TestData.ADMIN_ROLE).build());
     }
 
     @Test
@@ -151,6 +150,25 @@ class UserControllerImplTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("username").value(userUpdateDto.getUsername()));
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.ADMIN_ROLE, TestData.USER_ROLE})
+    void update_whenUpdatingRoles_thenReturnUpdatedElement() throws Exception {
+        UserCreateDto userCreateDto = TestData.getUserCreateDto();
+        userCreateDto.setUsername("Bob");
+        UserResponseDto userResponseDto = authController.createNewUser(userCreateDto);
+        UserUpdateDto userUpdateDto = TestData.getUserUpdateDto();
+        userUpdateDto.setUsername("Bob");
+        userUpdateDto.setRoles(List.of(DefaultRole.USER.toString(), DefaultRole.ADMIN.toString()));
+        userUpdateDto.setUserId(userResponseDto.getUserId());
+
+        mockMvc.perform(put("/users/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(userUpdateDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("roles", Matchers.hasItems(DefaultRole.ADMIN.toString(), DefaultRole.USER.toString())));
     }
 
     @Test

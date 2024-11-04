@@ -1,46 +1,29 @@
-package org.senla_project.application.controller;
+package org.senla_project.application.controller.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.senla_project.application.config.ApplicationConfigTest;
-import org.senla_project.application.config.DataSourceConfigTest;
-import org.senla_project.application.config.HibernateConfigTest;
-import org.senla_project.application.config.WebSecurityConfig;
-import org.senla_project.application.controller.impl.AnswerControllerImpl;
-import org.senla_project.application.controller.impl.AuthControllerImpl;
-import org.senla_project.application.controller.impl.QuestionControllerImpl;
-import org.senla_project.application.controller.impl.RoleControllerImpl;
+import org.senla_project.application.config.*;
 import org.senla_project.application.dto.answer.AnswerCreateDto;
 import org.senla_project.application.dto.answer.AnswerDeleteDto;
 import org.senla_project.application.dto.answer.AnswerResponseDto;
 import org.senla_project.application.dto.answer.AnswerUpdateDto;
-import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.dto.user.UserResponseDto;
 import org.senla_project.application.entity.Question;
 import org.senla_project.application.entity.User;
 import org.senla_project.application.repository.QuestionRepository;
-import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
-import org.senla_project.application.util.enums.DefaultRole;
+import org.senla_project.application.util.sort.QuestionSortType;
+import org.senla_project.application.util.sort.SortOrder;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
@@ -49,18 +32,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
-@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, DataSourceConfigTest.class, HibernateConfigTest.class})
+@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, WebConfigTest.class, DataSourceConfigTest.class, HibernateConfigTest.class})
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
@@ -97,7 +78,7 @@ class AnswerControllerImplTest {
 
     AnswerCreateDto setQuestionIdOfAnswerCreateDto(AnswerCreateDto answerCreateDto) {
         answerCreateDto.setQuestionId(
-                UUID.fromString(questionController.getAll(1, 1).stream().findFirst().get().getQuestionId()
+                UUID.fromString(questionController.getAll(1, 1, QuestionSortType.CREATE_TIME, SortOrder.ASCENDING).stream().findFirst().get().getQuestionId()
                 ));
         return answerCreateDto;
     }
@@ -127,9 +108,8 @@ class AnswerControllerImplTest {
         mockMvc.perform(get("/answers/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(answerController.getAll(1, 5).getTotalElements(), 1);
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("totalElements").value(1));
     }
 
     @Test

@@ -1,4 +1,4 @@
-package org.senla_project.application.util.enums;
+package org.senla_project.application.util.data;
 
 public enum DefaultCollabRole {
 

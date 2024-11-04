@@ -4,15 +4,17 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.senla_project.application.controller.CrudController;
 import org.senla_project.application.controller.RoleController;
 import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.role.RoleDeleteDto;
 import org.senla_project.application.dto.role.RoleResponseDto;
 import org.senla_project.application.dto.role.RoleUpdateDto;
 import org.senla_project.application.service.RoleService;
+import org.senla_project.application.util.sort.RoleSortType;
+import org.senla_project.application.util.sort.SortOrder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +30,17 @@ public class RoleControllerImpl implements RoleController {
     @Override
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public Page<RoleResponseDto> getAll(@RequestParam(name="page", defaultValue = "1") @Positive @Min(1) int pageNumber, @RequestParam(name = "page_size", defaultValue = "10") @Positive @Min(1) int pageSize) {
-        return roleService.getAll(PageRequest.of(pageNumber - 1, pageSize));
+    public Page<RoleResponseDto> getAll(@RequestParam(name="page", defaultValue = "1") @Positive @Min(1) int pageNumber,
+                                        @RequestParam(name = "page_size", defaultValue = "10") @Positive @Min(1) int pageSize,
+                                        @RequestParam(name = "sort", defaultValue = "RoleName") RoleSortType sortType,
+                                        @RequestParam(name = "order", defaultValue = "Ascending") SortOrder sortOrder) {
+        return roleService.getAll(PageRequest.of(
+                pageNumber - 1,
+                pageSize,
+                sortOrder.equals(SortOrder.ASCENDING) ?
+                        Sort.by(sortType.getSortingFieldName()).ascending() :
+                        Sort.by(sortType.getSortingFieldName()).descending()
+        ));
     }
 
     @Override

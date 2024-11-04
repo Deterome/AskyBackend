@@ -19,7 +19,7 @@ import org.senla_project.application.repository.CollaborationRepository;
 import org.senla_project.application.service.impl.CollaborationServiceImpl;
 import org.senla_project.application.service.linker.CollaborationLinkerService;
 import org.senla_project.application.util.TestData;
-import org.senla_project.application.util.enums.DefaultCollabRole;
+import org.senla_project.application.util.data.DefaultCollabRole;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -61,7 +61,7 @@ class CollaborationServiceImplTest {
 
     void mockSecurityContext() {
         Authentication authentication = mock(Authentication.class);
-        when(authentication.getPrincipal()).thenReturn(new User("Alex", "228", List.of()));
+        when(authentication.getName()).thenReturn("Alex");
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);

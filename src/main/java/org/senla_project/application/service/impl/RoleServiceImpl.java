@@ -70,7 +70,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Transactional(readOnly = true)
     @Override
-    public boolean existByRoleName(String roleName) {
+    public boolean existsByRoleName(String roleName) {
         return roleRepository.existsByRoleName(roleName);
     }
 

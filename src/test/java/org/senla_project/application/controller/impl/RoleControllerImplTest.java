@@ -1,4 +1,4 @@
-package org.senla_project.application.controller;
+package org.senla_project.application.controller.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,11 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.senla_project.application.config.ApplicationConfigTest;
-import org.senla_project.application.config.DataSourceConfigTest;
-import org.senla_project.application.config.HibernateConfigTest;
-import org.senla_project.application.config.WebSecurityConfig;
-import org.senla_project.application.controller.impl.RoleControllerImpl;
+import org.senla_project.application.config.*;
 import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.role.RoleDeleteDto;
 import org.senla_project.application.dto.role.RoleResponseDto;
@@ -36,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
-@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, DataSourceConfigTest.class, HibernateConfigTest.class})
+@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, WebConfigTest.class, DataSourceConfigTest.class, HibernateConfigTest.class})
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
@@ -88,9 +84,8 @@ class RoleControllerImplTest {
         mockMvc.perform(get("/roles/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(roleController.getAll(1, 5).getTotalElements(), 1);
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("totalElements").value(1));
     }
 
     @Test
@@ -104,12 +99,11 @@ class RoleControllerImplTest {
         roleController.create(RoleCreateDto.builder().roleName("God").build());
         roleController.create(RoleCreateDto.builder().roleName("Reptiloid").build());
         roleController.create(RoleCreateDto.builder().roleName("Anunnak").build());
-        mockMvc.perform(get("/roles/all")
+        mockMvc.perform(get("/roles/all?page=1&page_size=6")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(roleController.getAll(1, 6).getNumberOfElements(), 6);
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("size").value(6));
     }
 
     @Test

@@ -12,7 +12,7 @@ public interface CollabRoleService extends CrudService<CollabRoleCreateDto, Coll
 
     CollabRoleResponseDto getByCollabRoleName(String collabRoleName);
 
-    boolean existByCollabRoleName(String collabRoleName);
+    boolean existsByCollabRoleName(String collabRoleName);
 
     List<CollabRoleResponseDto> getUserRolesInCollab(String username, String collabName);
 

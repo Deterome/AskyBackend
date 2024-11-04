@@ -1,10 +1,10 @@
-package org.senla_project.application.util.enums.sort;
+package org.senla_project.application.util.sort;
 
 public enum SortOrder {
     ASCENDING("Ascending"),
     DESCENDING("Descending");
 
-    final String sortOrderName;
+    private final String sortOrderName;
 
     SortOrder(String sortTypeName) {
         this.sortOrderName = sortTypeName;

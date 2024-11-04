@@ -14,11 +14,11 @@ import org.senla_project.application.service.AnswerService;
 import org.senla_project.application.service.linker.AnswerLinkerService;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.exception.ForbiddenException;
-import org.springframework.context.annotation.Lazy;
+import org.senla_project.application.util.security.AuthenticationManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,10 +36,8 @@ public class AnswerServiceImpl implements AnswerService {
     @Transactional
     @Override
     public AnswerResponseDto create(@NonNull AnswerCreateDto element) {
-        UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         Answer answer = answerMapper.toAnswer(element);
-        answer.setAuthor(User.builder().username(authenticatedUser.getUsername()).build());
+        answer.setAuthor(User.builder().username(AuthenticationManager.getUsernameOfAuthenticatedUser()).build());
         answerLinkerService.linkAnswerWithUser(answer);
         answerLinkerService.linkAnswerWithQuestion(answer);
 
@@ -49,10 +47,10 @@ public class AnswerServiceImpl implements AnswerService {
     @Transactional
     @Override
     public AnswerResponseDto update(@NonNull AnswerUpdateDto answerUpdateDto) throws EntityNotFoundException {
-        UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<Answer> oldAnswer = answerRepository.findById(UUID.fromString(answerUpdateDto.getAnswerId()));
         if (oldAnswer.isEmpty()) throw new EntityNotFoundException("Answer not found");
-        if (oldAnswer.get().getAuthor().getUsername().equals(authenticatedUser.getUsername())) {
+        if (AuthenticationManager.ifUsernameBelongsToAuthenticatedUser(oldAnswer.get().getAuthor().getUsername())
+                || AuthenticationManager.isAuthenticatedUserAnAdmin()) {
             Answer answer = answerMapper.toAnswer(answerUpdateDto);
             answer.setAuthor(oldAnswer.get().getAuthor());
             answer.setQuestion(oldAnswer.get().getQuestion());
@@ -65,7 +63,8 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Transactional
     @Override
-    public void delete(@NonNull AnswerDeleteDto answerDeleteDto) {
+    @PreAuthorize("#deletedAnswer.authorName == authentication.principal.username || hasAuthority('admin')")
+    public void delete(@NonNull @P("deletedAnswer") AnswerDeleteDto answerDeleteDto) {
         answerRepository.deleteById(UUID.fromString(answerDeleteDto.getAnswerId()));
     }
 

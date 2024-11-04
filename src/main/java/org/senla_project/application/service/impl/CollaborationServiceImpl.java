@@ -17,13 +17,12 @@ import org.senla_project.application.service.CollaborationService;
 import org.senla_project.application.service.CollaborationsJoiningService;
 import org.senla_project.application.service.UserCollaborationCollabRoleService;
 import org.senla_project.application.service.linker.CollaborationLinkerService;
-import org.senla_project.application.util.enums.DefaultCollabRole;
+import org.senla_project.application.util.data.DefaultCollabRole;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.exception.ForbiddenException;
+import org.senla_project.application.util.security.AuthenticationManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -61,10 +60,8 @@ public class CollaborationServiceImpl implements CollaborationService {
 
         var response = collaborationMapper.toCollabResponseDto(collaborationRepository.save(collaboration));
 
-        UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         collabJoinService.joinAuthenticatedUserToCollab(response.getCollabName());
-        userCollabRoleService.giveUserARoleInCollab(authenticatedUser.getUsername(), response.getCollabName(), DefaultCollabRole.CREATOR.toString());
+        userCollabRoleService.giveUserARoleInCollab(AuthenticationManager.getUsernameOfAuthenticatedUser(), response.getCollabName(), DefaultCollabRole.CREATOR.toString());
 
         return response;
     }
@@ -72,13 +69,13 @@ public class CollaborationServiceImpl implements CollaborationService {
     @Transactional
     @Override
     public CollabResponseDto update(@NonNull CollabUpdateDto collabUpdateDto) throws EntityNotFoundException, HttpClientErrorException.Forbidden {
-        UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         var oldCollabInfo = collaborationRepository.findById(UUID.fromString(collabUpdateDto.getCollabId()));
         if (oldCollabInfo.isEmpty()) throw new EntityNotFoundException("Collaboration not found");
-        if (isUserACreatorOfCollab(authenticatedUser.getUsername(), oldCollabInfo.get().getCollabName())) {
+        if (isUserACreatorOfCollab(AuthenticationManager.getUsernameOfAuthenticatedUser(), oldCollabInfo.get().getCollabName())
+                || AuthenticationManager.isAuthenticatedUserAnAdmin()) {
             return collaborationMapper.toCollabResponseDto(collaborationRepository.save(collaborationMapper.toCollab(collabUpdateDto)));
         } else {
-            throw new ForbiddenException(String.format("You are not an admin of '%s' collaboration!", collabUpdateDto.getCollabName()));
+            throw new ForbiddenException(String.format("You are not an admin of '%s' collaboration!", oldCollabInfo.get().getCollabName()));
         }
 
     }
@@ -86,8 +83,8 @@ public class CollaborationServiceImpl implements CollaborationService {
     @Transactional
     @Override
     public void delete(@NonNull CollabDeleteDto collabDeleteDto) {
-        UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (isUserACreatorOfCollab(authenticatedUser.getUsername(), collabDeleteDto.getCollabName())) {
+        if (isUserACreatorOfCollab(AuthenticationManager.getUsernameOfAuthenticatedUser(), collabDeleteDto.getCollabName())
+                || AuthenticationManager.isAuthenticatedUserAnAdmin()) {
             collaborationRepository.deleteByCollabName(collabDeleteDto.getCollabName());
         } else {
             throw new ForbiddenException(String.format("You are not an admin of '%s' collaboration!", collabDeleteDto.getCollabName()));

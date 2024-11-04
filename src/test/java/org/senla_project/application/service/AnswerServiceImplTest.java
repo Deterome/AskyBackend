@@ -21,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +42,7 @@ class AnswerServiceImplTest {
 
     void mockSecurityContext() {
         Authentication authentication = mock(Authentication.class);
-        when(authentication.getPrincipal()).thenReturn(new User("Alex", "228", List.of()));
+        when(authentication.getName()).thenReturn("Alex");
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
