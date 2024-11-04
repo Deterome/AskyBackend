@@ -13,12 +13,11 @@ import org.senla_project.application.repository.CollaborationsJoiningRepository;
 import org.senla_project.application.service.CollaborationsJoiningService;
 import org.senla_project.application.service.UserCollaborationCollabRoleService;
 import org.senla_project.application.service.linker.CollaborationsJoiningLinkerService;
-import org.senla_project.application.util.enums.DefaultCollabRole;
+import org.senla_project.application.util.data.DefaultCollabRole;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.senla_project.application.util.security.AuthenticationManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,10 +87,9 @@ public class CollaborationsJoiningServiceImpl implements CollaborationsJoiningSe
     @Transactional
     @Override
     public CollaborationsJoiningResponseDto joinAuthenticatedUserToCollab(String collabName) {
-        UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CollaborationsJoiningCreateDto collaborationsJoiningCreateDto = CollaborationsJoiningCreateDto.builder()
                 .collabName(collabName)
-                .userName(authenticatedUser.getUsername())
+                .userName(AuthenticationManager.getUsernameOfAuthenticatedUser())
                 .build();
         return create(collaborationsJoiningCreateDto);
     }

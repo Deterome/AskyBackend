@@ -1,7 +1,7 @@
 package org.senla_project.application.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.senla_project.application.util.application.data.DataInitializer;
+import org.senla_project.application.util.data.DataInitializer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;

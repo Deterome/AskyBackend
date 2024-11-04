@@ -10,8 +10,11 @@ import org.senla_project.application.dto.question.QuestionDeleteDto;
 import org.senla_project.application.dto.question.QuestionResponseDto;
 import org.senla_project.application.dto.question.QuestionUpdateDto;
 import org.senla_project.application.service.QuestionService;
+import org.senla_project.application.util.sort.QuestionSortType;
+import org.senla_project.application.util.sort.SortOrder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +30,17 @@ public class QuestionControllerImpl implements QuestionController {
     @Override
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public Page<QuestionResponseDto> getAll(@RequestParam(name="page", defaultValue = "1") @Positive @Min(1) int pageNumber, @RequestParam(name = "page_size", defaultValue = "10") @Positive @Min(1) int pageSize) {
-        return questionService.getAll(PageRequest.of(pageNumber - 1, pageSize));
+    public Page<QuestionResponseDto> getAll(@RequestParam(name="page", defaultValue = "1") @Positive @Min(1) int pageNumber,
+                                            @RequestParam(name = "page_size", defaultValue = "10") @Positive @Min(1) int pageSize,
+                                            @RequestParam(name = "sort", defaultValue = "CreateTime") QuestionSortType sortType,
+                                            @RequestParam(name = "order", defaultValue = "Ascending") SortOrder sortOrder) {
+        return questionService.getAll(PageRequest.of(
+                pageNumber - 1,
+                pageSize,
+                sortOrder.equals(SortOrder.ASCENDING) ?
+                        Sort.by(sortType.getSortingFieldName()).ascending() :
+                        Sort.by(sortType.getSortingFieldName()).descending()
+        ));
     }
 
     @Override
@@ -67,4 +79,5 @@ public class QuestionControllerImpl implements QuestionController {
                                                                @RequestParam(name = "author", required = false) @NonNull String authorName) {
         return questionService.getByHeaderAndBodyAndAuthorName(header, body, authorName);
     }
+
 }

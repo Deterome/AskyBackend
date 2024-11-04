@@ -17,7 +17,7 @@
         <finalName>senla_homework_project</finalName>
         <!--spring-->
         <spring.version>6.1.14</spring.version>
-        <spring-security.version>6.3.3</spring-security.version>
+        <spring-security.version>6.3.4</spring-security.version>
         <spring-data.version>3.3.4</spring-data.version>
         <!--mapstruct-->
         <mapstruct.version>1.6.0</mapstruct.version>

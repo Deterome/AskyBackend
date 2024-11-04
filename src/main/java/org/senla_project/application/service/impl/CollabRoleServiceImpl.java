@@ -70,7 +70,7 @@ public class CollabRoleServiceImpl implements CollabRoleService {
 
     @Transactional(readOnly = true)
     @Override
-    public boolean existByCollabRoleName(String collabRoleName) {
+    public boolean existsByCollabRoleName(String collabRoleName) {
         return collabRoleRepository.existsByCollabRoleName(collabRoleName);
     }
 

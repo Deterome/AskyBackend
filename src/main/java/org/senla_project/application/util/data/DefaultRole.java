@@ -1,11 +1,11 @@
-package org.senla_project.application.util.enums;
+package org.senla_project.application.util.data;
 
 public enum DefaultRole {
 
     USER("user"),
     ADMIN("admin");
 
-    final String roleName;
+    private final String roleName;
 
     DefaultRole(String roleName) {
         this.roleName = roleName;

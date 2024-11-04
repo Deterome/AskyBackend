@@ -11,6 +11,6 @@ public interface RoleService extends CrudService<RoleCreateDto, RoleResponseDto,
 
     RoleResponseDto getByRoleName(String roleName);
 
-    boolean existByRoleName(String roleName);
+    boolean existsByRoleName(String roleName);
 
 }

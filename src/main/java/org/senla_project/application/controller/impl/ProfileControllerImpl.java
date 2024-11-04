@@ -10,8 +10,11 @@ import org.senla_project.application.dto.profile.ProfileDeleteDto;
 import org.senla_project.application.dto.profile.ProfileResponseDto;
 import org.senla_project.application.dto.profile.ProfileUpdateDto;
 import org.senla_project.application.service.ProfileService;
+import org.senla_project.application.util.sort.ProfileSortType;
+import org.senla_project.application.util.sort.SortOrder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +30,17 @@ public class ProfileControllerImpl implements ProfileController {
     @Override
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public Page<ProfileResponseDto> getAll(@RequestParam(name = "page", defaultValue = "1") @Positive @Min(1) int pageNumber, @RequestParam(name = "page_size", defaultValue = "10") @Positive @Min(1) int pageSize) {
-        return profileService.getAll(PageRequest.of(pageNumber - 1, pageSize));
+    public Page<ProfileResponseDto> getAll(@RequestParam(name="page", defaultValue = "1") @Positive @Min(1) int pageNumber,
+                                           @RequestParam(name = "page_size", defaultValue = "10") @Positive @Min(1) int pageSize,
+                                           @RequestParam(name = "sort", defaultValue = "Username") ProfileSortType sortType,
+                                           @RequestParam(name = "order", defaultValue = "Ascending") SortOrder sortOrder) {
+        return profileService.getAll(PageRequest.of(
+                pageNumber - 1,
+                pageSize,
+                sortOrder.equals(SortOrder.ASCENDING) ?
+                        Sort.by(sortType.getSortingFieldName()).ascending() :
+                        Sort.by(sortType.getSortingFieldName()).descending()
+        ));
     }
 
     @Override

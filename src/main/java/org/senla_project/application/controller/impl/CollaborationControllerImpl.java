@@ -12,8 +12,11 @@ import org.senla_project.application.dto.collaboration.CollabResponseDto;
 import org.senla_project.application.dto.collaboration.CollabUpdateDto;
 import org.senla_project.application.service.CollaborationService;
 import org.senla_project.application.service.CollaborationsJoiningService;
+import org.senla_project.application.util.sort.CollabSortType;
+import org.senla_project.application.util.sort.SortOrder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,8 +33,17 @@ public class CollaborationControllerImpl implements CollaborationController {
     @Override
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public Page<CollabResponseDto> getAll(@RequestParam(name="page", defaultValue = "1") @Positive @Min(1) int pageNumber, @RequestParam(name = "page_size", defaultValue = "10") @Positive @Min(1) int pageSize) {
-        return collabService.getAll(PageRequest.of(pageNumber - 1, pageSize));
+    public Page<CollabResponseDto> getAll(@RequestParam(name="page", defaultValue = "1") @Positive @Min(1) int pageNumber,
+                                          @RequestParam(name = "page_size", defaultValue = "10") @Positive @Min(1) int pageSize,
+                                          @RequestParam(name = "sort", defaultValue = "CollabName") CollabSortType sortType,
+                                          @RequestParam(name = "order", defaultValue = "Ascending") SortOrder sortOrder) {
+        return collabService.getAll(PageRequest.of(
+                pageNumber - 1,
+                pageSize,
+                sortOrder.equals(SortOrder.ASCENDING) ?
+                        Sort.by(sortType.getSortingFieldName()).ascending() :
+                        Sort.by(sortType.getSortingFieldName()).descending()
+        ));
     }
 
     @Override

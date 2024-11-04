@@ -1,6 +1,6 @@
 package org.senla_project.application.config;
 
-import org.senla_project.application.util.enums.DefaultRole;
+import org.senla_project.application.util.data.DefaultRole;
 import org.senla_project.application.util.security.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -42,7 +42,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/collabs/**").hasAuthority(DefaultRole.USER.toString())
                         .requestMatchers("/profiles/**").hasAuthority(DefaultRole.USER.toString())
                         .requestMatchers("/users/**").hasAuthority(DefaultRole.USER.toString())
-                        .requestMatchers("/**").hasAuthority(DefaultRole.ADMIN.toString())
+                        .requestMatchers("/admin/**").hasAuthority(DefaultRole.ADMIN.toString())
+                        .requestMatchers("/roles/**").hasAuthority(DefaultRole.ADMIN.toString())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

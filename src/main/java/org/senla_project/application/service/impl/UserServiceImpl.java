@@ -13,8 +13,10 @@ import org.senla_project.application.mapper.UserMapper;
 import org.senla_project.application.repository.UserRepository;
 import org.senla_project.application.service.UserService;
 import org.senla_project.application.service.linker.UserLinkerService;
-import org.senla_project.application.util.enums.DefaultRole;
+import org.senla_project.application.util.data.DefaultRole;
 import org.senla_project.application.util.exception.EntityNotFoundException;
+import org.senla_project.application.util.exception.ForbiddenException;
+import org.senla_project.application.util.security.AuthenticationManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -58,18 +61,22 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    @PreAuthorize("#updatedUser.username == authentication.principal.username")
-    public UserResponseDto update(@NonNull @P("updatedUser") UserUpdateDto userUpdateDto) throws EntityNotFoundException {
-        if (!userRepository.existsById(UUID.fromString(userUpdateDto.getUserId()))) throw new EntityNotFoundException("User not found");
-
-        User user = userMapper.toUser(userUpdateDto);
-        userLinkerService.linkUserWithRoles(user);
-        return userMapper.toUserResponseDto(userRepository.save(user));
+    public UserResponseDto update(@NonNull UserUpdateDto userUpdateDto) throws EntityNotFoundException {
+        Optional<User> oldUser = userRepository.findById(UUID.fromString(userUpdateDto.getUserId()));
+        if (oldUser.isEmpty()) throw new EntityNotFoundException("User not found");
+        if (AuthenticationManager.ifUsernameBelongsToAuthenticatedUser(oldUser.get().getUsername())
+                || AuthenticationManager.isAuthenticatedUserAnAdmin()) {
+            User user = userMapper.toUser(userUpdateDto);
+            userLinkerService.linkUserWithRoles(user);
+            return userMapper.toUserResponseDto(userRepository.save(user));
+        } else {
+            throw new ForbiddenException(String.format("You are not %s! You can't update this user!", oldUser.get().getUsername()));
+        }
     }
 
     @Transactional
     @Override
-    @PreAuthorize("#deletedUser.username == authentication.principal.username")
+    @PreAuthorize("#deletedUser.username == authentication.principal.username || hasAuthority('admin')")
     public void delete(@NonNull @P("deletedUser") UserDeleteDto deleteDto) {
         userRepository.deleteByUsername(deleteDto.getUsername());
     }

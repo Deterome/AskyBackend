@@ -12,20 +12,16 @@ import org.senla_project.application.mapper.QuestionMapper;
 import org.senla_project.application.repository.QuestionRepository;
 import org.senla_project.application.service.QuestionService;
 import org.senla_project.application.service.linker.QuestionLinkerService;
-import org.senla_project.application.util.enums.DefaultRole;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.senla_project.application.util.exception.ForbiddenException;
-import org.springframework.context.annotation.Lazy;
+import org.senla_project.application.util.security.AuthenticationManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.security.RolesAllowed;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,10 +37,8 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @PreAuthorize("isAuthenticated()")
     public QuestionResponseDto create(@NonNull QuestionCreateDto element) {
-        UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         Question question = questionMapper.toQuestion(element);
-        question.setAuthor(User.builder().username(authenticatedUser.getUsername()).build());
+        question.setAuthor(User.builder().username(AuthenticationManager.getUsernameOfAuthenticatedUser()).build());
         questionLinkerService.linkQuestionWithUser(question);
         
         return questionMapper.toQuestionResponseDto(questionRepository.save(question));
@@ -52,11 +46,11 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Transactional
     @Override
-    public QuestionResponseDto update(@NonNull @P("updatedQuestion") QuestionUpdateDto questionUpdateDto) throws EntityNotFoundException {
-        UserDetails authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public QuestionResponseDto update(@NonNull QuestionUpdateDto questionUpdateDto) throws EntityNotFoundException {
         Optional<Question> oldQuestion = questionRepository.findById(UUID.fromString(questionUpdateDto.getQuestionId()));
         if (oldQuestion.isEmpty()) throw new EntityNotFoundException("Question not found");
-        if (oldQuestion.get().getAuthor().getUsername().equals(authenticatedUser.getUsername())) {
+        if (AuthenticationManager.ifUsernameBelongsToAuthenticatedUser(oldQuestion.get().getAuthor().getUsername())
+                || AuthenticationManager.isAuthenticatedUserAnAdmin()) {
             Question question = questionMapper.toQuestion(questionUpdateDto);
             question.setAuthor(oldQuestion.get().getAuthor());
 
@@ -68,7 +62,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Transactional
     @Override
-    @PreAuthorize("#deletedQuestion.authorName == authentication.principal.username")
+    @PreAuthorize("#deletedQuestion.authorName == authentication.principal.username || hasAuthority('admin')")
     public void delete(@NonNull @P("deletedQuestion") QuestionDeleteDto questionDeleteDto) {
         questionRepository.deleteById(UUID.fromString(questionDeleteDto.getQuestionId()));
     }

@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,7 +62,7 @@ class UserServiceImplTest {
         userUpdateDto.setUserId(id.toString());
 
         Mockito.when(userMapperSpy.toUser(userUpdateDto)).thenReturn(TestData.getUpdatedAuthenticatedUser());
-        Mockito.when(userRepositoryMock.existsById(id)).thenReturn(true);
+        Mockito.when(userRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getUser()));
 
         userServiceMock.update(userUpdateDto);
 
