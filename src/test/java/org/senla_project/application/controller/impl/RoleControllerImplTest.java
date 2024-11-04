@@ -1,4 +1,4 @@
-package org.senla_project.application.controller;
+package org.senla_project.application.controller.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,13 +6,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.senla_project.application.config.ApplicationConfigTest;
-import org.senla_project.application.config.DataSourceConfigTest;
-import org.senla_project.application.config.HibernateConfigTest;
-import org.senla_project.application.config.WebSecurityConfig;
+import org.senla_project.application.config.*;
 import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.role.RoleDeleteDto;
 import org.senla_project.application.dto.role.RoleResponseDto;
+import org.senla_project.application.dto.role.RoleUpdateDto;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
@@ -30,17 +28,18 @@ import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
-@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, DataSourceConfigTest.class, HibernateConfigTest.class})
+@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, WebConfigTest.class, DataSourceConfigTest.class, HibernateConfigTest.class})
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
-class RoleControllerTest {
+class RoleControllerImplTest {
 
     final JsonParser jsonParser;
-    final RoleController roleController;
+    final RoleControllerImpl roleController;
 
     MockMvc mockMvc;
 
@@ -85,9 +84,8 @@ class RoleControllerTest {
         mockMvc.perform(get("/roles/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(roleController.getAll(1, 5).getTotalElements(), 1);
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("totalElements").value(1));
     }
 
     @Test
@@ -101,12 +99,11 @@ class RoleControllerTest {
         roleController.create(RoleCreateDto.builder().roleName("God").build());
         roleController.create(RoleCreateDto.builder().roleName("Reptiloid").build());
         roleController.create(RoleCreateDto.builder().roleName("Anunnak").build());
-        mockMvc.perform(get("/roles/all")
+        mockMvc.perform(get("/roles/all?page=1&page_size=6")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(roleController.getAll(1, 6).getNumberOfElements(), 6);
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("size").value(6));
     }
 
     @Test
@@ -188,10 +185,8 @@ class RoleControllerTest {
 
     @Test
     void update_thenThrowUnauthorizedException() throws Exception {
-        RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
-        mockMvc.perform(put("/roles/update/{id}", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(roleCreateDto)))
+        mockMvc.perform(put("/roles/update")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -199,10 +194,8 @@ class RoleControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void update_thenThrowForbiddenException() throws Exception {
-        RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
-        mockMvc.perform(put("/roles/update/{id}", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(roleCreateDto)))
+        mockMvc.perform(put("/roles/update")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isForbidden());
     }
@@ -210,10 +203,11 @@ class RoleControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.ADMIN_ROLE, TestData.USER_ROLE})
     void update_thenThrowNotFoundException() throws Exception {
-        RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
-        mockMvc.perform(put("/roles/update/{id}", UUID.randomUUID())
+        RoleUpdateDto roleUpdateDto = TestData.getRoleUpdateDto();
+        roleUpdateDto.setRoleId(UUID.randomUUID().toString());
+        mockMvc.perform(put("/roles/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(roleCreateDto)))
+                        .content(jsonParser.parseObjectToJson(roleUpdateDto)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -223,23 +217,20 @@ class RoleControllerTest {
     void update_thenReturnUpdatedElement() throws Exception {
         RoleCreateDto roleCreateDto = TestData.getRoleCreateDto();
         RoleResponseDto roleResponseDto = roleController.create(roleCreateDto);
-        RoleCreateDto updatedRoleCreateDto = TestData.getUpdatedRoleCreateDto();
-
-        mockMvc.perform(put("/roles/update/{id}", roleResponseDto.getRoleId())
+        RoleUpdateDto roleUpdateDto = TestData.getRoleUpdateDto();
+        roleUpdateDto.setRoleId(roleResponseDto.getRoleId());
+        mockMvc.perform(put("/roles/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(updatedRoleCreateDto)))
+                        .content(jsonParser.parseObjectToJson(roleUpdateDto)))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(roleController.getByRoleName(updatedRoleCreateDto.getRoleName()).getRoleName(),
-                updatedRoleCreateDto.getRoleName());
-        Assertions.assertEquals(roleController.getByRoleName(updatedRoleCreateDto.getRoleName()).getRoleId(),
-                roleResponseDto.getRoleId());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("roleName").value(roleUpdateDto.getRoleName()))
+                .andExpect(jsonPath("roleId").value(roleResponseDto.getRoleId()));
     }
 
     @Test
     void delete_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(delete("/roles/delete/{id}", UUID.randomUUID())
+        mockMvc.perform(delete("/roles/delete")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -248,7 +239,7 @@ class RoleControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void delete_thenThrowForbiddenException() throws Exception {
-        mockMvc.perform(delete("/roles/delete/{id}", UUID.randomUUID())
+        mockMvc.perform(delete("/roles/delete")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isForbidden());

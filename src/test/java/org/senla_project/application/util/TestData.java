@@ -2,16 +2,21 @@ package org.senla_project.application.util;
 
 import lombok.experimental.UtilityClass;
 import org.senla_project.application.dto.answer.AnswerCreateDto;
+import org.senla_project.application.dto.answer.AnswerUpdateDto;
 import org.senla_project.application.dto.collabJoin.CollaborationsJoiningCreateDto;
 import org.senla_project.application.dto.collabRole.CollabRoleCreateDto;
 import org.senla_project.application.dto.collaboration.CollabCreateDto;
+import org.senla_project.application.dto.collaboration.CollabUpdateDto;
 import org.senla_project.application.dto.profile.ProfileCreateDto;
+import org.senla_project.application.dto.profile.ProfileUpdateDto;
 import org.senla_project.application.dto.question.QuestionCreateDto;
+import org.senla_project.application.dto.question.QuestionUpdateDto;
 import org.senla_project.application.dto.role.RoleCreateDto;
+import org.senla_project.application.dto.role.RoleUpdateDto;
 import org.senla_project.application.dto.user.UserCreateDto;
+import org.senla_project.application.dto.user.UserUpdateDto;
 import org.senla_project.application.dto.userCollaborationCollabRole.UserCollaborationCollabRoleCreateDto;
 import org.senla_project.application.entity.*;
-import org.senla_project.application.entity.identifiers.UserCollaborationCollabRoleId;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -43,9 +48,9 @@ public class TestData {
                 .build();
     }
 
-    public RoleCreateDto getUpdatedRoleCreateDto() {
+    public RoleUpdateDto getRoleUpdateDto() {
         Role updatedRole = getUpdatedRole();
-        return RoleCreateDto.builder()
+        return RoleUpdateDto.builder()
                 .roleName(updatedRole.getRoleName())
                 .build();
     }
@@ -83,11 +88,12 @@ public class TestData {
                 .build();
     }
 
-    public UserCreateDto getUpdatedUserCreateDto() {
+    public UserUpdateDto getUserUpdateDto() {
         User updatedUser = getUpdatedAuthenticatedUser();
-        return UserCreateDto.builder()
+        return UserUpdateDto.builder()
                 .username(updatedUser.getUsername())
                 .password(updatedUser.getPassword())
+                .roles(updatedUser.getRoles().stream().map(Role::getRoleName).toList())
                 .build();
     }
 
@@ -112,7 +118,6 @@ public class TestData {
     public ProfileCreateDto getProfileCreateDto() {
         Profile profile = getProfile();
         return ProfileCreateDto.builder()
-                .username(profile.getUser().getUsername())
                 .bio(profile.getBio())
                 .avatarUrl(profile.getAvatarUrl())
                 .firstname(profile.getFirstname())
@@ -121,15 +126,15 @@ public class TestData {
                 .build();
     }
 
-    public ProfileCreateDto getUpdatedProfileCreateDto() {
+    public ProfileUpdateDto getProfileUpdateDto() {
         Profile updatedProfile = getUpdatedProfile();
-        return ProfileCreateDto.builder()
-                .username(updatedProfile.getUser().getUsername())
+        return ProfileUpdateDto.builder()
                 .bio(updatedProfile.getBio())
-                .avatarUrl(updatedProfile.getAvatarUrl())
                 .firstname(updatedProfile.getFirstname())
                 .surname(updatedProfile.getSurname())
                 .birthday(updatedProfile.getBirthday().toString())
+                .avatarUrl(updatedProfile.getAvatarUrl())
+                .rating(updatedProfile.getRating())
                 .build();
     }
 
@@ -154,9 +159,9 @@ public class TestData {
                 .build();
     }
 
-    public CollabCreateDto getUpdatedCollaborationCreateDto() {
+    public CollabUpdateDto getCollaborationUpdateDto() {
         Collaboration updatedCollab = getUpdatedCollaboration();
-        return CollabCreateDto.builder()
+        return CollabUpdateDto.builder()
                 .collabName(updatedCollab.getCollabName())
                 .build();
     }
@@ -210,18 +215,17 @@ public class TestData {
     public QuestionCreateDto getQuestionCreateDto() {
         Question question = getQuestion();
         return QuestionCreateDto.builder()
-                .authorName(question.getAuthor().getUsername())
                 .header(question.getHeader())
                 .body(question.getBody())
                 .build();
     }
 
-    public QuestionCreateDto getUpdatedQuestionCreateDto() {
+    public QuestionUpdateDto getQuestionUpdateDto() {
         Question updatedQuestion = getUpdatedQuestion();
-        return QuestionCreateDto.builder()
-                .authorName(updatedQuestion.getAuthor().getUsername())
+        return QuestionUpdateDto.builder()
                 .header(updatedQuestion.getHeader())
                 .body(updatedQuestion.getBody())
+                .interesting(updatedQuestion.getInteresting())
                 .build();
     }
 
@@ -244,18 +248,17 @@ public class TestData {
     public AnswerCreateDto getAnswerCreateDto() {
         Answer answer = getAnswer();
         return AnswerCreateDto.builder()
-                .authorName(answer.getAuthor().getUsername())
                 .body(answer.getBody())
                 .questionId(answer.getQuestion().getQuestionId())
                 .build();
     }
 
-    public AnswerCreateDto getUpdatedAnswerCreateDto() {
+    public AnswerUpdateDto getAnswerUpdateDto() {
         Answer updatedAnswer = getUpdatedAnswer();
-        return AnswerCreateDto.builder()
-                .authorName(updatedAnswer.getAuthor().getUsername())
+        return AnswerUpdateDto.builder()
+                .answerId(String.valueOf(updatedAnswer.getAnswerId()))
                 .body(updatedAnswer.getBody())
-                .questionId(updatedAnswer.getQuestion().getQuestionId())
+                .usefulness(updatedAnswer.getUsefulness())
                 .build();
     }
 

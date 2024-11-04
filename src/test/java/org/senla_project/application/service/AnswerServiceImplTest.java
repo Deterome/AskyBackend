@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.senla_project.application.dto.answer.AnswerCreateDto;
 import org.senla_project.application.dto.answer.AnswerDeleteDto;
+import org.senla_project.application.dto.answer.AnswerUpdateDto;
 import org.senla_project.application.entity.Answer;
 import org.senla_project.application.mapper.AnswerMapper;
 import org.senla_project.application.repository.AnswerRepository;
@@ -17,8 +18,12 @@ import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
@@ -35,9 +40,20 @@ class AnswerServiceImplTest {
     @InjectMocks
     AnswerServiceImpl answerServiceMock;
 
+    void mockSecurityContext() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("Alex");
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        SecurityContextHolder.setContext(securityContext);
+    }
 
     @Test
     void create() {
+        mockSecurityContext();
+
         AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
         when(answerMapperMock.toAnswer(answerCreateDto)).thenReturn(TestData.getAnswer());
         answerServiceMock.create(answerCreateDto);
@@ -45,12 +61,16 @@ class AnswerServiceImplTest {
     }
 
     @Test
-    void updateById() {
-        AnswerCreateDto answerCreateDto = TestData.getAnswerCreateDto();
+    void update() {
+        AnswerUpdateDto answerUpdateDto = TestData.getAnswerUpdateDto();
         UUID id = UUID.randomUUID();
-        when(answerMapperMock.toAnswer(id, answerCreateDto)).thenReturn(TestData.getAnswer());
-        when(answerRepositoryMock.existsById(id)).thenReturn(true);
-        answerServiceMock.updateById(id, answerCreateDto);
+        answerUpdateDto.setAnswerId(id.toString());
+
+        when(answerMapperMock.toAnswer(answerUpdateDto)).thenReturn(TestData.getUpdatedAnswer());
+        when(answerRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getAnswer()));
+
+        answerServiceMock.update(answerUpdateDto);
+
         verify(answerRepositoryMock).save(any());
     }
 

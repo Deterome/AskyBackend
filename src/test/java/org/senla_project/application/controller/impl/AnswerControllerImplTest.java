@@ -1,4 +1,4 @@
-package org.senla_project.application.controller;
+package org.senla_project.application.controller.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,19 +6,23 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.senla_project.application.config.ApplicationConfigTest;
-import org.senla_project.application.config.DataSourceConfigTest;
-import org.senla_project.application.config.HibernateConfigTest;
-import org.senla_project.application.config.WebSecurityConfig;
+import org.senla_project.application.config.*;
 import org.senla_project.application.dto.answer.AnswerCreateDto;
 import org.senla_project.application.dto.answer.AnswerDeleteDto;
 import org.senla_project.application.dto.answer.AnswerResponseDto;
-import org.senla_project.application.entity.Answer;
+import org.senla_project.application.dto.answer.AnswerUpdateDto;
+import org.senla_project.application.dto.user.UserResponseDto;
+import org.senla_project.application.entity.Question;
+import org.senla_project.application.entity.User;
+import org.senla_project.application.repository.QuestionRepository;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
+import org.senla_project.application.util.sort.QuestionSortType;
+import org.senla_project.application.util.sort.SortOrder;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
@@ -27,24 +31,28 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
-@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, DataSourceConfigTest.class, HibernateConfigTest.class})
+@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, WebConfigTest.class, DataSourceConfigTest.class, HibernateConfigTest.class})
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
-class AnswerControllerTest {
+class AnswerControllerImplTest {
 
     final JsonParser jsonParser;
-    final AnswerController answerController;
-    final QuestionController questionController;
-    final RoleController roleController;
-    final AuthController authController;
+    final AnswerControllerImpl answerController;
+    final QuestionControllerImpl questionController;
+    final QuestionRepository questionRepository;
+    final RoleControllerImpl roleController;
+    final AuthControllerImpl authController;
 
     MockMvc mockMvc;
 
@@ -59,13 +67,18 @@ class AnswerControllerTest {
     @BeforeEach
     void initDataBaseWithData() {
         roleController.create(TestData.getRoleCreateDto());
-        authController.createNewUser(TestData.getUserCreateDto());
-        questionController.create(TestData.getQuestionCreateDto());
+        UserResponseDto userResponseDto = authController.createNewUser(TestData.getUserCreateDto());
+//        questionController.create(TestData.getQuestionCreateDto());
+        Question question = TestData.getQuestion();
+        question.setAuthor(User.builder()
+                .userId(UUID.fromString(userResponseDto.getUserId()))
+                .build());
+        questionRepository.save(question);
     }
 
     AnswerCreateDto setQuestionIdOfAnswerCreateDto(AnswerCreateDto answerCreateDto) {
         answerCreateDto.setQuestionId(
-                UUID.fromString(questionController.getAll(1, 1).stream().findFirst().get().getQuestionId()
+                UUID.fromString(questionController.getAll(1, 1, QuestionSortType.CREATE_TIME, SortOrder.ASCENDING).stream().findFirst().get().getQuestionId()
                 ));
         return answerCreateDto;
     }
@@ -95,9 +108,8 @@ class AnswerControllerTest {
         mockMvc.perform(get("/answers/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(answerController.getAll(1, 5).getTotalElements(), 1);
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("totalElements").value(1));
     }
 
     @Test
@@ -150,22 +162,14 @@ class AnswerControllerTest {
                         .content(jsonParser.parseObjectToJson(answerCreateDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isCreated());
-
-        Assertions.assertEquals(answerController.getByParams(
-                        answerCreateDto.getAuthorName(),
-                        answerCreateDto.getQuestionId(),
-                        answerCreateDto.getBody()
-                ).getBody(),
-                answerCreateDto.getBody());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("body").value(answerCreateDto.getBody()));
     }
 
     @Test
     void update_thenThrowUnauthorizedException() throws Exception {
-        AnswerCreateDto answerCreateDto = setQuestionIdOfAnswerCreateDto(TestData.getAnswerCreateDto());
-        mockMvc.perform(put("/answers/update/{id}", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(answerCreateDto)))
+        mockMvc.perform(put("/answers/update")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -173,10 +177,11 @@ class AnswerControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void update_thenThrowNotFoundException() throws Exception {
-        AnswerCreateDto answerCreateDto = setQuestionIdOfAnswerCreateDto(TestData.getAnswerCreateDto());
-        mockMvc.perform(put("/answers/update/{id}", UUID.randomUUID())
+        AnswerUpdateDto answerUpdateDto = TestData.getAnswerUpdateDto();
+        answerUpdateDto.setAnswerId(UUID.randomUUID().toString());
+        mockMvc.perform(put("/answers/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(answerCreateDto)))
+                        .content(jsonParser.parseObjectToJson(answerUpdateDto)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -186,30 +191,20 @@ class AnswerControllerTest {
     void update_thenReturnUpdatedElement() throws Exception {
         AnswerCreateDto answerCreateDto = setQuestionIdOfAnswerCreateDto(TestData.getAnswerCreateDto());
         AnswerResponseDto answerResponseDto = answerController.create(answerCreateDto);
-        AnswerCreateDto updatedAnswerCreateDto = setQuestionIdOfAnswerCreateDto(TestData.getUpdatedAnswerCreateDto());
-        mockMvc.perform(put("/answers/update/{id}", answerResponseDto.getAnswerId())
+        AnswerUpdateDto answerUpdateDto = TestData.getAnswerUpdateDto();
+        answerUpdateDto.setAnswerId(answerResponseDto.getAnswerId());
+        mockMvc.perform(put("/answers/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(updatedAnswerCreateDto)))
+                        .content(jsonParser.parseObjectToJson(answerUpdateDto)))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(answerController.getByParams(
-                        updatedAnswerCreateDto.getAuthorName(),
-                        updatedAnswerCreateDto.getQuestionId(),
-                        updatedAnswerCreateDto.getBody()
-                ).getBody(),
-                updatedAnswerCreateDto.getBody());
-        Assertions.assertEquals(answerController.getByParams(
-                        updatedAnswerCreateDto.getAuthorName(),
-                        updatedAnswerCreateDto.getQuestionId(),
-                        updatedAnswerCreateDto.getBody()
-                ).getAnswerId(),
-                answerResponseDto.getAnswerId());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("body").value(answerUpdateDto.getBody()))
+                .andExpect(jsonPath("answerId").value(answerResponseDto.getAnswerId()));
     }
 
     @Test
     void delete_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(delete("/answers/delete/{id}", UUID.randomUUID())
+        mockMvc.perform(delete("/answers/delete")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -234,7 +229,8 @@ class AnswerControllerTest {
     }
 
     @Test
-    void getByParams_thenThrowUnauthorizedException() throws Exception {
+    @WithAnonymousUser
+    void getByAuthorNameQuestionIdAndBody_thenThrowUnauthorizedException() throws Exception {
         mockMvc.perform(get("/answers?author={author}&question_id={question_id}&body={body}", "123", UUID.randomUUID(), "123")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -243,7 +239,7 @@ class AnswerControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getByParams_thenThrowNotFoundException() throws Exception {
+    void getByAuthorNameQuestionIdAndBody_thenThrowNotFoundException() throws Exception {
         mockMvc.perform(get("/answers?author={author}&question_id={question_id}&body={body}", "123", UUID.randomUUID(), "123")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -252,21 +248,30 @@ class AnswerControllerTest {
 
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
-    void getByParams_thenReturnElement() throws Exception {
+    void getByAuthorNameQuestionIdAndBody_thenReturnElement() throws Exception {
         AnswerCreateDto answerCreateDto = setQuestionIdOfAnswerCreateDto(TestData.getAnswerCreateDto());
-        answerController.create(answerCreateDto);
+        AnswerResponseDto answerResponseDto = answerController.create(answerCreateDto);
         mockMvc.perform(get("/answers?author={author}&question_id={question_id}&body={body}",
-                        answerCreateDto.getAuthorName(),
-                        answerCreateDto.getQuestionId(),
-                        answerCreateDto.getBody())
+                        answerResponseDto.getAuthorName(),
+                        answerResponseDto.getQuestionId(),
+                        answerResponseDto.getBody())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-        AnswerResponseDto answerResponseDto = answerController.getByParams(answerCreateDto.getAuthorName(),
-                answerCreateDto.getQuestionId(),
-                answerCreateDto.getBody());
-        Assertions.assertEquals(answerResponseDto.getBody(),
-                answerCreateDto.getBody());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("body").value(answerResponseDto.getBody()));
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void create_thenAssertCreationDate() throws Exception {
+        AnswerCreateDto answerCreateDto = setQuestionIdOfAnswerCreateDto(TestData.getAnswerCreateDto());
+        mockMvc.perform(post("/answers/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(answerCreateDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("createTime").value(LocalDate.now().toString()));
     }
 
 }

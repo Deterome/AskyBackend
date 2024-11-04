@@ -15,6 +15,5 @@ public class CollaborationsJoiningCreateDto {
 
     private String collabName;
     private String userName;
-    private String joinDate = LocalDate.now().toString();
 
 }

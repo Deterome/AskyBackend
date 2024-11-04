@@ -1,4 +1,4 @@
-package org.senla_project.application.controller;
+package org.senla_project.application.controller.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,22 +6,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.senla_project.application.config.ApplicationConfigTest;
-import org.senla_project.application.config.DataSourceConfigTest;
-import org.senla_project.application.config.HibernateConfigTest;
-import org.senla_project.application.config.WebSecurityConfig;
+import org.senla_project.application.config.*;
 import org.senla_project.application.dto.collabRole.CollabRoleCreateDto;
 import org.senla_project.application.dto.collaboration.CollabCreateDto;
 import org.senla_project.application.dto.collaboration.CollabDeleteDto;
 import org.senla_project.application.dto.collaboration.CollabResponseDto;
+import org.senla_project.application.dto.collaboration.CollabUpdateDto;
 import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.service.CollabRoleService;
 import org.senla_project.application.util.JsonParser;
 import org.senla_project.application.util.SpringParameterResolver;
 import org.senla_project.application.util.TestData;
-import org.senla_project.application.util.enums.DefaultCollabRoles;
-import org.senla_project.application.util.enums.DefaultRoles;
+import org.senla_project.application.util.data.DefaultCollabRole;
+import org.senla_project.application.util.data.DefaultRole;
 import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -32,24 +30,26 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
-@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, DataSourceConfigTest.class, HibernateConfigTest.class})
+@SpringJUnitWebConfig(classes = {ApplicationConfigTest.class, WebSecurityConfig.class, WebConfigTest.class, DataSourceConfigTest.class, HibernateConfigTest.class})
 @Transactional
 @ExtendWith(SpringParameterResolver.class)
 @RequiredArgsConstructor
-class CollaborationControllerTest {
+class CollaborationControllerImplTest {
 
     final JsonParser jsonParser;
-    final CollaborationController collabController;
+    final CollaborationControllerImpl collabController;
     final CollabRoleService collabRoleService;
-    final AuthController authController;
-    final RoleController roleController;
+    final AuthControllerImpl authController;
+    final RoleControllerImpl roleController;
 
     MockMvc mockMvc;
 
@@ -63,10 +63,10 @@ class CollaborationControllerTest {
 
     @BeforeEach
     void initDataBaseWithData() {
-        roleController.create(RoleCreateDto.builder().roleName(DefaultRoles.USER.toString()).build());
+        roleController.create(RoleCreateDto.builder().roleName(DefaultRole.USER.toString()).build());
         authController.createNewUser(UserCreateDto.builder().password("228").username("Alex").build());
-        collabRoleService.create(CollabRoleCreateDto.builder().collabRoleName(DefaultCollabRoles.CREATOR.toString()).build());
-        collabRoleService.create(CollabRoleCreateDto.builder().collabRoleName(DefaultCollabRoles.PARTICIPANT.toString()).build());
+        collabRoleService.create(CollabRoleCreateDto.builder().collabRoleName(DefaultCollabRole.CREATOR.toString()).build());
+        collabRoleService.create(CollabRoleCreateDto.builder().collabRoleName(DefaultCollabRole.PARTICIPANT.toString()).build());
     }
 
     @Test
@@ -93,9 +93,8 @@ class CollaborationControllerTest {
         mockMvc.perform(get("/collabs/all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(collabController.getAll(1, 5).getTotalElements(), 1);
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("totalElements").value(1));
     }
 
     @Test
@@ -156,10 +155,8 @@ class CollaborationControllerTest {
 
     @Test
     void update_thenThrowUnauthorizedException() throws Exception {
-        CollabCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        mockMvc.perform(put("/collabs/update/{id}", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(collabCreateDto)))
+        mockMvc.perform(put("/collabs/update")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -167,10 +164,11 @@ class CollaborationControllerTest {
     @Test
     @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
     void update_thenThrowNotFoundException() throws Exception {
-        CollabCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
-        mockMvc.perform(put("/collabs/update/{id}", UUID.randomUUID())
+        CollabUpdateDto collabUpdateDto = TestData.getCollaborationUpdateDto();
+        collabUpdateDto.setCollabId(UUID.randomUUID().toString());
+        mockMvc.perform(put("/collabs/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(collabCreateDto)))
+                        .content(jsonParser.parseObjectToJson(collabUpdateDto)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -180,23 +178,20 @@ class CollaborationControllerTest {
     void update_thenReturnUpdatedElement() throws Exception {
         CollabCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
         CollabResponseDto collabResponseDto = collabController.create(collabCreateDto);
-        CollabCreateDto updatedCollabCreateDto = TestData.getUpdatedCollaborationCreateDto();
-
-        mockMvc.perform(put("/collabs/update/{id}", collabResponseDto.getCollabId())
+        CollabUpdateDto collabUpdateDto = TestData.getCollaborationUpdateDto();
+        collabUpdateDto.setCollabId(collabResponseDto.getCollabId());
+        mockMvc.perform(put("/collabs/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonParser.parseObjectToJson(updatedCollabCreateDto)))
+                        .content(jsonParser.parseObjectToJson(collabUpdateDto)))
                 .andDo(print())
-                .andExpect(status().isOk());
-
-        Assertions.assertEquals(collabController.getByCollabName(updatedCollabCreateDto.getCollabName()).getCollabName(),
-                updatedCollabCreateDto.getCollabName());
-        Assertions.assertEquals(collabController.getByCollabName(updatedCollabCreateDto.getCollabName()).getCollabId(),
-                collabResponseDto.getCollabId());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("collabName").value(collabUpdateDto.getCollabName()))
+                .andExpect(jsonPath("collabId").value(collabResponseDto.getCollabId()));
     }
 
     @Test
     void delete_thenThrowUnauthorizedException() throws Exception {
-        mockMvc.perform(delete("/collabs/delete/{id}", UUID.randomUUID())
+        mockMvc.perform(delete("/collabs/delete")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -246,6 +241,21 @@ class CollaborationControllerTest {
         CollabResponseDto collabResponseDto = collabController.getByCollabName(collabCreateDto.getCollabName());
         Assertions.assertEquals(collabResponseDto.getCollabName(),
                 collabCreateDto.getCollabName());
+    }
+
+    @Test
+    @WithMockUser(username = TestData.AUTHORIZED_USER_NAME, authorities = {TestData.USER_ROLE})
+    void create_thenAssertCreationDate() throws Exception {
+        CollabCreateDto collabCreateDto = TestData.getCollaborationCreateDto();
+        mockMvc.perform(post("/collabs/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonParser.parseObjectToJson(collabCreateDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        Assertions.assertEquals(LocalDate.now().toString(),
+                collabController.getByCollabName(collabCreateDto.getCollabName()).getCreateTime());
     }
 
 }

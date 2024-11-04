@@ -2,11 +2,14 @@ package org.senla_project.application.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "answers")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,8 +39,7 @@ public class Answer {
     private int usefulness;
 
     @Column(name = "create_time")
+    @CreatedDate
     private LocalDate createTime;
 
 }
-
-
