@@ -1,8 +1,6 @@
 package org.senla_project.application.config;
 
-import lombok.RequiredArgsConstructor;
-import org.senla_project.application.service.UserService;
-import org.senla_project.application.util.enums.RolesEnum;
+import org.senla_project.application.util.data.DefaultRole;
 import org.senla_project.application.util.security.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -30,8 +28,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private JwtRequestFilter jwtRequestFilter;
 
     @Bean
@@ -41,11 +37,13 @@ public class WebSecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/answers/**").hasAuthority(RolesEnum.USER.toString())
-                        .requestMatchers("/questions/**").hasAuthority(RolesEnum.USER.toString())
-                        .requestMatchers("/collabs/**").hasAuthority(RolesEnum.USER.toString())
-                        .requestMatchers("/profiles/**").hasAuthority(RolesEnum.USER.toString())
-                        .requestMatchers("/**").hasAuthority(RolesEnum.ADMIN.toString())
+                        .requestMatchers("/answers/**").hasAuthority(DefaultRole.USER.toString())
+                        .requestMatchers("/questions/**").hasAuthority(DefaultRole.USER.toString())
+                        .requestMatchers("/collabs/**").hasAuthority(DefaultRole.USER.toString())
+                        .requestMatchers("/profiles/**").hasAuthority(DefaultRole.USER.toString())
+                        .requestMatchers("/users/**").hasAuthority(DefaultRole.USER.toString())
+                        .requestMatchers("/admin/**").hasAuthority(DefaultRole.ADMIN.toString())
+                        .requestMatchers("/roles/**").hasAuthority(DefaultRole.ADMIN.toString())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

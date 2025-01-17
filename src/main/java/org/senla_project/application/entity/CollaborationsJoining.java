@@ -2,11 +2,15 @@ package org.senla_project.application.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "collaborations_users")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,6 +36,7 @@ public class CollaborationsJoining {
     private User user;
 
     @Column(name = "join_date")
+    @CreatedDate
     private LocalDate joinDate;
 
 }

@@ -1,50 +1,27 @@
 package org.senla_project.application.controller;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.senla_project.application.dto.UserCreateDto;
-import org.senla_project.application.dto.UserResponseDto;
-import org.senla_project.application.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.senla_project.application.dto.user.UserDeleteDto;
+import org.senla_project.application.dto.user.UserResponseDto;
+import org.senla_project.application.dto.user.UserUpdateDto;
+import org.senla_project.application.util.sort.SortOrder;
+import org.senla_project.application.util.sort.UserSortType;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
 import java.util.UUID;
 
-@RestController
-@RequestMapping("/users")
-@RequiredArgsConstructor
-public class UserController {
+public interface UserController {
 
-    final private UserService service;
+    Page<UserResponseDto> getAll(@Positive @Min(1) int pageNumber, @Positive @Min(1) int pageSize, UserSortType sortType, SortOrder sortOrder);
 
-    @GetMapping("/all")
-    @ResponseStatus(HttpStatus.OK)
-    public List<UserResponseDto> getAllElements(@RequestParam(name="page") int pageNumber) {
-        return service.findAllElements(pageNumber);
-    }
+    UserResponseDto getById(@NonNull UUID id);
 
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto getElementById(@NonNull @PathVariable(name = "id") UUID id) {
-        return service.findElementById(id);
-    }
+    UserResponseDto update(@NonNull UserUpdateDto userUpdateDto);
 
-    @PutMapping("/update/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto updateElement(@NonNull @PathVariable(name = "id") UUID id, @NonNull @RequestBody UserCreateDto updatedElement) {
-        return service.updateElement(id, updatedElement);
-    }
+    void delete(@NonNull UserDeleteDto userDeleteDto);
 
-    @DeleteMapping("/delete/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteElement(@NonNull @PathVariable(name = "id") UUID id) {
-        service.deleteElement(id);
-    }
+    UserResponseDto getByUsername(@NonNull String username);
 
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto findUserByName(@NonNull @RequestParam(name = "username") String username) {
-        return service.findUserByUsername(username);
-    }
 }

@@ -1,12 +1,18 @@
 package org.senla_project.application.repository;
 
 import org.senla_project.application.entity.User;
-import org.springframework.stereotype.Component;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-@Component
-public interface UserRepository extends DefaultDao<UUID, User> {
-    Optional<User> findUserByUsername(String nickname);
+@Repository
+public interface UserRepository extends PagingAndSortingRepository<User, UUID>, ListCrudRepository<User, UUID> {
+    Optional<User> findByUsername(String username);
+
+    boolean existsByUsername(String username);
+
+    void deleteByUsername(String username);
 }

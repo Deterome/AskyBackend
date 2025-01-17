@@ -1,61 +1,16 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.senla_project.application.dto.ProfileCreateDto;
-import org.senla_project.application.dto.ProfileResponseDto;
-import org.senla_project.application.service.ProfileService;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.senla_project.application.dto.profile.ProfileCreateDto;
+import org.senla_project.application.dto.profile.ProfileDeleteDto;
+import org.senla_project.application.dto.profile.ProfileResponseDto;
+import org.senla_project.application.dto.profile.ProfileUpdateDto;
+import org.senla_project.application.util.sort.ProfileSortType;
 
-import java.util.List;
 import java.util.UUID;
 
-@RestController
-@RequestMapping("/profiles")
-@RequiredArgsConstructor
-public class ProfileController implements DefaultControllerInterface<UUID, ProfileCreateDto, ProfileResponseDto> {
+public interface ProfileController extends CrudController<ProfileCreateDto, ProfileResponseDto, ProfileUpdateDto, ProfileDeleteDto, UUID, ProfileSortType> {
 
-    final private ProfileService service;
+    ProfileResponseDto getByUsername(@NonNull String username);
 
-    @Override
-    @GetMapping("/all")
-    @ResponseStatus(HttpStatus.OK)
-    public List<ProfileResponseDto> getAllElements(@RequestParam(name="page") int pageNumber) {
-        return service.findAllElements(pageNumber);
-    }
-
-    @Override
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ProfileResponseDto getElementById(@NonNull @PathVariable(name = "id") UUID id) {
-        return service.findElementById(id);
-    }
-
-    @Override
-    @PostMapping("/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ProfileResponseDto addElement(@NonNull @RequestBody ProfileCreateDto element) {
-        return service.addElement(element);
-    }
-
-    @Override
-    @PutMapping("/update/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ProfileResponseDto updateElement(@NonNull @PathVariable(name = "id") UUID id, @NonNull @RequestBody ProfileCreateDto updatedElement) {
-        return service.updateElement(id, updatedElement);
-    }
-
-    @Override
-    @DeleteMapping("/delete/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteElement(@NonNull @PathVariable(name = "id") UUID id) {
-        service.deleteElement(id);
-    }
-
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public ProfileResponseDto findProfileByUsername(@NonNull @RequestParam(name = "username") String username) {
-        return service.findProfileByUsername(username);
-    }
 }

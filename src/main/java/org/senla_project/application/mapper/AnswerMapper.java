@@ -4,8 +4,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
-import org.senla_project.application.dto.AnswerCreateDto;
-import org.senla_project.application.dto.AnswerResponseDto;
+import org.senla_project.application.dto.answer.AnswerCreateDto;
+import org.senla_project.application.dto.answer.AnswerResponseDto;
+import org.senla_project.application.dto.answer.AnswerUpdateDto;
 import org.senla_project.application.entity.Answer;
 
 import java.util.List;
@@ -15,24 +16,20 @@ import java.util.UUID;
 public abstract class AnswerMapper {
 
     @Mappings({
-            @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-            @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"}),
             @Mapping(source = "dto.questionId", target = "question", qualifiedByName = {"QuestionMapper", "toQuestionFromId"}),
             @Mapping(source = "id", target = "answerId")
     })
     public abstract Answer toAnswer(UUID id, AnswerCreateDto dto);
 
     @Mappings({
-            @Mapping(source = "dto.createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-            @Mapping(source = "dto.authorName", target = "author", qualifiedByName = {"UserMapper", "toUserFromName"}),
             @Mapping(source = "dto.questionId", target = "question", qualifiedByName = {"QuestionMapper", "toQuestionFromId"}),
             @Mapping(target = "answerId", ignore = true)
     })
     public abstract Answer toAnswer(AnswerCreateDto dto);
 
+    public abstract Answer toAnswer(AnswerUpdateDto updateDto);
+
     @Mappings({
-            @Mapping(source = "createTime", target = "createTime", dateFormat = "yyyy-MM-dd"),
-            @Mapping(target = "authorName", expression = "java(entity.getAuthor().getUsername())"),
             @Mapping(target = "questionId", expression = "java(entity.getQuestion().getQuestionId())")
     })
     public abstract AnswerCreateDto toAnswerCreateDto(Answer entity);

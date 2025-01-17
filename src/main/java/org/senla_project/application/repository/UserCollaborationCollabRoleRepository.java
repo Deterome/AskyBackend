@@ -1,0 +1,9 @@
+package org.senla_project.application.repository;
+
+import org.senla_project.application.entity.UserCollaborationCollabRole;
+import org.senla_project.application.entity.identifiers.UserCollaborationCollabRoleId;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+public interface UserCollaborationCollabRoleRepository extends PagingAndSortingRepository<UserCollaborationCollabRole, UserCollaborationCollabRoleId>, ListCrudRepository<UserCollaborationCollabRole, UserCollaborationCollabRoleId>, CustomizedUserCollaborationCollabRoleRepository {
+}

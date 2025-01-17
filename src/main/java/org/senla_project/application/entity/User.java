@@ -45,6 +45,11 @@ public class User {
     @EqualsAndHashCode.Exclude
     private Set<CollaborationsJoining> collaborationsJoining;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<UserCollaborationCollabRole> userRolesInCollabs;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "users_roles",

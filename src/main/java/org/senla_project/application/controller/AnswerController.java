@@ -1,63 +1,16 @@
 package org.senla_project.application.controller;
 
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.senla_project.application.dto.AnswerCreateDto;
-import org.senla_project.application.dto.AnswerResponseDto;
-import org.senla_project.application.service.AnswerService;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.senla_project.application.dto.answer.AnswerCreateDto;
+import org.senla_project.application.dto.answer.AnswerDeleteDto;
+import org.senla_project.application.dto.answer.AnswerResponseDto;
+import org.senla_project.application.dto.answer.AnswerUpdateDto;
+import org.senla_project.application.util.sort.AnswerSortType;
 
-import java.util.List;
 import java.util.UUID;
 
-@RestController
-@RequestMapping("/answers")
-@RequiredArgsConstructor
-public class AnswerController implements DefaultControllerInterface<UUID, AnswerCreateDto, AnswerResponseDto> {
+public interface AnswerController extends CrudController<AnswerCreateDto, AnswerResponseDto, AnswerUpdateDto, AnswerDeleteDto, UUID, AnswerSortType> {
 
-    final private AnswerService service;
+    AnswerResponseDto getByAuthorNameQuestionIdAndBody(@NonNull String authorName, @NonNull UUID questionId, @NonNull String body);
 
-    @Override
-    @GetMapping("/all")
-    @ResponseStatus(HttpStatus.OK)
-    public List<AnswerResponseDto> getAllElements(@RequestParam(name="page") int pageNumber) {
-        return service.findAllElements(pageNumber);
-    }
-
-    @Override
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public AnswerResponseDto getElementById(@NonNull @PathVariable(name = "id") UUID id) {
-        return service.findElementById(id);
-    }
-
-    @Override
-    @PostMapping("/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public AnswerResponseDto addElement(@NonNull @RequestBody AnswerCreateDto element) {
-        return service.addElement(element);
-    }
-
-    @Override
-    @PutMapping("/update/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public AnswerResponseDto updateElement(@NonNull @PathVariable(name = "id") UUID id, @NonNull @RequestBody AnswerCreateDto updatedElement) {
-        return service.updateElement(id, updatedElement);
-    }
-
-    @Override
-    @DeleteMapping("/delete/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteElement(@NonNull @PathVariable(name = "id") UUID id) {
-        service.deleteElement(id);
-    }
-
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public AnswerResponseDto findAnswerByParams(@RequestParam(name = "author", required = false) String authorName,
-                                                @RequestParam(name = "question_id", required = false) UUID questionId,
-                                                @RequestParam(name = "body", required = false) String body) {
-        return service.findAnswerByParams(authorName, questionId, body);
-    }
 }

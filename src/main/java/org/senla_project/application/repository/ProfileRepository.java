@@ -1,12 +1,18 @@
 package org.senla_project.application.repository;
 
+import lombok.NonNull;
+import org.senla_project.application.dto.profile.ProfileUpdateDto;
 import org.senla_project.application.entity.Profile;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-@Component
-public interface ProfileRepository extends DefaultDao<UUID, Profile> {
-    Optional<Profile> findProfileByUsername(String username);
+@Repository
+public interface ProfileRepository extends PagingAndSortingRepository<Profile, UUID>, ListCrudRepository<Profile, UUID>, CustomizedProfileRepository {
+    boolean existsById(@NonNull UUID id);
 }

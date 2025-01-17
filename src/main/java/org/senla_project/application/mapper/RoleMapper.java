@@ -2,9 +2,11 @@ package org.senla_project.application.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
-import org.senla_project.application.dto.RoleCreateDto;
-import org.senla_project.application.dto.RoleResponseDto;
+import org.senla_project.application.dto.role.RoleCreateDto;
+import org.senla_project.application.dto.role.RoleResponseDto;
+import org.senla_project.application.dto.role.RoleUpdateDto;
 import org.senla_project.application.entity.Role;
 
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Named("RoleMapper")
-@Mapper(componentModel = "spring", uses = {UuidMapper.class, UserMapper.class})
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UuidMapper.class, UserMapper.class})
 public abstract class RoleMapper {
 
     @Named("toRoleEntityFromName")
@@ -28,6 +30,8 @@ public abstract class RoleMapper {
 
     @Mapping(target = "roleId", ignore = true)
     public abstract Role toRole(RoleCreateDto dto);
+
+    public abstract Role toRole(RoleUpdateDto updateDto);
 
     @Mapping(source = "users", target = "users", qualifiedByName = {"UserMapper", "toUserSetFromStringList"})
     public abstract Role toRole(RoleResponseDto roleResponseDto);

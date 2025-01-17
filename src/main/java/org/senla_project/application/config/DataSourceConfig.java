@@ -12,11 +12,11 @@ import javax.sql.DataSource;
 @PropertySource("classpath:application.properties")
 public class DataSourceConfig {
 
-    @Value("${DATABASE_URL}")
+    @Value("${database.url}")
     private String url;
-    @Value("${DATABASE_USERNAME}")
+    @Value("${database.username}")
     private String username;
-    @Value("${DATABASE_PASSWORD}")
+    @Value("${database.password}")
     private String password;
 
     @Bean

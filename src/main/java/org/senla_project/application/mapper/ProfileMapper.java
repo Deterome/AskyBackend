@@ -4,8 +4,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
-import org.senla_project.application.dto.ProfileCreateDto;
-import org.senla_project.application.dto.ProfileResponseDto;
+import org.senla_project.application.dto.profile.ProfileCreateDto;
+import org.senla_project.application.dto.profile.ProfileResponseDto;
+import org.senla_project.application.dto.profile.ProfileUpdateDto;
 import org.senla_project.application.entity.Profile;
 
 import java.util.List;
@@ -15,21 +16,21 @@ import java.util.UUID;
 public abstract class ProfileMapper {
     @Mappings({
             @Mapping(source = "dto.birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-            @Mapping(source = "dto.username", target = "user", qualifiedByName = {"UserMapper", "toUserFromName"}),
             @Mapping(source = "id", target = "profileId")
     })
     public abstract Profile toProfile(UUID id, ProfileCreateDto dto);
 
     @Mappings({
             @Mapping(source = "dto.birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-            @Mapping(source = "dto.username", target = "user", qualifiedByName = {"UserMapper", "toUserFromName"}),
             @Mapping(target = "profileId", ignore = true)
     })
     public abstract Profile toProfile(ProfileCreateDto dto);
 
+    @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd")
+    public abstract Profile toProfile(ProfileUpdateDto updateDto);
+
     @Mappings({
             @Mapping(source = "birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
-            @Mapping(target = "username", expression = "java(entity.getUser().getUsername())")
     })
     public abstract ProfileCreateDto toProfileCreateDto(Profile entity);
 
