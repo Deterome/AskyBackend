@@ -4,7 +4,12 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo 'Hello world!'
+                ./create_tomcat_image.bat
+            }
+        }
+        stage('Deploy') {
+            steps {
+                ./run_docker_web-server.bat
             }
         }
     }
