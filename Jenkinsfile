@@ -4,12 +4,12 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                ./create_tomcat_image.bat
+                bash create_tomcat_image.bat
             }
         }
         stage('Deploy') {
             steps {
-                ./run_docker_web-server.bat
+                bash run_docker_web-server.bat
             }
         }
     }
