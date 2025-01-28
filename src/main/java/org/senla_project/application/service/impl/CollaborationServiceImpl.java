@@ -73,7 +73,8 @@ public class CollaborationServiceImpl implements CollaborationService {
         if (oldCollabInfo.isEmpty()) throw new EntityNotFoundException("Collaboration not found");
         if (isUserACreatorOfCollab(AuthenticationManager.getUsernameOfAuthenticatedUser(), oldCollabInfo.get().getCollabName())
                 || AuthenticationManager.isAuthenticatedUserAnAdmin()) {
-            return collaborationMapper.toCollabResponseDto(collaborationRepository.save(collaborationMapper.toCollab(collabUpdateDto)));
+            Collaboration updatedCollab = collaborationMapper.toCollab(collabUpdateDto);
+            return collaborationMapper.toCollabResponseDto(collaborationRepository.save(collaborationMapper.partialCollabToCollab(oldCollabInfo.get(), updatedCollab)));
         } else {
             throw new ForbiddenException(String.format("You are not an admin of '%s' collaboration!", oldCollabInfo.get().getCollabName()));
         }

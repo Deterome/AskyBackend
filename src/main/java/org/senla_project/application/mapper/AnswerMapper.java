@@ -1,9 +1,6 @@
 package org.senla_project.application.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.Mappings;
+import org.mapstruct.*;
 import org.senla_project.application.dto.answer.AnswerCreateDto;
 import org.senla_project.application.dto.answer.AnswerResponseDto;
 import org.senla_project.application.dto.answer.AnswerUpdateDto;
@@ -12,8 +9,10 @@ import org.senla_project.application.entity.Answer;
 import java.util.List;
 import java.util.UUID;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UserMapper.class, QuestionMapper.class, UuidMapper.class})
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UserMapper.class, QuestionMapper.class, UuidMapper.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class AnswerMapper {
+
+    public abstract Answer partialAnswerToAnswer(@MappingTarget Answer targetAnswer, Answer answer);
 
     @Mappings({
             @Mapping(source = "dto.questionId", target = "question", qualifiedByName = {"QuestionMapper", "toQuestionFromId"}),

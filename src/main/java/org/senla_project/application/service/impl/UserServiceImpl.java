@@ -66,9 +66,10 @@ public class UserServiceImpl implements UserService {
         if (oldUser.isEmpty()) throw new EntityNotFoundException("User not found");
         if (AuthenticationManager.ifUsernameBelongsToAuthenticatedUser(oldUser.get().getUsername())
                 || AuthenticationManager.isAuthenticatedUserAnAdmin()) {
-            User user = userMapper.toUser(userUpdateDto);
-            userLinkerService.linkUserWithRoles(user);
-            return userMapper.toUserResponseDto(userRepository.save(user));
+            User updatedUser = userMapper.toUser(userUpdateDto);
+            if (updatedUser.getPassword() != null) updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+            if (updatedUser.getRoles() != null) userLinkerService.linkUserWithRoles(updatedUser);
+            return userMapper.toUserResponseDto(userRepository.save(userMapper.partialUserToUser(oldUser.get(), updatedUser)));
         } else {
             throw new ForbiddenException(String.format("You are not %s! You can't update this user!", oldUser.get().getUsername()));
         }
@@ -76,7 +77,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    @PreAuthorize("#deletedUser.username == authentication.principal.username || hasAuthority('admin')")
+    @PreAuthorize("#deletedUser.username == authentication.getName() or hasAuthority('admin')")
     public void delete(@NonNull @P("deletedUser") UserDeleteDto deleteDto) {
         userRepository.deleteByUsername(deleteDto.getUsername());
     }

@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public enum CollabSortType {
     COLLAB_NAME("CollabName", "collabName"),
-    CREATE_DATE("CreateDate", "createDate");
+    CREATE_TIME("CreateTime", "createTime");
 
     private final String sortTypeName;
     @Getter

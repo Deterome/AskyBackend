@@ -4,6 +4,7 @@ import org.mapstruct.*;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.dto.user.UserResponseDto;
 import org.senla_project.application.dto.user.UserUpdateDto;
+import org.senla_project.application.entity.Answer;
 import org.senla_project.application.entity.User;
 
 import java.util.List;
@@ -12,8 +13,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Named("UserMapper")
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UuidMapper.class, RoleMapper.class})
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UuidMapper.class, RoleMapper.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class UserMapper {
+
+    public abstract User partialUserToUser(@MappingTarget User targetUser, User user);
 
     @Named("toUserFromName")
     public User toUserFromName(String username) {

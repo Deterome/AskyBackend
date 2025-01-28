@@ -70,7 +70,6 @@ class QuestionServiceImplTest {
         UUID id = UUID.randomUUID();
         questionUpdateDto.setQuestionId(id.toString());
 
-        Mockito.when(questionMapperMock.toQuestion(questionUpdateDto)).thenReturn(TestData.getUpdatedQuestion());
         Mockito.when(questionRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getQuestion()));
 
         questionServiceMock.update(questionUpdateDto);

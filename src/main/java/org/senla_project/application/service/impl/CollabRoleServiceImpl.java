@@ -6,6 +6,7 @@ import org.senla_project.application.dto.collabRole.CollabRoleCreateDto;
 import org.senla_project.application.dto.collabRole.CollabRoleDeleteDto;
 import org.senla_project.application.dto.collabRole.CollabRoleResponseDto;
 import org.senla_project.application.dto.collabRole.CollabRoleUpdateDto;
+import org.senla_project.application.entity.CollabRole;
 import org.senla_project.application.mapper.CollabRoleMapper;
 import org.senla_project.application.repository.CollabRoleRepository;
 import org.senla_project.application.service.CollabRoleService;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -34,8 +36,10 @@ public class CollabRoleServiceImpl implements CollabRoleService {
     @Transactional
     @Override
     public CollabRoleResponseDto update(@NonNull CollabRoleUpdateDto collabRoleUpdateDto) throws EntityNotFoundException {
-        if (!collabRoleRepository.existsById(UUID.fromString(collabRoleUpdateDto.getCollabRoleId()))) throw new EntityNotFoundException("Collaboration role not found");
-        return collabRoleMapper.toCollabRoleResponseDto(collabRoleRepository.save(collabRoleMapper.toCollabRole(collabRoleUpdateDto)));
+        Optional<CollabRole> oldCollabRole = collabRoleRepository.findById(UUID.fromString(collabRoleUpdateDto.getCollabRoleId()));
+        if (oldCollabRole.isEmpty()) throw new EntityNotFoundException("Collaboration role not found");
+        CollabRole updatedCollabRole = collabRoleMapper.toCollabRole(collabRoleUpdateDto);
+        return collabRoleMapper.toCollabRoleResponseDto(collabRoleRepository.save(collabRoleMapper.partialCollabRoleToCollabRole(oldCollabRole.get(), updatedCollabRole)));
     }
 
     @Transactional

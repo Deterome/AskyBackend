@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Named("CollabRoleMapper")
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UuidMapper.class})
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UuidMapper.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class CollabRoleMapper {
+
+    public abstract CollabRole partialCollabRoleToCollabRole(@MappingTarget CollabRole targetCollabRole, CollabRole collabRole);
 
     @Named("toCollabRoleFromName")
     public CollabRole toCollabRoleFromName(String collabRoleName) {

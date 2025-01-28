@@ -4,14 +4,17 @@ import org.mapstruct.*;
 import org.senla_project.application.dto.question.QuestionCreateDto;
 import org.senla_project.application.dto.question.QuestionResponseDto;
 import org.senla_project.application.dto.question.QuestionUpdateDto;
+import org.senla_project.application.entity.Answer;
 import org.senla_project.application.entity.Question;
 
 import java.util.List;
 import java.util.UUID;
 
 @Named("QuestionMapper")
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UserMapper.class, UuidMapper.class})
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UserMapper.class, UuidMapper.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class QuestionMapper {
+
+    public abstract Question partialQuestionToQuestion(@MappingTarget Question targetQuestion, Question question);
 
     @Named("toQuestionFromId")
     public Question toQuestionFromId(UUID id) {

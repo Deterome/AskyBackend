@@ -66,7 +66,6 @@ class AnswerServiceImplTest {
         UUID id = UUID.randomUUID();
         answerUpdateDto.setAnswerId(id.toString());
 
-        when(answerMapperMock.toAnswer(answerUpdateDto)).thenReturn(TestData.getUpdatedAnswer());
         when(answerRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getAnswer()));
 
         answerServiceMock.update(answerUpdateDto);

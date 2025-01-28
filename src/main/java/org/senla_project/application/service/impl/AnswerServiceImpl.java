@@ -17,6 +17,7 @@ import org.senla_project.application.util.exception.ForbiddenException;
 import org.senla_project.application.util.security.AuthenticationManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
@@ -51,11 +52,9 @@ public class AnswerServiceImpl implements AnswerService {
         if (oldAnswer.isEmpty()) throw new EntityNotFoundException("Answer not found");
         if (AuthenticationManager.ifUsernameBelongsToAuthenticatedUser(oldAnswer.get().getAuthor().getUsername())
                 || AuthenticationManager.isAuthenticatedUserAnAdmin()) {
-            Answer answer = answerMapper.toAnswer(answerUpdateDto);
-            answer.setAuthor(oldAnswer.get().getAuthor());
-            answer.setQuestion(oldAnswer.get().getQuestion());
+            Answer updatedAnswer = answerMapper.toAnswer(answerUpdateDto);
 
-            return answerMapper.toAnswerResponseDto(answerRepository.save(answer));
+            return answerMapper.toAnswerResponseDto(answerRepository.save(answerMapper.partialAnswerToAnswer(oldAnswer.get(), updatedAnswer)));
         } else {
             throw new ForbiddenException(String.format("Answer of user %s is not yours! You can't update this answer!", oldAnswer.get().getAuthor().getUsername()));
         }
@@ -63,7 +62,7 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Transactional
     @Override
-    @PreAuthorize("#deletedAnswer.authorName == authentication.principal.username || hasAuthority('admin')")
+    @PreAuthorize("#deletedAnswer.authorName == authentication.getName() or hasAuthority('admin')")
     public void delete(@NonNull @P("deletedAnswer") AnswerDeleteDto answerDeleteDto) {
         answerRepository.deleteById(UUID.fromString(answerDeleteDto.getAnswerId()));
     }

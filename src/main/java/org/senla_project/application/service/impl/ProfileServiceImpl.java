@@ -22,6 +22,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,10 +50,8 @@ public class ProfileServiceImpl implements ProfileService {
         if (oldProfile.isEmpty()) throw new EntityNotFoundException("Profile not found");
         if (AuthenticationManager.ifUsernameBelongsToAuthenticatedUser(oldProfile.get().getUser().getUsername())
                 || AuthenticationManager.isAuthenticatedUserAnAdmin()) {
-            Profile profile = profileMapper.toProfile(profileUpdateDto);
-            profile.setUser(oldProfile.get().getUser());
-
-            return profileMapper.toProfileResponseDto(profileRepository.save(profile));
+            Profile updatedProfile = profileMapper.toProfile(profileUpdateDto);
+            return profileMapper.toProfileResponseDto(profileRepository.save(profileMapper.partialProfileToProfile(oldProfile.get(), updatedProfile)));
         } else {
             throw new ForbiddenException(String.format("Profile of user %s is not yours! You can't update this profile!", oldProfile.get().getUser().getUsername()));
         }
@@ -61,7 +60,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Transactional
     @Override
-    @PreAuthorize("#deletedProfile.username == authentication.principal.username || hasAuthority('admin')")
+    @PreAuthorize("#deletedProfile.username == authentication.getName() or hasAuthority('admin')")
     public void delete(@NonNull @P("deletedProfile") ProfileDeleteDto profileDeleteDto) {
         profileRepository.deleteByUsername(profileDeleteDto.getUsername());
     }

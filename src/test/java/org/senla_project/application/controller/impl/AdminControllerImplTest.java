@@ -9,6 +9,7 @@ import org.senla_project.application.config.*;
 import org.senla_project.application.controller.AdminController;
 import org.senla_project.application.dto.admin.UserRoleCreateDto;
 import org.senla_project.application.dto.role.RoleCreateDto;
+import org.senla_project.application.dto.role.RoleResponseDto;
 import org.senla_project.application.dto.user.UserCreateDto;
 import org.senla_project.application.dto.user.UserResponseDto;
 import org.senla_project.application.entity.Question;
@@ -88,12 +89,14 @@ class AdminControllerImplTest {
                 .username(user.getUsername())
                 .roleName(DefaultRole.ADMIN.toString())
                 .build();
-
+        RoleResponseDto admin = roleController.getByRoleName("admin");
         mockMvc.perform(post("/admin/users/give_role")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonParser.parseObjectToJson(userRoleCreateDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
+        admin = roleController.getByRoleName("admin");
+
     }
 }

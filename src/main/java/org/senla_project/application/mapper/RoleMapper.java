@@ -1,12 +1,10 @@
 package org.senla_project.application.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.role.RoleResponseDto;
 import org.senla_project.application.dto.role.RoleUpdateDto;
+import org.senla_project.application.entity.Answer;
 import org.senla_project.application.entity.Role;
 
 import java.util.List;
@@ -15,8 +13,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Named("RoleMapper")
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UuidMapper.class, UserMapper.class})
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UuidMapper.class, UserMapper.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class RoleMapper {
+
+    public abstract Role partialRoleToRole(@MappingTarget Role targetRole, Role role);
 
     @Named("toRoleEntityFromName")
     public Role toRoleEntityFromRoleName(String roleName) {
@@ -51,12 +51,12 @@ public abstract class RoleMapper {
 
     @Named("toRoleSetFromStringList")
     public Set<Role> toRoleSetFromStringList(List<String> rolesStringList) {
-        return rolesStringList.stream().map(this::toRoleEntityFromRoleName).collect(Collectors.toSet());
+        return rolesStringList == null ? null : rolesStringList.stream().map(this::toRoleEntityFromRoleName).collect(Collectors.toSet());
     }
 
     @Named("toStringListFromRoleSet")
     public List<String> toStringListFromRoleSet(Set<Role> rolesSet) {
-        return rolesSet.stream().map(Role::getRoleName).collect(Collectors.toList());
+        return rolesSet == null ? null : rolesSet.stream().map(Role::getRoleName).collect(Collectors.toList());
     }
 
 }

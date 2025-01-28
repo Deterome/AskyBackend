@@ -21,11 +21,18 @@ import org.senla_project.application.util.exception.EntityNotFoundException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -47,26 +54,38 @@ class UserServiceImplTest {
     @InjectMocks
     UserServiceImpl userServiceMock;
 
+    void mockSecurityContext() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("Alex");
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        SecurityContextHolder.setContext(securityContext);
+    }
+
     @Test
     void create() {
         UserCreateDto userCreateDto = TestData.getUserCreateDto();
-        Mockito.when(userMapperSpy.toUser(userCreateDto)).thenReturn(TestData.getAuthenticatedUser());
+        when(userMapperSpy.toUser(userCreateDto)).thenReturn(TestData.getAuthenticatedUser());
         userServiceMock.create(userCreateDto);
-        Mockito.verify(userRepositoryMock).save(Mockito.any());
+        verify(userRepositoryMock).save(any());
     }
 
     @Test
     void update() {
+        mockSecurityContext();
+
         UserUpdateDto userUpdateDto = TestData.getUserUpdateDto();
         UUID id = UUID.randomUUID();
         userUpdateDto.setUserId(id.toString());
 
-        Mockito.when(userMapperSpy.toUser(userUpdateDto)).thenReturn(TestData.getUpdatedAuthenticatedUser());
-        Mockito.when(userRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getUser()));
+        when(userMapperSpy.toUser(userUpdateDto)).thenReturn(TestData.getUpdatedUser());
+        when(userRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getUser()));
 
         userServiceMock.update(userUpdateDto);
 
-        Mockito.verify(userRepositoryMock).save(Mockito.any());
+        verify(userRepositoryMock).save(any());
     }
 
     @Test
@@ -74,21 +93,21 @@ class UserServiceImplTest {
         UserDeleteDto userDeleteDto = UserDeleteDto.builder()
                 .username("Alex")
                 .build();
-        Mockito.doNothing().when(userRepositoryMock).deleteByUsername(Mockito.any());
+        doNothing().when(userRepositoryMock).deleteByUsername(any());
         userServiceMock.delete(userDeleteDto);
-        Mockito.verify(userRepositoryMock).deleteByUsername(Mockito.any());
+        verify(userRepositoryMock).deleteByUsername(any());
     }
 
     @Test
     void getAll() {
         try {
-            Mockito.when(userRepositoryMock.findAll((Pageable) Mockito.any()))
+            when(userRepositoryMock.findAll((Pageable) any()))
                     .thenReturn(new PageImpl<>(
                             List.of(TestData.getUser()),
                             PageRequest.of(0, 5),
                             1));
             userServiceMock.getAll(PageRequest.of(0, 5));
-            Mockito.verify(userRepositoryMock).findAll((Pageable) Mockito.any());
+            verify(userRepositoryMock).findAll((Pageable) any());
         } catch (EntityNotFoundException ignored) {
         }
     }
@@ -97,7 +116,7 @@ class UserServiceImplTest {
     void getById() {
         try {
             userServiceMock.getById(UUID.randomUUID());
-            Mockito.verify(userRepositoryMock).findById(Mockito.any());
+            verify(userRepositoryMock).findById(any());
         } catch (EntityNotFoundException ignored) {
         }
     }
@@ -107,7 +126,7 @@ class UserServiceImplTest {
         try {
             User user = TestData.getAuthenticatedUser();
             userServiceMock.getByUsername(user.getUsername());
-            Mockito.verify(userRepositoryMock).findByUsername(Mockito.any());
+            verify(userRepositoryMock).findByUsername(any());
         } catch (EntityNotFoundException ignored) {
         }
     }

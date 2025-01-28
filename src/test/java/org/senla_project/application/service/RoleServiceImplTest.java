@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,7 +48,7 @@ class RoleServiceImplTest {
         UUID id = UUID.randomUUID();
         roleUpdateDto.setRoleId(id.toString());
 
-        Mockito.when(roleRepositoryMock.existsById(id)).thenReturn(true);
+        Mockito.when(roleRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getRole()));
 
         roleServiceMock.update(roleUpdateDto);
 

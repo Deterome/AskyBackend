@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Named("CollaborationMapper")
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UuidMapper.class})
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UuidMapper.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class CollaborationMapper {
+
+    public abstract Collaboration partialCollabToCollab(@MappingTarget Collaboration targetCollab, Collaboration collab);
 
     @Named("toCollabFromName")
     public Collaboration toCollabFromName(String collabName) {

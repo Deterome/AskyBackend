@@ -70,7 +70,6 @@ class ProfileServiceImplTest {
         UUID id = UUID.randomUUID();
         profileUpdateDto.setProfileId(id.toString());
 
-        Mockito.when(profileMapper.toProfile(profileUpdateDto)).thenReturn(TestData.getUpdatedProfile());
         Mockito.when(profileRepositoryMock.findById(id)).thenReturn(Optional.of(TestData.getProfile()));
 
         profileServiceMock.update(profileUpdateDto);

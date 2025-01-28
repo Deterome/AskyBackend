@@ -1,19 +1,20 @@
 package org.senla_project.application.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.Mappings;
+import org.mapstruct.*;
 import org.senla_project.application.dto.profile.ProfileCreateDto;
 import org.senla_project.application.dto.profile.ProfileResponseDto;
 import org.senla_project.application.dto.profile.ProfileUpdateDto;
+import org.senla_project.application.entity.Answer;
 import org.senla_project.application.entity.Profile;
 
 import java.util.List;
 import java.util.UUID;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UserMapper.class, UuidMapper.class})
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = {UserMapper.class, UuidMapper.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class ProfileMapper {
+
+    public abstract Profile partialProfileToProfile(@MappingTarget Profile targetProfile, Profile profile);
+
     @Mappings({
             @Mapping(source = "dto.birthday", target = "birthday", dateFormat = "yyyy-MM-dd"),
             @Mapping(source = "id", target = "profileId")

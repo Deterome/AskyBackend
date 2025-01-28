@@ -2,6 +2,7 @@ package org.senla_project.application.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.Set;
 import java.util.UUID;

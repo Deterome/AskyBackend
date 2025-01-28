@@ -6,17 +6,18 @@ import org.senla_project.application.dto.role.RoleCreateDto;
 import org.senla_project.application.dto.role.RoleDeleteDto;
 import org.senla_project.application.dto.role.RoleResponseDto;
 import org.senla_project.application.dto.role.RoleUpdateDto;
+import org.senla_project.application.entity.Role;
 import org.senla_project.application.mapper.RoleMapper;
 import org.senla_project.application.repository.RoleRepository;
 import org.senla_project.application.service.CrudService;
 import org.senla_project.application.service.RoleService;
 import org.senla_project.application.util.exception.EntityNotFoundException;
-import org.springframework.context.annotation.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,8 +36,10 @@ public class RoleServiceImpl implements RoleService {
     @Transactional
     @Override
     public RoleResponseDto update(@NonNull RoleUpdateDto roleUpdateDto) throws EntityNotFoundException {
-        if (!roleRepository.existsById(UUID.fromString(roleUpdateDto.getRoleId()))) throw new EntityNotFoundException("Role not found");
-        return roleMapper.toRoleResponseDto(roleRepository.save(roleMapper.toRole(roleUpdateDto)));
+        Optional<Role> oldRole = roleRepository.findById(UUID.fromString(roleUpdateDto.getRoleId()));
+        if (oldRole.isEmpty()) throw new EntityNotFoundException("Role not found");
+        Role updatedRole = roleMapper.toRole(roleUpdateDto);
+        return roleMapper.toRoleResponseDto(roleRepository.save(roleMapper.partialRoleToRole(oldRole.get(), updatedRole)));
     }
 
     @Transactional

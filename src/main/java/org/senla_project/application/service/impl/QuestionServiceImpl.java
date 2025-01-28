@@ -51,10 +51,8 @@ public class QuestionServiceImpl implements QuestionService {
         if (oldQuestion.isEmpty()) throw new EntityNotFoundException("Question not found");
         if (AuthenticationManager.ifUsernameBelongsToAuthenticatedUser(oldQuestion.get().getAuthor().getUsername())
                 || AuthenticationManager.isAuthenticatedUserAnAdmin()) {
-            Question question = questionMapper.toQuestion(questionUpdateDto);
-            question.setAuthor(oldQuestion.get().getAuthor());
-
-            return questionMapper.toQuestionResponseDto(questionRepository.save(question));
+            Question updatedQuestion = questionMapper.toQuestion(questionUpdateDto);
+            return questionMapper.toQuestionResponseDto(questionRepository.save(questionMapper.partialQuestionToQuestion(oldQuestion.get(), updatedQuestion)));
         } else {
             throw new ForbiddenException(String.format("Question of user %s is not yours! You can't update this question!", oldQuestion.get().getAuthor().getUsername()));
         }
@@ -62,7 +60,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Transactional
     @Override
-    @PreAuthorize("#deletedQuestion.authorName == authentication.principal.username || hasAuthority('admin')")
+    @PreAuthorize("#deletedQuestion.authorName == authentication.getName() or hasAuthority('admin')")
     public void delete(@NonNull @P("deletedQuestion") QuestionDeleteDto questionDeleteDto) {
         questionRepository.deleteById(UUID.fromString(questionDeleteDto.getQuestionId()));
     }
