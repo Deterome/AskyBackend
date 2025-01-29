@@ -19,8 +19,8 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'bash run_docker_web-server.bat'
-                sh 'create_tomcat_image.bat'
+                sh './run_docker_web-server.bat'
+                sh './create_tomcat_image.bat'
             }
         }
     }
