@@ -19,8 +19,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh './run_docker_web-server.bat'
-                sh './create_tomcat_image.bat'
+                sh 'docker-compose build'
             }
         }
     }
